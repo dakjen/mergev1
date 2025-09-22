@@ -208,11 +208,13 @@ const ProjectsHome = () => {
                     <h3 style={{ margin: '0 0 5px 0' }}>{project.name}</h3>
                     <p style={{ margin: '0 0 10px 0', fontSize: '0.9em', color: '#555' }}>{project.description}</p>
                     <p style={{ margin: '0', fontSize: '0.8em', color: '#777' }}>Owner: {project.owner.username} | Company: {project.companyName}</p>
-                    <div style={{ marginTop: '10px' }}>
-                      <button onClick={() => startEdit(project)} style={{ padding: '8px 15px', backgroundColor: '#ff9800', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Edit</button>
-                      <button onClick={() => archiveProject(project.id)} style={{ padding: '8px 15px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Archive</button>
-                      <button onClick={() => getApproval(project.id)} style={{ padding: '8px 15px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Get Approval</button>
-                      <button onClick={() => markAsCompleted(project.id)} style={{ padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Completed</button>
+                    <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                      <div>
+                        <button onClick={() => startEdit(project)} style={{ padding: '8px 15px', backgroundColor: '#ff9800', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Edit</button>
+                        <button onClick={() => archiveProject(project.id)} style={{ padding: '8px 15px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Archive</button>
+                        <button onClick={() => getApproval(project.id)} style={{ padding: '8px 15px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Get Approval</button>
+                        <button onClick={() => markAsCompleted(project.id)} style={{ padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Completed</button>
+                      </div>
                       <button onClick={() => deleteProject(project.id)} style={{ padding: '8px 15px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>Delete</button>
                     </div>
                   </>
