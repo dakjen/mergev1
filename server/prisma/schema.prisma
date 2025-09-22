@@ -43,7 +43,8 @@ model Company {
 model Project {
   id          String    @id @default(cuid())
   name        String
-  description String?
+  description String? 
+  details Json?
   createdAt   DateTime  @default(now())
   owner       User      @relation(fields: [ownerId], references: [id])
   ownerId     String

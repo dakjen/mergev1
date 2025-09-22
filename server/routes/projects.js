@@ -58,7 +58,7 @@ router.post('/', auth, async (req, res) => {
 // @desc    Update a project
 // @access  Private (owner only)
 router.put('/:id', auth, async (req, res) => {
-  const { name, description } = req.body;
+  const { name, description, details } = req.body;
 
   try {
     let project = await prisma.project.findUnique({ where: { id: req.params.id } });
@@ -75,6 +75,7 @@ router.put('/:id', auth, async (req, res) => {
       where: { id: req.params.id },
       data: {
         name: name || project.name,
+        details: details || project.details,
         description: description || project.description,
       },
     });

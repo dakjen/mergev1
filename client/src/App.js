@@ -7,6 +7,7 @@ import Permissions from './components/Permissions';
 import ChangePassword from './components/ChangePassword';
 import Home from './components/Home';
 import ProjectsHome from './components/ProjectsHome'; // New import
+import ProjectView from './components/ProjectView'; // New import
 import merge1 from './merge1.png';
 import './App.css';
 
@@ -75,6 +76,7 @@ function MainAppContent() {
           <main style={{ flexGrow: 1, padding: '20px', overflowY: 'auto' }}>
             <Routes>
               <Route path="/projects" element={<ProjectsHome />} />
+              <Route path="/projects/:id/view" element={<ProjectView />} />
               <Route path="/tools" element={<Tools />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/admin" element={<AdminDashboard />} />
