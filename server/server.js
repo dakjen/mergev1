@@ -20,12 +20,17 @@ async function connectDB() {
 connectDB();
 
 // Init Middleware
+app.use(cors({
+  origin: '*'
+}));
 app.use(express.json());
-app.use(cors());
 
 // Define Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/narratives', require('./routes/narratives'));
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/companies', require('./routes/companies'));
+app.use('/api/projects', require('./routes/projects'));
 
 const PORT = process.env.PORT || 5000;
 

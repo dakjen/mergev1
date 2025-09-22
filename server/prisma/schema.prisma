@@ -13,13 +13,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  viewer
+  editor
+  admin
+  approver
+}
+
 model User {
   id        String     @id @default(cuid())
   username  String   @unique
   password  String
-  role      String   @default("viewer")
+  name      String?
+  birthdate DateTime?
+  email     String   @unique
+  companyName String?
+  role      Role     @default(viewer)
+  isApproved Boolean @default(false)
   createdAt DateTime @default(now())
   narratives Narrative[]
+  projects   Project[]
+}
+
+model Company {
+  id        String   @id @default(cuid())
+  name      String   @unique
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  owner       User      @relation(fields: [ownerId], references: [id])
+  ownerId     String
+  companyName String?
 }
 
 model Narrative {
