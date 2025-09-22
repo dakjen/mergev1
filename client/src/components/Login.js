@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
+const Login = ({ onLoginSuccess }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -41,7 +43,7 @@ const Login = () => {
       console.log(res.data);
       localStorage.setItem('token', res.data.token);
       alert('Login successful!');
-      // Optionally redirect or update global state
+      onLoginSuccess();
     } catch (err) {
       console.error(err.response.data);
       alert(err.response.data.msg || 'Login failed');

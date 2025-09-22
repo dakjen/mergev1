@@ -19,6 +19,10 @@ function MainAppContent() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const onLoginSuccess = () => {
+    setIsAuthenticated(true);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -29,6 +33,12 @@ function MainAppContent() {
     }
     setLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated && !loading) {
+      navigate('/projects');
+    }
+  }, [isAuthenticated, loading, navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -78,7 +88,7 @@ function MainAppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login onLoginSuccess={onLoginSuccess} />} />
           <Route path="*" element={<Home />} /> {/* Default unauthenticated route */}
         </Routes>
       )}
