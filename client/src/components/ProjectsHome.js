@@ -110,6 +110,33 @@ const ProjectsHome = () => {
     }
   };
 
+  const archiveProject = async (projectId) => {
+    if (window.confirm('Are you sure you want to archive this project?')) {
+      console.log(`Archiving project with ID: ${projectId}`);
+      // Implement archive logic here (e.g., API call to update project status)
+      alert(`Project ${projectId} archived! (Placeholder)`);
+      fetchProjects(); // Refresh the list after action
+    }
+  };
+
+  const getApproval = async (projectId) => {
+    if (window.confirm('Request approval for this project?')) {
+      console.log(`Requesting approval for project with ID: ${projectId}`);
+      // Implement get approval logic here
+      alert(`Approval requested for project ${projectId}! (Placeholder)`);
+      // fetchProjects(); // Refresh if status changes
+    }
+  };
+
+  const markAsCompleted = async (projectId) => {
+    if (window.confirm('Mark this project as completed?')) {
+      console.log(`Marking project with ID: ${projectId} as completed`);
+      // Implement mark as completed logic here
+      alert(`Project ${projectId} marked as completed! (Placeholder)`);
+      fetchProjects(); // Refresh the list after action
+    }
+  };
+
   if (loading) return <p style={{ textAlign: 'center' }}>Loading projects...</p>;
   if (error) return <p style={{ textAlign: 'center', color: 'red' }}>Error: {error}</p>;
 
@@ -183,6 +210,9 @@ const ProjectsHome = () => {
                     <p style={{ margin: '0', fontSize: '0.8em', color: '#777' }}>Owner: {project.owner.username} | Company: {project.companyName}</p>
                     <div style={{ marginTop: '10px' }}>
                       <button onClick={() => startEdit(project)} style={{ padding: '8px 15px', backgroundColor: '#ff9800', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Edit</button>
+                      <button onClick={() => archiveProject(project.id)} style={{ padding: '8px 15px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Archive</button>
+                      <button onClick={() => getApproval(project.id)} style={{ padding: '8px 15px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Get Approval</button>
+                      <button onClick={() => markAsCompleted(project.id)} style={{ padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Completed</button>
                       <button onClick={() => deleteProject(project.id)} style={{ padding: '8px 15px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>Delete</button>
                     </div>
                   </>
