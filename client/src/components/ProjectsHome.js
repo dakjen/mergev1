@@ -8,6 +8,7 @@ const ProjectsHome = () => {
   const [editingProjectId, setEditingProjectId] = useState(null);
   const [editingProjectName, setEditingProjectName] = useState('');
   const [editingProjectDescription, setEditingProjectDescription] = useState('');
+  const [editingProjectDetails, setEditingProjectDetails] = useState([]); // New state for Q&A pairs
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAddProjectForm, setShowAddProjectForm] = useState(false); // New state for form visibility
@@ -65,12 +66,29 @@ const ProjectsHome = () => {
     setEditingProjectId(project.id);
     setEditingProjectName(project.name);
     setEditingProjectDescription(project.description || '');
+    setEditingProjectDetails(project.details && project.details.length > 0 ? project.details : [{ question: '', answer: '' }]);
   };
 
   const cancelEdit = () => {
     setEditingProjectId(null);
     setEditingProjectName('');
     setEditingProjectDescription('');
+    setEditingProjectDetails([]);
+  };
+
+  const handleDetailChange = (index, field, value) => {
+    const newDetails = [...editingProjectDetails];
+    newDetails[index][field] = value;
+    setEditingProjectDetails(newDetails);
+  };
+
+  const addDetailPair = () => {
+    setEditingProjectDetails([...editingProjectDetails, { question: '', answer: '' }]);
+  };
+
+  const removeDetailPair = (index) => {
+    const newDetails = editingProjectDetails.filter((_, i) => i !== index);
+    setEditingProjectDetails(newDetails);
   };
 
   const updateProject = async (e) => {
@@ -83,7 +101,7 @@ const ProjectsHome = () => {
           'Content-Type': 'application/json'
         }
       };
-      await axios.put(`http://localhost:8000/api/projects/${editingProjectId}`, { name: editingProjectName, description: editingProjectDescription }, config);
+      await axios.put(`http://localhost:8000/api/projects/${editingProjectId}`, { name: editingProjectName, description: editingProjectDescription, details: editingProjectDetails }, config);
       cancelEdit();
       fetchProjects();
     } catch (err) {
@@ -185,19 +203,37 @@ const ProjectsHome = () => {
               <li key={project.id} style={{ background: '#f4f4f4', margin: '10px 0', padding: '15px', borderRadius: '5px', maxWidth: '600px', width: '100%', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                 {editingProjectId === project.id ? (
                   <form onSubmit={updateProject} style={{ width: '100%' }}>
-                    <input
-                      type="text"
-                      value={editingProjectName}
-                      onChange={(e) => setEditingProjectName(e.target.value)}
-                      required
-                      style={{ padding: '8px', marginBottom: '5px', borderRadius: '3px', border: '1px solid #ddd', width: 'calc(100% - 16px)' }}
-                    />
+                    <h3 style={{ margin: '0 0 10px 0' }}>{editingProjectName}</h3>
                     <textarea
                       value={editingProjectDescription}
                       onChange={(e) => setEditingProjectDescription(e.target.value)}
-                      rows="2"
+                      rows="3"
+                      placeholder="Project Description"
                       style={{ padding: '8px', marginBottom: '10px', borderRadius: '3px', border: '1px solid #ddd', width: 'calc(100% - 16px)' }}
                     ></textarea>
+
+                    {editingProjectDetails.map((detail, index) => (
+                      <div key={index} style={{ marginBottom: '10px', border: '1px solid #eee', padding: '10px', borderRadius: '5px' }}>
+                        <input
+                          type="text"
+                          placeholder="Question"
+                          value={detail.question}
+                          onChange={(e) => handleDetailChange(index, 'question', e.target.value)}
+                          style={{ padding: '8px', marginBottom: '5px', borderRadius: '3px', border: '1px solid #ddd', width: 'calc(100% - 16px)' }}
+                        />
+                        <textarea
+                          placeholder="Answer"
+                          value={detail.answer}
+                          onChange={(e) => handleDetailChange(index, 'answer', e.target.value)}
+                          rows="2"
+                          style={{ padding: '8px', borderRadius: '3px', border: '1px solid #ddd', width: 'calc(100% - 16px)' }}
+                        ></textarea>
+                        <button type="button" onClick={() => removeDetailPair(index)} style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginTop: '5px' }}>Remove</button>
+                      </div>
+                    ))}
+
+                    <button type="button" onClick={addDetailPair} style={{ padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginTop: '10px', marginBottom: '10px' }}>Add another question/answer pair</button>
+
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                       <button type="submit" style={{ padding: '8px 15px', backgroundColor: '#2196F3', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Save</button>
                       <button type="button" onClick={cancelEdit} style={{ padding: '8px 15px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>Cancel</button>
