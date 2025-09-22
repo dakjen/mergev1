@@ -203,7 +203,13 @@ const ProjectsHome = () => {
               <li key={project.id} style={{ background: '#f4f4f4', margin: '10px 0', padding: '15px', borderRadius: '5px', maxWidth: '600px', width: '100%', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                 {editingProjectId === project.id ? (
                   <form onSubmit={updateProject} style={{ width: '100%' }}>
-                    <h3 style={{ margin: '0 0 10px 0' }}>{editingProjectName}</h3>
+                    <input
+                      type="text"
+                      value={editingProjectName}
+                      onChange={(e) => setEditingProjectName(e.target.value)}
+                      required
+                      style={{ padding: '8px', marginBottom: '10px', borderRadius: '3px', border: '1px solid #ddd', width: 'calc(100% - 16px)', fontSize: '1.5em', fontWeight: 'bold' }}
+                    />
                     <textarea
                       value={editingProjectDescription}
                       onChange={(e) => setEditingProjectDescription(e.target.value)}
