@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const ProjectsHome = () => {
   const navigate = useNavigate();
@@ -251,7 +251,7 @@ const ProjectsHome = () => {
                   <> 
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
                       <h3 style={{ margin: '0', marginRight: '10px' }}>{project.name}</h3>
-                      <button onClick={() => navigate(`/projects/${project.id}/view`)} style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>View</button>
+                      <Link to={`/projects/${project.id}/view`} style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', textDecoration: 'none' }}>View</Link>
                     </div>
                     <p style={{ margin: '0 0 10px 0', fontSize: '0.9em', color: '#555' }}>{project.description}</p>
                     <p style={{ margin: '0', fontSize: '0.8em', color: '#777' }}>Owner: {project.owner.username} | Company: {project.companyName}</p>

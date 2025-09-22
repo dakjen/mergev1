@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode'; // Import jwt-decode
 import Register from './components/Register';
 import Login from './components/Login';
 import AdminDashboard from './components/AdminDashboard';
@@ -18,19 +19,46 @@ const Settings = () => <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Se
 function MainAppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null); // State to store user info
   const navigate = useNavigate();
 
   const onLoginSuccess = () => {
     setIsAuthenticated(true);
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUser(decoded); // Assuming decoded token contains user info directly
+      } catch (error) {
+        console.error("Failed to decode token:", error);
+        setUser(null);
+      }
+    }
   };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // In a real app, you'd validate the token with the backend
-      setIsAuthenticated(true);
+      try {
+        const decoded = jwtDecode(token);
+        // Check if token is expired
+        if (decoded.exp * 1000 < Date.now()) {
+          localStorage.removeItem('token');
+          setIsAuthenticated(false);
+          setUser(null);
+        } else {
+          setIsAuthenticated(true);
+          setUser(decoded); // Set user info from decoded token
+        }
+      } catch (error) {
+        console.error("Failed to decode token:", error);
+        localStorage.removeItem('token');
+        setIsAuthenticated(false);
+        setUser(null);
+      }
     } else {
       setIsAuthenticated(false);
+      setUser(null);
     }
     setLoading(false);
   }, []);
@@ -44,6 +72,7 @@ function MainAppContent() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
+    setUser(null); // Clear user info on logout
     navigate('/login'); // Redirect to login after logout
   };
 
@@ -56,7 +85,15 @@ function MainAppContent() {
       <header className="App-header">
         <img src={merge1} className="App-logo" alt="logo" />
         {isAuthenticated && (
-          <button onClick={handleLogout} style={{ position: 'absolute', right: '20px', top: '20px', padding: '10px 20px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Logout</button>
+          <div style={{ position: 'absolute', right: '20px', top: '20px', textAlign: 'right' }}>
+            <button onClick={handleLogout} style={{ padding: '10px 20px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Logout</button>
+            {user && (
+              <div style={{ marginTop: '10px', color: 'white', fontSize: '0.9em' }}>
+                <p style={{ margin: '0' }}>User: {user.username}</p>
+                <p style={{ margin: '0' }}>Company: {user.companyName}</p>
+              </div>
+            )}
+          </div>
         )}
       </header>
 

@@ -27,6 +27,32 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// @route   GET api/projects/:id
+// @desc    Get a single project by ID
+// @access  Private
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const project = await prisma.project.findUnique({
+      where: { id: req.params.id },
+      include: { owner: { select: { username: true } } },
+    });
+
+    if (!project) {
+      return res.status(404).json({ msg: 'Project not found' });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user || user.companyName !== project.companyName) {
+      return res.status(401).json({ msg: 'User not authorized to view this project' });
+    }
+
+    res.json(project);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 // @route   POST api/projects
 // @desc    Create a new project
 // @access  Private
