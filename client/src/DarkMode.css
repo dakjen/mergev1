@@ -1,41 +1,14 @@
-/* General Dark Mode Styles */
-.dark-mode body {
+/* General Dark Mode Styles for Main Content Area */
+main.dark-mode {
   background-color: #121212;
   color: #e0e0e0;
 }
 
-.dark-mode .App {
-  background-color: #121212;
-  color: #e0e0e0;
-}
-
-.dark-mode .App-header {
-  background-color: #1e1e1e;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.dark-mode .App-header nav a {
+main.dark-mode h1, main.dark-mode h2, main.dark-mode h3, main.dark-mode h4, main.dark-mode h5, main.dark-mode h6 {
   color: #bb86fc;
 }
 
-.dark-mode h1, .dark-mode h2, .dark-mode h3, .dark-mode h4, .dark-mode h5, .dark-mode h6 {
-  color: #bb86fc;
-}
-
-.dark-mode nav {
-  background: #1e1e1e;
-  border-right: 1px solid #333;
-}
-
-.dark-mode nav a {
-  color: #e0e0e0;
-}
-
-.dark-mode nav a:hover {
-  color: #bb86fc;
-}
-
-.dark-mode button {
+main.dark-mode button {
   background-color: #bb86fc;
   color: #121212;
   border: none;
@@ -44,27 +17,23 @@
   padding: 10px 20px;
 }
 
-.dark-mode button:hover {
+main.dark-mode button:hover {
   background-color: #a06cd5;
 }
 
-.dark--mode .App-logo {
-  filter: invert(1);
-}
-
-/* Component-specific styles */
-.dark-mode .ProjectView, .dark-mode .ProjectsHome, .dark-mode .AdminDashboard, .dark-mode .Permissions, .dark-mode .ChangePassword, .dark-mode .Login, .dark-mode .Register, .dark-mode .Home {
+/* Component-specific styles within main.dark-mode */
+main.dark-mode .ProjectView, main.dark-mode .ProjectsHome, main.dark-mode .AdminDashboard, main.dark-mode .Permissions, main.dark-mode .ChangePassword, main.dark-mode .Login, main.dark-mode .Register, main.dark-mode .Home {
   background-color: #1e1e1e;
   padding: 20px;
   border-radius: 8px;
   margin: 20px;
 }
 
-.dark-mode .ProjectView h2, .dark-mode .ProjectsHome h2, .dark-mode .AdminDashboard h2, .dark-mode .Permissions h2, .dark-mode .ChangePassword h2, .dark-mode .Login h2, .dark-mode .Register h2 {
+main.dark-mode .ProjectView h2, main.dark-mode .ProjectsHome h2, main.dark-mode .AdminDashboard h2, main.dark-mode .Permissions h2, main.dark-mode .ChangePassword h2, main.dark-mode .Login h2, main.dark-mode .Register h2 {
   color: #bb86fc;
 }
 
-.dark-mode input[type="text"], .dark-mode input[type="password"], .dark-mode input[type="email"], .dark-mode textarea {
+main.dark-mode input[type="text"], main.dark-mode input[type="password"], main.dark-mode input[type="email"], main.dark-mode textarea {
   background-color: #333;
   color: #e0e0e0;
   border: 1px solid #555;
@@ -72,22 +41,22 @@
   padding: 10px;
 }
 
-.dark-mode table {
+main.dark-mode table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.dark-mode th, .dark-mode td {
+main.dark-mode th, main.dark-mode td {
   border: 1px solid #333;
   padding: 8px;
   text-align: left;
 }
 
-.dark-mode th {
+main.dark-mode th {
   background-color: #333;
   color: #e0e0e0;
 }
 
-.dark-mode tr:nth-child(even) {
+main.dark-mode tr:nth-child(even) {
   background-color: #2a2a2a;
 }

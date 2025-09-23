@@ -91,7 +91,7 @@ function MainAppContent() {
   }
 
   return (
-    <div className={`App ${darkMode ? 'dark-mode' : ''}`}>
+    <div className="App">
       <header className="App-header">
         <img src={merge1} className="App-logo" alt="logo" />
         <button onClick={() => setDarkMode(!darkMode)} style={{ position: 'absolute', left: '20px', top: '20px', padding: '10px 20px' }}>
@@ -133,7 +133,7 @@ function MainAppContent() {
               </li>
             </ul>
           </nav>
-          <main style={{ flexGrow: 1, padding: '20px', overflowY: 'auto' }}>
+          <main className={darkMode ? 'dark-mode' : ''} style={{ flexGrow: 1, padding: '20px', overflowY: 'auto' }}>
             <Routes>
               <Route path="/projects" element={<ProjectsHome />} />
               <Route path="/projects/:id/view" element={<ProjectView />} />
