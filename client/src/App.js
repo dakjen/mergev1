@@ -63,11 +63,14 @@ function MainAppContent() {
   }, []);
 
   useEffect(() => {
-    console.log("isAuthenticated changed:", isAuthenticated); // Debug log
-    if (isAuthenticated && !loading) {
+  if (isAuthenticated && !loading) {
+    // Only navigate if current path is "/"
+    if (window.location.pathname === '/') {
       navigate('/projects');
     }
-  }, [isAuthenticated, loading, navigate]);
+  }
+}, [isAuthenticated, loading, navigate]);
+
 
   const handleLogout = () => {
     localStorage.removeItem('token');
