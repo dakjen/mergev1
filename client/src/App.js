@@ -11,6 +11,7 @@ import ProjectsHome from './components/ProjectsHome'; // New import
 import ProjectView from './components/ProjectView'; // New import
 import merge1 from './merge1.png';
 import './App.css';
+import './DarkMode.css';
 
 // Placeholder components for now
 const Tools = () => <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Tools Page</h2>;
@@ -20,6 +21,7 @@ function MainAppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null); // State to store user info
+  const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
 
   const onLoginSuccess = (token) => {
@@ -84,9 +86,12 @@ function MainAppContent() {
   }
 
   return (
-    <div className="App">
+    <div className={`App ${darkMode ? 'dark-mode' : ''}`}>
       <header className="App-header">
         <img src={merge1} className="App-logo" alt="logo" />
+        <button onClick={() => setDarkMode(!darkMode)} style={{ position: 'absolute', left: '20px', top: '20px', padding: '10px 20px' }}>
+          {darkMode ? 'Light Mode' : 'Dark Mode'}
+        </button>
         {isAuthenticated && (
           <div style={{ position: 'absolute', right: '20px', top: '20px', textAlign: 'right' }}>
             <button onClick={handleLogout} style={{ padding: '10px 20px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Logout</button>
