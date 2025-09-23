@@ -83,7 +83,7 @@ const Login = ({ onLoginSuccess }) => {
           <select value={selectedCompany} onChange={handleCompanyChange} required style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}>
             <option value="">Select a company</option>
             {companies.map(company => (
-              <option key={company.id} value={company.name}>{company.name}</option>
+              <option key={company.id} value={company.id}>{company.name}</option>
             ))}
           </select>
         </div>

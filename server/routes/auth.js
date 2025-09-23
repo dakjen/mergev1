@@ -8,7 +8,7 @@ const auth = require('../middleware/auth'); // Import auth middleware
 
 // Register User
 router.post('/register', async (req, res) => {
-  const { username, password, name, birthdate, email, companyName } = req.body;
+  const { username, password, name, birthdate, email, companyId } = req.body;
 
   try {
     let user = await prisma.user.findUnique({ where: { username } });
@@ -25,12 +25,25 @@ router.post('/register', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const newUser = await prisma.user.create({
+      data: {
+        username,
+        password: hashedPassword,
+        name,
+        birthdate,
+        email,
+        company: companyId ? { connect: { id: companyId } } : undefined, // Connect to company if companyId is provided
+      },
+      include: { company: true } // Include company to get its name for JWT
+    });
+
     const payload = {
       user: {
-        id: user.id,
-        role: user.role,
-        username: user.username,
-        companyName: user.companyName
+        id: newUser.id,
+        role: newUser.role,
+        username: newUser.username,
+        companyId: newUser.companyId,
+        companyName: newUser.company ? newUser.company.name : null
       }
     };
 
@@ -44,17 +57,21 @@ router.post('/register', async (req, res) => {
       }
     );
   } catch (err) {
-    console.error(err.message);
+    console.error(err);
     res.status(500).send('Server error');
   }
 });
 
 // Login User
 router.post('/login', async (req, res) => {
-  const { username, password, companyName } = req.body;
+  const { username, password, companyId } = req.body;
 
   try {
-    let user = await prisma.user.findUnique({ where: { username } });
+    let user = await prisma.user.findUnique({
+      where: { username },
+      include: { company: true } // Include company relation
+    });
+
     if (!user) {
       return res.status(400).json({ msg: 'Invalid Credentials' });
     }
@@ -68,18 +85,22 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ msg: 'Account awaiting admin approval' });
     }
 
-    // Update user's companyName upon successful login
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { companyName: companyName }
-    });
+    // Check if provided companyId matches user's assigned companyId
+    if (companyId) { // If a companyId is provided in the request
+      if (!user.companyId) { // If the user is NOT associated with a company
+        return res.status(400).json({ msg: 'User not associated with a company. Please contact admin.' });
+      } else if (user.companyId !== companyId) { // If user IS associated, but provided companyId doesn't match
+        return res.status(400).json({ msg: 'Invalid Credentials' });
+      }
+    }
 
     const payload = {
       user: {
         id: user.id,
         role: user.role,
         username: user.username,
-        companyName: user.companyName
+        companyId: user.companyId,
+        companyName: user.company ? user.company.name : null // Include company name if available
       }
     };
 
@@ -93,7 +114,7 @@ router.post('/login', async (req, res) => {
       }
     );
   } catch (err) {
-    console.error(err.message);
+    console.error(err);
     res.status(500).send('Server error');
   }
 });

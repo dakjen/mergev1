@@ -4,7 +4,8 @@ import { jwtDecode } from 'jwt-decode'; // Import jwt-decode
 import Register from './components/Register';
 import Login from './components/Login';
 import AdminDashboard from './components/AdminDashboard';
-import Permissions from './components/Permissions';
+import CompanyManagement from './components/CompanyManagement'; // Updated import
+import UserManagement from './components/UserManagement'; // New import
 import ChangePassword from './components/ChangePassword';
 import Home from './components/Home';
 import ProjectsHome from './components/ProjectsHome'; // New import
@@ -90,9 +91,11 @@ function MainAppContent() {
     <div className="App">
       <header className="App-header">
         <img src={merge1} className="App-logo" alt="logo" />
-        <button onClick={() => setDarkMode(!darkMode)} style={{ position: 'absolute', left: '20px', top: '20px', padding: '10px 20px' }}>
-          {darkMode ? 'Light Mode' : 'Dark Mode'}
-        </button>
+        {isAuthenticated && (
+          <button onClick={() => setDarkMode(!darkMode)} style={{ position: 'absolute', left: '20px', top: '20px', padding: '10px 20px' }}>
+            {darkMode ? 'Light Mode' : 'Dark Mode'}
+          </button>
+        )}
         {isAuthenticated && (
           <div style={{ position: 'absolute', right: '20px', top: '20px', textAlign: 'right' }}>
             <button onClick={handleLogout} style={{ padding: '10px 20px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Logout</button>
@@ -140,7 +143,8 @@ function MainAppContent() {
               <Route path="/tools/grant-calendar" element={<GrantCalendar />} />
 
               <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/permissions" element={<Permissions />} />
+              <Route path="/admin/company-management" element={<CompanyManagement />} /> {/* New route for Company Management */}
+              <Route path="/admin/user-management" element={<UserManagement />} /> {/* New route for User Management */}
               <Route path="/admin/approval-history" element={<ApprovalHistory />} /> {/* New route for Approval History */}
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="*" element={<ProjectsHome />} /> {/* Default authenticated route */}
