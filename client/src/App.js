@@ -14,12 +14,12 @@ import FileStorer from './components/FileStorer';
 import AIReviewerTool from './components/AIReviewerTool';
 import ComplianceChecker from './components/ComplianceChecker';
 import GrantCalendar from './components/GrantCalendar';
+import ApprovalHistory from './components/ApprovalHistory'; // New import for ApprovalHistory
 import merge1 from './merge1.png';
 import './App.css';
 import './DarkMode.css';
 
-// Placeholder components for now
-const Settings = () => <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Settings Page</h2>;
+
 
 function MainAppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -61,10 +61,6 @@ function MainAppContent() {
         setIsAuthenticated(false);
         setUser(null);
       }
-    }
-  } else {
-      setIsAuthenticated(false);
-      setUser(null);
     }
     setLoading(false);
   }, []);
@@ -142,9 +138,10 @@ function MainAppContent() {
               <Route path="/tools/ai-reviewer" element={<AIReviewerTool />} />
               <Route path="/tools/compliance-checker" element={<ComplianceChecker />} />
               <Route path="/tools/grant-calendar" element={<GrantCalendar />} />
-              <Route path="/settings" element={<Settings />} />
+
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/permissions" element={<Permissions />} />
+              <Route path="/admin/approval-history" element={<ApprovalHistory />} /> {/* New route for Approval History */}
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="*" element={<ProjectsHome />} /> {/* Default authenticated route */}
             </Routes>
@@ -163,9 +160,13 @@ function MainAppContent() {
 }
 
 function App() {
+  const [darkMode, setDarkMode] = useState(false);
+
   return (
     <Router>
-      <MainAppContent />
+      <MainAppContent darkMode={darkMode} setDarkMode={setDarkMode} />
     </Router>
   );
 }
+
+export default App;

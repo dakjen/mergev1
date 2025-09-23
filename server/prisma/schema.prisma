@@ -27,18 +27,25 @@ model User {
   name      String?
   birthdate DateTime?
   email     String   @unique
-  companyName String?
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
   role      Role     @default(viewer)
   isApproved Boolean @default(false)
   createdAt DateTime @default(now())
   narratives Narrative[]
   projects   Project[]
   projectVersions ProjectVersion[]
+  approvedLogs ApprovedLog[] @relation("ApprovedUser")
+  approverLogs ApprovedLog[] @relation("ApproverUser")
 }
 
 model Company {
   id        String   @id @default(cuid())
   name      String   @unique
+  isArchived Boolean @default(false)
+  users     User[]
+  projects  Project[]
+  approvedLogs ApprovedLog[]
 }
 
 model Project {
@@ -49,7 +56,8 @@ model Project {
   createdAt   DateTime  @default(now())
   owner       User      @relation(fields: [ownerId], references: [id])
   ownerId     String
-  companyName String?
+  companyId   String?
+  company     Company? @relation(fields: [companyId], references: [id])
   versions    ProjectVersion[]
 }
 
@@ -74,4 +82,16 @@ model ProjectVersion {
   createdById   String
 
   @@unique([projectId, versionNumber])
+}
+
+model ApprovedLog {
+  id                String    @id @default(cuid())
+  approvedUser      User      @relation("ApprovedUser", fields: [approvedUserId], references: [id])
+  approvedUserId    String
+  approvedBy        User      @relation("ApproverUser", fields: [approvedByUserId], references: [id])
+  approvedByUserId  String
+  approvedAt        DateTime  @default(now())
+  roleAssigned      Role
+  companyAssigned   Company?  @relation(fields: [companyAssignedId], references: [id])
+  companyAssignedId String?
 }

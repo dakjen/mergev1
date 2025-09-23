@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const [pendingUsers, setPendingUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]); // New state for all users
+  const [companies, setCompanies] = useState([]); // New state for companies
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchPendingUsers();
+    fetchData();
   }, []);
 
-  const fetchPendingUsers = async () => {
+  const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
@@ -26,70 +28,167 @@ const AdminDashboard = () => {
           'x-auth-token': token
         }
       };
-      const res = await axios.get('http://localhost:8000/api/admin/users/pending', config);
-      setPendingUsers(res.data);
+
+      const [pendingRes, allUsersRes, companiesRes] = await Promise.all([
+        axios.get('http://localhost:8000/api/admin/users/pending', config),
+        axios.get('http://localhost:8000/api/admin/users', config),
+        axios.get('http://localhost:8000/api/companies', config) // Fetch all companies
+      ]);
+
+      setPendingUsers(pendingRes.data.map(user => ({ ...user, selectedRole: user.role, selectedCompanyId: user.company?.id || '' })));
+      setAllUsers(allUsersRes.data.map(user => ({ ...user, selectedRole: user.role, selectedCompanyId: user.company?.id || '' })));
+      setCompanies(companiesRes.data);
       setLoading(false);
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
-      setError(err.response ? err.response.data.msg : 'Failed to fetch pending users.');
+      setError(err.response ? err.response.data.msg : 'Failed to fetch data.');
       setLoading(false);
     }
   };
 
-  const approveUser = async (userId, role) => {
+  const approveUser = async (userId, role, companyId) => {
     try {
       const token = localStorage.getItem('token');
       const config = {
         headers: {
-          'x-auth-token': token
+          'x-auth-token': token,
+          'Content-Type': 'application/json'
         }
       };
-      await axios.put(`http://localhost:8000/api/admin/users/${userId}/approve`, { role }, config);
+      await axios.put(`http://localhost:8000/api/admin/users/${userId}/approve`, { role, companyId: companyId || null }, config);
       alert('User approved successfully!');
-      fetchPendingUsers(); // Refresh the list
+      fetchData(); // Refresh all data
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
       alert(err.response ? err.response.data.msg : 'Failed to approve user.');
     }
   };
 
-  if (loading) return <p style={{ textAlign: 'center' }}>Loading pending users...</p>;
+  const handlePendingRoleChange = (userId, newRole) => {
+    setPendingUsers(prevUsers =>
+      prevUsers.map(user =>
+        user.id === userId ? { ...user, selectedRole: newRole } : user
+      )
+    );
+  };
+
+  const handlePendingCompanyChange = (userId, newCompanyId) => {
+    setPendingUsers(prevUsers =>
+      prevUsers.map(user =>
+        user.id === userId ? { ...user, selectedCompanyId: newCompanyId } : user
+      )
+    );
+  };
+
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  if (loading) return <p style={{ textAlign: 'center' }}>Loading data...</p>;
   if (error) return <p style={{ textAlign: 'center', color: 'red' }}>Error: {error}</p>;
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Admin Dashboard</h1>
-      <nav style={{ marginBottom: '20px' }}>
-        <Link to="/admin" style={{ margin: '0 10px', textDecoration: 'none', color: '#3e51b5' }}>User Approvals</Link>
-        <Link to="/admin/permissions" style={{ margin: '0 10px', textDecoration: 'none', color: '#3e51b5' }}>Permissions</Link>
-        <Link to="/change-password" style={{ margin: '0 10px', textDecoration: 'none', color: '#3e51b5' }}>Change Password</Link>
-      </nav>
+      <div style={{ marginBottom: '20px' }}>
+        <h1>Admin Dashboard</h1>
+      </div>
+      <div style={{ marginBottom: '20px' }}>
+        <button onClick={() => navigate('/admin/approval-history')} style={{ margin: '0 10px', padding: '10px 20px', backgroundColor: '#3e51b5', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Approval History</button>
+        <button onClick={() => navigate('/admin/permissions')} style={{ margin: '0 10px', padding: '10px 20px', backgroundColor: '#3e51b5', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Company Management</button>
+      </div>
+
       <h2>Pending User Approvals</h2>
       {pendingUsers.length === 0 ? (
         <p>No pending users.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {pendingUsers.map(user => (
-            <li key={user.id} style={{ background: '#f4f4f4', margin: '10px auto', padding: '10px', borderRadius: '5px', maxWidth: '400px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>{user.username} ({user.role})</span>
+            <li key={user.id} style={{ background: '#f4f4f4', margin: '10px auto', padding: '10px', borderRadius: '5px', maxWidth: '600px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>{user.username} ({user.email})</span>
               <div>
                 <select
-                  value={user.role} // Display current role, though it should be 'viewer' for pending
-                  onChange={(e) => approveUser(user.id, e.target.value)}
+                  value={user.selectedRole}
+                  onChange={(e) => handlePendingRoleChange(user.id, e.target.value)}
                   style={{ marginRight: '10px' }}
                 >
                   <option value="viewer">Viewer</option>
                   <option value="editor">Editor</option>
                   <option value="admin">Admin</option>
+                  <option value="approver">Approver</option>
                 </select>
-                <button onClick={() => approveUser(user.id, user.role)}>Approve</button>
+                <select
+                  value={user.selectedCompanyId}
+                  onChange={(e) => handlePendingCompanyChange(user.id, e.target.value)}
+                  style={{ marginRight: '10px' }}
+                >
+                  <option value="">Select Company</option>
+                  {companies.map(company => (
+                    <option key={company.id} value={company.id}>{company.name}</option>
+                  ))}
+                </select>
+                <button onClick={() => approveUser(user.id, user.selectedRole, user.selectedCompanyId)}>Approve</button>
               </div>
             </li>
           ))}
         </ul>
       )}
+
+      <h2 style={{ marginTop: '50px' }}>All Users Management</h2>
+      {allUsers.length === 0 ? (
+        <p>No users found.</p>
+      ) : (
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          {allUsers.map(user => (
+            <li key={user.id} style={{ background: '#f4f4f4', margin: '10px auto', padding: '10px', borderRadius: '5px', maxWidth: '600px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>{user.username} ({user.email}) - {user.company?.name || 'No Company'}</span>
+              <div>
+                <select
+                  value={user.selectedRole}
+                  onChange={(e) => setAllUsers(prevUsers => prevUsers.map(u => u.id === user.id ? { ...u, selectedRole: e.target.value } : u))}
+                  style={{ marginRight: '10px' }}
+                >
+                  <option value="viewer">Viewer</option>
+                  <option value="editor">Editor</option>
+                  <option value="admin">Admin</option>
+                  <option value="approver">Approver</option>
+                </select>
+                <select
+                  value={user.selectedCompanyId}
+                  onChange={(e) => setAllUsers(prevUsers => prevUsers.map(u => u.id === user.id ? { ...u, selectedCompanyId: e.target.value } : u))}
+                  style={{ marginRight: '10px' }}
+                >
+                  <option value="">Select Company</option>
+                  {companies.map(company => (
+                    <option key={company.id} value={company.id}>{company.name}</option>
+                  ))}
+                </select>
+                <button onClick={() => updateUser(user.id, user.selectedRole, user.selectedCompanyId)}>Save Changes</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div style={{ marginTop: '50px' }}>
+        <button onClick={() => navigate('/change-password')} style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Change Password</button>
+      </div>
     </div>
   );
 };
 
+const updateUser = async (userId, role, companyId) => {
+  try {
+    const token = localStorage.getItem('token');
+    const config = {
+      headers: {
+        'x-auth-token': token,
+        'Content-Type': 'application/json'
+      }
+    };
+    await axios.put(`http://localhost:8000/api/admin/users/${userId}/update`, { role, companyId: companyId || null }, config);
+    alert('User updated successfully!');
+    // No need to refetch all data here, as the state is already updated by the dropdowns
+  } catch (err) {
+    console.error(err.response ? err.response.data : err.message);
+    alert(err.response ? err.response.data.msg : 'Failed to update user.');
+  }
+};
 export default AdminDashboard;

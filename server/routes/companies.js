@@ -10,7 +10,12 @@ const prisma = new PrismaClient();
 router.get('/', async (req, res) => {
   console.log('GET /api/companies route hit!'); // Debugging log
   try {
-    const companies = await prisma.company.findMany();
+    const { includeArchived } = req.query;
+    const whereClause = includeArchived === 'true' ? {} : { isArchived: false };
+    const companies = await prisma.company.findMany({
+      where: whereClause,
+      select: { id: true, name: true, isArchived: true }
+    });
     res.json(companies);
   } catch (err) {
     console.error(err.message);
@@ -58,17 +63,37 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 // @route   DELETE api/companies/:id
-// @desc    Delete a company
+// @desc    Archive a company
 // @access  Private (admin only)
 router.delete('/:id', auth, async (req, res) => {
   if (req.user.role !== 'admin') {
     return res.status(403).json({ msg: 'Authorization denied. Not an admin.' });
   }
   try {
-    await prisma.company.delete({
-      where: { id: req.params.id }
+    const archivedCompany = await prisma.company.update({
+      where: { id: req.params.id },
+      data: { isArchived: true }
     });
-    res.json({ msg: 'Company removed' });
+    res.json({ msg: 'Company archived', company: archivedCompany });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   PUT api/companies/:id/unarchive
+// @desc    Unarchive a company
+// @access  Private (admin only)
+router.put('/:id/unarchive', auth, async (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ msg: 'Authorization denied. Not an admin.' });
+  }
+  try {
+    const unarchivedCompany = await prisma.company.update({
+      where: { id: req.params.id },
+      data: { isArchived: false }
+    });
+    res.json({ msg: 'Company unarchived', company: unarchivedCompany });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
