@@ -115,7 +115,7 @@ function MainAppContent() {
           <nav style={{ width: '200px', background: '#7fab61', padding: '20px 0', borderRight: '1px solid #ddd', textAlign: 'left' }}>
             <ul style={{ listStyle: 'none', padding: '0 20px' }}>
               <li style={{ marginBottom: '20px' }}><Link to="/projects" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Projects</Link></li>
-              <li style={{ marginBottom: '10px' }}><span style={{ color: '#fffcf0', fontWeight: 'bold', cursor: 'default' }}>Tools</span>
+              <li style={{ marginBottom: '20px' }}><span style={{ color: '#fffcf0', fontWeight: 'bold', cursor: 'default' }}>Tools</span>
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/past-proposals" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Past Proposals</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/file-storer" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>File Storer</Link></li>
@@ -124,8 +124,8 @@ function MainAppContent() {
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/grant-calendar" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Grant Calendar</Link></li>
                 </ul>
               </li>
-              <li style={{ marginBottom: '10px' }}><span style={{ color: '#fffcf0', fontWeight: 'bold', cursor: 'default' }}>Settings</span>
-                <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px'}>
+              <li style={{ marginTop: 'auto', marginBottom: '10px' }}><span style={{ color: '#debf84', fontWeight: 'bold', cursor: 'default' }}>Settings</span>
+                <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px'}}>
                   <li style={{ marginBottom: '10px' }}><Link to="/admin" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Admin Dashboard</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/admin/permissions" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Permissions</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/change-password" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Change Password</Link></li>

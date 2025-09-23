@@ -105,7 +105,7 @@
   width: 100%;
 }
 
-.projects-home-edit-form input,
+.projects-home-edit-form input[type="text"],
 .projects-home-edit-form textarea {
   padding: 8px;
   margin-bottom: 10px;
@@ -114,6 +114,18 @@
   width: calc(100% - 16px);
   font-size: 1em; /* Adjusted font size */
   color: #333; /* Added color */
+}
+
+.projects-home-edit-form .detail-pair input[type="text"] {
+  width: calc(100% - 16px);
+  min-height: 80px; /* Taller */
+  font-size: 1.1em; /* Slightly larger font */
+}
+
+.projects-home-edit-form .detail-pair textarea {
+  width: calc(100% - 16px);
+  min-height: 150px; /* Taller */
+  font-size: 1.1em; /* Slightly larger font */
 }
 
 .projects-home-edit-form .edit-buttons {
