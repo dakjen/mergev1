@@ -9,12 +9,16 @@ import ChangePassword from './components/ChangePassword';
 import Home from './components/Home';
 import ProjectsHome from './components/ProjectsHome'; // New import
 import ProjectView from './components/ProjectView'; // New import
+import PastProposals from './components/PastProposals';
+import FileStorer from './components/FileStorer';
+import AIReviewerTool from './components/AIReviewerTool';
+import ComplianceChecker from './components/ComplianceChecker';
+import GrantCalendar from './components/GrantCalendar';
 import merge1 from './merge1.png';
 import './App.css';
 import './DarkMode.css';
 
 // Placeholder components for now
-const Tools = () => <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Tools Page</h2>;
 const Settings = () => <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Settings Page</h2>;
 
 function MainAppContent() {
@@ -57,7 +61,8 @@ function MainAppContent() {
         setIsAuthenticated(false);
         setUser(null);
       }
-    } else {
+    }
+  } else {
       setIsAuthenticated(false);
       setUser(null);
     }
@@ -110,9 +115,17 @@ function MainAppContent() {
           <nav style={{ width: '200px', background: '#7fab61', padding: '20px 0', borderRight: '1px solid #ddd', textAlign: 'left' }}>
             <ul style={{ listStyle: 'none', padding: '0 20px' }}>
               <li style={{ marginBottom: '20px' }}><Link to="/projects" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Projects</Link></li>
-              <li style={{ marginBottom: '20px' }}><Link to="/tools" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Tools</Link></li>
-              <li style={{ marginBottom: '10px' }}><span style={{ color: '#fffcf0', fontWeight: 'bold', cursor: 'default' }}>Settings</span>
+              <li style={{ marginBottom: '10px' }}><span style={{ color: '#fffcf0', fontWeight: 'bold', cursor: 'default' }}>Tools</span>
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/past-proposals" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Past Proposals</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/file-storer" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>File Storer</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/ai-reviewer" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>AI Reviewer Tool</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/compliance-checker" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Compliance Checker</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/grant-calendar" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Grant Calendar</Link></li>
+                </ul>
+              </li>
+              <li style={{ marginBottom: '10px' }}><span style={{ color: '#fffcf0', fontWeight: 'bold', cursor: 'default' }}>Settings</span>
+                <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px'}>
                   <li style={{ marginBottom: '10px' }}><Link to="/admin" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Admin Dashboard</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/admin/permissions" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Permissions</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/change-password" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Change Password</Link></li>
@@ -124,7 +137,11 @@ function MainAppContent() {
             <Routes>
               <Route path="/projects" element={<ProjectsHome />} />
               <Route path="/projects/:id/view" element={<ProjectView />} />
-              <Route path="/tools" element={<Tools />} />
+              <Route path="/tools/past-proposals" element={<PastProposals />} />
+              <Route path="/tools/file-storer" element={<FileStorer />} />
+              <Route path="/tools/ai-reviewer" element={<AIReviewerTool />} />
+              <Route path="/tools/compliance-checker" element={<ComplianceChecker />} />
+              <Route path="/tools/grant-calendar" element={<GrantCalendar />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/permissions" element={<Permissions />} />
@@ -152,5 +169,3 @@ function App() {
     </Router>
   );
 }
-
-export default App;

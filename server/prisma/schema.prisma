@@ -33,6 +33,7 @@ model User {
   createdAt DateTime @default(now())
   narratives Narrative[]
   projects   Project[]
+  projectVersions ProjectVersion[]
 }
 
 model Company {
@@ -49,6 +50,7 @@ model Project {
   owner       User      @relation(fields: [ownerId], references: [id])
   ownerId     String
   companyName String?
+  versions    ProjectVersion[]
 }
 
 model Narrative {
@@ -59,4 +61,17 @@ model Narrative {
   authorId  String
   status    String   @default("draft")
   createdAt DateTime @default(now())
+}
+
+model ProjectVersion {
+  id            String    @id @default(cuid())
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  versionNumber Int
+  snapshot      Json
+  createdAt     DateTime  @default(now())
+  createdBy     User      @relation(fields: [createdById], references: [id])
+  createdById   String
+
+  @@unique([projectId, versionNumber])
 }

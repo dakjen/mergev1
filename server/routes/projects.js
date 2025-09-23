@@ -97,6 +97,24 @@ router.put('/:id', auth, async (req, res) => {
       return res.status(401).json({ msg: 'User not authorized to update this project' });
     }
 
+    // Create a snapshot before updating
+    const latestVersion = await prisma.projectVersion.findMany({
+      where: { projectId: project.id },
+      orderBy: { versionNumber: 'desc' },
+      take: 1,
+    });
+
+    const newVersionNumber = latestVersion.length > 0 ? latestVersion[0].versionNumber + 1 : 1;
+
+    await prisma.projectVersion.create({
+      data: {
+        projectId: project.id,
+        versionNumber: newVersionNumber,
+        snapshot: project, // Store the current project state as a snapshot
+        createdById: req.user.id,
+      },
+    });
+
     project = await prisma.project.update({
       where: { id: req.params.id },
       data: {
@@ -129,6 +147,23 @@ router.delete('/:id', auth, async (req, res) => {
 
     await prisma.project.delete({ where: { id: req.params.id } });
     res.json({ msg: 'Project removed' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   GET api/projects/:id/versions
+// @desc    Get all versions for a project
+// @access  Private
+router.get('/:id/versions', auth, async (req, res) => {
+  try {
+    const projectVersions = await prisma.projectVersion.findMany({
+      where: { projectId: req.params.id },
+      orderBy: { createdAt: 'desc' },
+      include: { createdBy: { select: { username: true } } },
+    });
+    res.json(projectVersions);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
