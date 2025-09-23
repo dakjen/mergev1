@@ -39,11 +39,10 @@ const Login = ({ onLoginSuccess }) => {
   const onSubmit = async e => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:8000/api/auth/login', { ...formData, companyName: selectedCompany });
-      console.log(res.data);
+      const res = await axios.post('http://localhost:8000/api/auth/login', { username, password, companyName: selectedCompany });
       localStorage.setItem('token', res.data.token);
-      alert('Login successful!');
-      onLoginSuccess();
+      onLoginSuccess(res.data.token);
+      navigate('/projects');
     } catch (err) {
       console.error(err.response.data);
       alert(err.response.data.msg || 'Login failed');

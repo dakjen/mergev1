@@ -10,10 +10,10 @@ const ProjectsHome = () => {
   const [editingProjectId, setEditingProjectId] = useState(null);
   const [editingProjectName, setEditingProjectName] = useState('');
   const [editingProjectDescription, setEditingProjectDescription] = useState('');
-  const [editingProjectDetails, setEditingProjectDetails] = useState([]); // New state for Q&A pairs
+  const [editingProjectDetails, setEditingProjectDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showAddProjectForm, setShowAddProjectForm] = useState(false); // New state for form visibility
+  const [showAddProjectForm, setShowAddProjectForm] = useState(false);
 
   useEffect(() => {
     fetchProjects();
@@ -30,12 +30,11 @@ const ProjectsHome = () => {
         return;
       }
       const config = {
-        headers: {
-          'x-auth-token': token
-        }
+        headers: { 'x-auth-token': token }
       };
       const res = await axios.get('http://localhost:8000/api/projects', config);
       setProjects(res.data);
+console.log(res.data);
       setLoading(false);
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
@@ -49,14 +48,16 @@ const ProjectsHome = () => {
     try {
       const token = localStorage.getItem('token');
       const config = {
-        headers: {
-          'x-auth-token': token,
-          'Content-Type': 'application/json'
-        }
+        headers: { 'x-auth-token': token, 'Content-Type': 'application/json' }
       };
-      await axios.post('http://localhost:8000/api/projects', { name: newProjectName, description: newProjectDescription }, config);
+      await axios.post(
+        'http://localhost:8000/api/projects',
+        { name: newProjectName, description: newProjectDescription },
+        config
+      );
       setNewProjectName('');
       setNewProjectDescription('');
+      setShowAddProjectForm(false);
       fetchProjects();
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
@@ -98,12 +99,13 @@ const ProjectsHome = () => {
     try {
       const token = localStorage.getItem('token');
       const config = {
-        headers: {
-          'x-auth-token': token,
-          'Content-Type': 'application/json'
-        }
+        headers: { 'x-auth-token': token, 'Content-Type': 'application/json' }
       };
-      await axios.put(`http://localhost:8000/api/projects/${editingProjectId}`, { name: editingProjectName, description: editingProjectDescription, details: editingProjectDetails }, config);
+      await axios.put(
+        `http://localhost:8000/api/projects/${editingProjectId}`,
+        { name: editingProjectName, description: editingProjectDescription, details: editingProjectDetails },
+        config
+      );
       cancelEdit();
       fetchProjects();
     } catch (err) {
@@ -116,11 +118,7 @@ const ProjectsHome = () => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       try {
         const token = localStorage.getItem('token');
-        const config = {
-          headers: {
-            'x-auth-token': token
-          }
-        };
+        const config = { headers: { 'x-auth-token': token } };
         await axios.delete(`http://localhost:8000/api/projects/${projectId}`, config);
         fetchProjects();
       } catch (err) {
@@ -132,28 +130,21 @@ const ProjectsHome = () => {
 
   const archiveProject = async (projectId) => {
     if (window.confirm('Are you sure you want to archive this project?')) {
-      console.log(`Archiving project with ID: ${projectId}`);
-      // Implement archive logic here (e.g., API call to update project status)
       alert(`Project ${projectId} archived! (Placeholder)`);
-      fetchProjects(); // Refresh the list after action
+      fetchProjects();
     }
   };
 
   const getApproval = async (projectId) => {
     if (window.confirm('Request approval for this project?')) {
-      console.log(`Requesting approval for project with ID: ${projectId}`);
-      // Implement get approval logic here
       alert(`Approval requested for project ${projectId}! (Placeholder)`);
-      // fetchProjects(); // Refresh if status changes
     }
   };
 
   const markAsCompleted = async (projectId) => {
     if (window.confirm('Mark this project as completed?')) {
-      console.log(`Marking project with ID: ${projectId} as completed`);
-      // Implement mark as completed logic here
       alert(`Project ${projectId} marked as completed! (Placeholder)`);
-      fetchProjects(); // Refresh the list after action
+      fetchProjects();
     }
   };
 
@@ -168,7 +159,7 @@ const ProjectsHome = () => {
           setEditingProjectId(null);
           setNewProjectName('');
           setNewProjectDescription('');
-          setShowAddProjectForm(true); // Show the form
+          setShowAddProjectForm(true);
         }} style={{ padding: '10px 20px', backgroundColor: '#7fab61', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Add Project</button>
       </div>
 
@@ -191,85 +182,103 @@ const ProjectsHome = () => {
               rows="3"
               style={{ padding: '10px', margin: '5px', borderRadius: '5px', border: '1px solid #ddd', width: '300px' }}
             ></textarea>
-            <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '10px' }}>Create Project</button>
-            <button type="button" onClick={() => setShowAddProjectForm(false)} style={{ padding: '10px 20px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '10px', marginLeft: '10px' }}>Cancel</button>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+              <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Create Project</button>
+              <button type="button" onClick={() => setShowAddProjectForm(false)} style={{ padding: '10px 20px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Cancel</button>
+            </div>
           </form>
         </div>
       )}
 
-        <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {projects.length === 0 ? (
-            <p>No projects found. Create one!</p>
-          ) : (
-            projects.map(project => (
-              <li key={project.id} style={{ background: '#f4f4f4', margin: '10px 0', padding: '15px', borderRadius: '5px', maxWidth: '600px', width: '100%', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                {editingProjectId === project.id ? (
-                  <form onSubmit={updateProject} style={{ width: '100%' }}>
-                    <input
-                      type="text"
-                      value={editingProjectName}
-                      onChange={(e) => setEditingProjectName(e.target.value)}
-                      required
-                      style={{ padding: '8px', marginBottom: '10px', borderRadius: '3px', border: '1px solid #ddd', width: 'calc(100% - 16px)', fontSize: '1.5em', fontWeight: 'bold' }}
-                    />
-                    <textarea
-                      value={editingProjectDescription}
-                      onChange={(e) => setEditingProjectDescription(e.target.value)}
-                      rows="3"
-                      placeholder="Project Description"
-                      style={{ padding: '8px', marginBottom: '10px', borderRadius: '3px', border: '1px solid #ddd', width: 'calc(100% - 16px)' }}
-                    ></textarea>
+      <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {projects.length === 0 ? (
+          <p>No projects found. Create one!</p>
+        ) : (
+          projects.map(project => (
+            <li key={project.id} style={{ background: '#f4f4f4', margin: '10px 0', padding: '15px', borderRadius: '5px', maxWidth: '600px', width: '100%', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+              {editingProjectId === project.id ? (
+                <form onSubmit={updateProject} style={{ width: '100%' }}>
+                  <input
+                    type="text"
+                    value={editingProjectName}
+                    onChange={(e) => setEditingProjectName(e.target.value)}
+                    required
+                    style={{ padding: '8px', marginBottom: '10px', borderRadius: '3px', border: '1px solid #ddd', width: 'calc(100% - 16px)', fontSize: '1.5em', fontWeight: 'bold' }}
+                  />
+                  <textarea
+                    value={editingProjectDescription}
+                    onChange={(e) => setEditingProjectDescription(e.target.value)}
+                    rows="3"
+                    placeholder="Project Description"
+                    style={{ padding: '8px', marginBottom: '10px', borderRadius: '3px', border: '1px solid #ddd', width: 'calc(100% - 16px)' }}
+                  ></textarea>
 
-                    {editingProjectDetails.map((detail, index) => (
-                      <div key={index} style={{ marginBottom: '10px', border: '1px solid #eee', padding: '10px', borderRadius: '5px' }}>
-                        <input
-                          type="text"
-                          placeholder="Question"
-                          value={detail.question}
-                          onChange={(e) => handleDetailChange(index, 'question', e.target.value)}
-                          style={{ padding: '8px', marginBottom: '5px', borderRadius: '3px', border: '1px solid #ddd', width: 'calc(100% - 16px)' }}
-                        />
-                        <textarea
-                          placeholder="Answer"
-                          value={detail.answer}
-                          onChange={(e) => handleDetailChange(index, 'answer', e.target.value)}
-                          rows="2"
-                          style={{ padding: '8px', borderRadius: '3px', border: '1px solid #ddd', width: 'calc(100% - 16px)' }}
-                        ></textarea>
-                        <button type="button" onClick={() => removeDetailPair(index)} style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginTop: '5px' }}>Remove</button>
-                      </div>
-                    ))}
+                  {editingProjectDetails.map((detail, index) => (
+                    <div key={index} style={{ marginBottom: '10px', border: '1px solid #eee', padding: '10px', borderRadius: '5px' }}>
+                      <input
+                        type="text"
+                        placeholder="Question"
+                        value={detail.question}
+                        onChange={(e) => handleDetailChange(index, 'question', e.target.value)}
+                        style={{ padding: '8px', marginBottom: '5px', borderRadius: '3px', border: '1px solid #ddd', width: 'calc(100% - 16px)' }}
+                      />
+                      <textarea
+                        placeholder="Answer"
+                        value={detail.answer}
+                        onChange={(e) => handleDetailChange(index, 'answer', e.target.value)}
+                        rows="2"
+                        style={{ padding: '8px', borderRadius: '3px', border: '1px solid #ddd', width: 'calc(100% - 16px)' }}
+                      ></textarea>
+                      <button type="button" onClick={() => removeDetailPair(index)} style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginTop: '5px' }}>Remove</button>
+                    </div>
+                  ))}
 
-                    <button type="button" onClick={addDetailPair} style={{ padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginTop: '10px', marginBottom: '10px' }}>Add another question/answer pair</button>
+                  <button type="button" onClick={addDetailPair} style={{ padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginTop: '10px', marginBottom: '10px' }}>Add another question/answer pair</button>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <button type="submit" style={{ padding: '8px 15px', backgroundColor: '#2196F3', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Save</button>
-                      <button type="button" onClick={cancelEdit} style={{ padding: '8px 15px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>Cancel</button>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button type="submit" style={{ padding: '8px 15px', backgroundColor: '#2196F3', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Save</button>
+                    <button type="button" onClick={cancelEdit} style={{ padding: '8px 15px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>Cancel</button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                    <h3 style={{ margin: '0', marginRight: '10px' }}>{project.name}</h3>
+                    <Link to={`/projects/${project.id}/view`} 
+				style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', textDecoration: 'none' }}>View</Link>
+                  </div>
+                  <p style={{ margin: '0 0 10px 0', fontSize: '0.9em', color: '#555' }}>{project.description}</p>
+                  <p style={{ margin: '0', fontSize: '0.8em', color: '#777' }}>Owner: {project.owner.username} | Company: {project.companyName}</p>
+                  <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                    <div>
+                      <button onClick={() => startEdit(project)} style={{ padding: '8px 15px', backgroundColor: '#ff9800', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Edit</button>
+                      <button onClick={() => archiveProject(project.id)} style={{ padding: '8px 15px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Archive</button>
+                      <button onClick={() => getApproval(project.id)} style={{ padding: '8px 15px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Get Approval</button>
+                      <button onClick={() => markAsCompleted(project.id)} style={{ padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Completed</button>
                     </div>
-                  </form>
-                ) : (
-                  <> 
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
-                      <h3 style={{ margin: '0', marginRight: '10px' }}>{project.name}</h3>
-                      <Link to={`/projects/${project.id}/view`} style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', textDecoration: 'none' }}>View</Link>
-                    </div>
-                    <p style={{ margin: '0 0 10px 0', fontSize: '0.9em', color: '#555' }}>{project.description}</p>
-                    <p style={{ margin: '0', fontSize: '0.8em', color: '#777' }}>Owner: {project.owner.username} | Company: {project.companyName}</p>
-                    <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                      <div>
-                        <button onClick={() => startEdit(project)} style={{ padding: '8px 15px', backgroundColor: '#ff9800', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Edit</button>
-                        <button onClick={() => archiveProject(project.id)} style={{ padding: '8px 15px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Archive</button>
-                        <button onClick={() => getApproval(project.id)} style={{ padding: '8px 15px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Get Approval</button>
-                        <button onClick={() => markAsCompleted(project.id)} style={{ padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}>Completed</button>
-                      </div>
-                      <button onClick={() => deleteProject(project.id)} style={{ padding: '8px 15px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>Delete</button>
-                    </div>
-                  </>
-                )}
-              </li>
-            ))
-          )}
-        </ul>
+                    <button onClick={() => deleteProject(project.id)} style={{ padding: '8px 15px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>Delete</button>
+                  </div>
+
+                  {project.narratives && project.narratives.length > 0 && (
+                    <ul style={{ listStyle: 'none', padding: 0, marginTop: '10px' }}>
+                      {project.narratives.map((narrative, narrativeIndex) => (
+                        <li key={narrativeIndex} className="narrative-item">
+                          <div className="narrative-content">
+                            <p><strong>Narrative Title:</strong> {narrative.title}</p>
+                            <p><strong>Narrative Description:</strong> {narrative.description}</p>
+                            <p><strong>Narrative Status:</strong> {narrative.status}</p>
+                            <p><strong>Narrative Created At:</strong> {new Date(narrative.createdAt).toLocaleDateString()}</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              )}
+            </li>
+          ))
+        )}
+      </ul>
     </>
   );
 };

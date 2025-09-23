@@ -22,15 +22,14 @@ function MainAppContent() {
   const [user, setUser] = useState(null); // State to store user info
   const navigate = useNavigate();
 
-  const onLoginSuccess = () => {
+  const onLoginSuccess = (token) => {
     setIsAuthenticated(true);
-    const token = localStorage.getItem('token');
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        setUser(decoded); // Assuming decoded token contains user info directly
+        setUser(decoded); // Set user info from decoded token
       } catch (error) {
-        console.error("Failed to decode token:", error);
+        console.error("Failed to decode token in onLoginSuccess:", error);
         setUser(null);
       }
     }
@@ -51,7 +50,7 @@ function MainAppContent() {
           setUser(decoded); // Set user info from decoded token
         }
       } catch (error) {
-        console.error("Failed to decode token:", error);
+        console.error("Failed to decode token in useEffect:", error);
         localStorage.removeItem('token');
         setIsAuthenticated(false);
         setUser(null);
@@ -64,6 +63,7 @@ function MainAppContent() {
   }, []);
 
   useEffect(() => {
+    console.log("isAuthenticated changed:", isAuthenticated); // Debug log
     if (isAuthenticated && !loading) {
       navigate('/projects');
     }
@@ -88,9 +88,9 @@ function MainAppContent() {
           <div style={{ position: 'absolute', right: '20px', top: '20px', textAlign: 'right' }}>
             <button onClick={handleLogout} style={{ padding: '10px 20px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Logout</button>
             {user && (
-              <div style={{ marginTop: '10px', color: 'white', fontSize: '0.9em' }}>
-                <p style={{ margin: '0' }}>User: {user.username}</p>
-                <p style={{ margin: '0' }}>Company: {user.companyName}</p>
+              <div style={{ marginTop: '10px', color: '#3e51b6', fontSize: '0.9em' }}>
+                <p style={{ margin: '0', fontSize: '0.45em', fontWeight: 'bold' }}>User: {user.user.username}</p>
+                <p style={{ margin: '0', fontSize: '0.45em', fontWeight: 'bold' }}>Company: {user.user.companyName}</p>
               </div>
             )}
           </div>

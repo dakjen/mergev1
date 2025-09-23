@@ -25,22 +25,12 @@ router.post('/register', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    user = await prisma.user.create({
-      data: {
-        username,
-        password: hashedPassword,
-        name,
-        birthdate: birthdate ? new Date(birthdate) : null,
-        email,
-        companyName,
-        role: 'viewer' // Always default to viewer on registration
-      }
-    });
-
     const payload = {
       user: {
         id: user.id,
-        role: user.role
+        role: user.role,
+        username: user.username,
+        companyName: user.companyName
       }
     };
 
@@ -87,7 +77,9 @@ router.post('/login', async (req, res) => {
     const payload = {
       user: {
         id: user.id,
-        role: user.role
+        role: user.role,
+        username: user.username,
+        companyName: user.companyName
       }
     };
 
