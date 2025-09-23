@@ -109,13 +109,15 @@ function MainAppContent() {
         <div style={{ display: 'flex', height: 'calc(100vh - 80px)' }}> {/* Adjust height based on header height */}
           <nav style={{ width: '200px', background: '#7fab61', padding: '20px 0', borderRight: '1px solid #ddd', textAlign: 'left' }}>
             <ul style={{ listStyle: 'none', padding: '0 20px' }}>
-              <li style={{ marginBottom: '10px' }}><Link to="/projects" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Projects</Link></li>
-              <li style={{ marginBottom: '10px' }}><Link to="/tools" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Tools</Link></li>
-              <li style={{ marginBottom: '10px' }}><Link to="/settings" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Settings</Link></li>
-              {/* Admin links, potentially conditional based on user role */}
-              <li style={{ marginBottom: '10px' }}><Link to="/admin" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Admin Dashboard</Link></li>
-              <li style={{ marginBottom: '10px' }}><Link to="/admin/permissions" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Permissions</Link></li>
-              <li style={{ marginBottom: '10px' }}><Link to="/change-password" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Change Password</Link></li>
+              <li style={{ marginBottom: '20px' }}><Link to="/projects" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Projects</Link></li>
+              <li style={{ marginBottom: '20px' }}><Link to="/tools" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Tools</Link></li>
+              <li style={{ marginBottom: '10px' }}><span style={{ color: '#fffcf0', fontWeight: 'bold', cursor: 'default' }}>Settings</span>
+                <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
+                  <li style={{ marginBottom: '10px' }}><Link to="/admin" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Admin Dashboard</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/admin/permissions" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Permissions</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/change-password" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Change Password</Link></li>
+                </ul>
+              </li>
             </ul>
           </nav>
           <main style={{ flexGrow: 1, padding: '20px', overflowY: 'auto' }}>
