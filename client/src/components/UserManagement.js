@@ -26,7 +26,7 @@ const UserManagement = ({ allUsers, setAllUsers, companies, fetchData }) => {
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', padding: '0 20px' }}>
-        <button onClick={() => navigate(-1)} style={{ marginRight: '20px', padding: '10px 15px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Back</button>
+
         <h1>User Management</h1>
       </div>
       {allUsers.length === 0 ? (
