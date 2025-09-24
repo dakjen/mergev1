@@ -7,7 +7,7 @@ const cors = require('cors');
 const app = express();
 const prisma = new PrismaClient();
 
-module.exports = prisma;
+module.exports = app;
 
 // Test database connection
 async function connectDB() {
@@ -46,7 +46,3 @@ app.use('/api/companies', require('./routes/companies'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/files', require('./routes/files')); // New route for file operations
 app.use('/api/ai', require('./routes/ai')); // New route for AI operations
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
