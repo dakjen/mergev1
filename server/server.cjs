@@ -6,19 +6,6 @@ const prisma = require('./utils/prisma.cjs');
 
 const app = express();
 
-// Test database connection
-async function connectDB() {
-  try {
-    await prisma.$connect();
-    console.log('PostgreSQL Connected...');
-  } catch (err) {
-    console.error(err.message);
-    process.exit(1);
-  }
-}
-
-connectDB();
-
 // Init Middleware
 const whitelist = ['http://localhost:3000', 'https://mergev1-78hi.vercel.app'];
 const corsOptions = {
