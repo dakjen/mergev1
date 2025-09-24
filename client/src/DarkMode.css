@@ -29,6 +29,12 @@ main.dark-mode .ProjectView, main.dark-mode .ProjectsHome, main.dark-mode .Admin
   margin: 20px;
 }
 
+/* ProjectView specific dark mode styles */
+main.dark-mode .dark-mode-container {
+  background: #1e1e1e !important; /* Override inline background */
+  color: #e0e0e0;
+}
+
 main.dark-mode .ProjectView h2, main.dark-mode .ProjectsHome h2, main.dark-mode .AdminDashboard h2, main.dark-mode .Permissions h2, main.dark-mode .ChangePassword h2, main.dark-mode .Login h2, main.dark-mode .Register h2 {
   color: #fffcf0;
 }

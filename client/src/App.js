@@ -198,7 +198,7 @@ function MainAppContent() {
           <main className={darkMode ? 'dark-mode' : ''} style={{ flexGrow: 1, padding: '20px', overflowY: 'auto' }}>
             <Routes>
               <Route path="/api/projects" element={<ProjectsHome user={user} />} />
-              <Route path="/api/projects/:id/view" element={<ProjectView />} />
+              <Route path="/api/projects/:id/view" element={<ProjectView darkMode={darkMode} />} />
               <Route path="/projects/to-be-approved" element={<ToBeApproved />} /> {/* New route */}
               <Route path="/projects/pending-correction" element={<PendingCorrection />} /> {/* New route */}
               <Route path="/tools/past-proposals" element={<PastProposals />} />
