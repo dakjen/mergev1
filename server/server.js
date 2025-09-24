@@ -21,7 +21,7 @@ async function connectDB() {
 connectDB();
 
 // Init Middleware
-const whitelist = ['http://localhost:3000', 'https://mergev1.vercel.app'];
+const whitelist = ['http://localhost:3000', 'https://mergev1-78hi.vercel.app'];
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
