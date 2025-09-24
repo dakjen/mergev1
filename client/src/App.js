@@ -55,8 +55,8 @@ function MainAppContent() {
       };
 
       const [allUsersRes, companiesRes] = await Promise.all([
-        axios.get('http://localhost:8000/api/admin/users', config),
-        axios.get('http://localhost:8000/api/companies', config)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users`, config),
+        axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, config)
       ]);
 
       setAllUsers(allUsersRes.data.map(u => ({ ...u, selectedRole: u.role, selectedCompanyId: u.company?.id || '' })));
