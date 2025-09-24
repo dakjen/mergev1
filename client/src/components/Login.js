@@ -22,6 +22,7 @@ const Login = ({ onLoginSuccess }) => {
           withCredentials: true
         };
         const res = await axios.get('/api/companies', config);
+        console.log('API Response:', res.data);
         setCompanies(res.data);
         setLoading(false);
       } catch (err) {
