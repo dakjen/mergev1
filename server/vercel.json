@@ -1,11 +1,11 @@
 {
   "functions": {
-    "server.js": {
+    "server.cjs": {
       "memory": 1024,
       "maxDuration": 10
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/server.js" }
+    { "source": "/api/(.*)", "destination": "/server.cjs" }
   ]
 }

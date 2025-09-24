@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const prisma = require('../server');
+const prisma = require('../server.cjs');
 
 // @route   GET api/companies
 // @desc    Get all companies
