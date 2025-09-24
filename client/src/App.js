@@ -18,6 +18,8 @@ import ComplianceChecker from './components/ComplianceChecker';
 import GrantCalendar from './components/GrantCalendar';
 import ApprovalHistory from './components/ApprovalHistory'; // New import for ApprovalHistory
 import PastAIReviews from './components/PastAIReviews'; // New import for PastAIReviews
+import ToBeApproved from './components/ToBeApproved'; // New import for ToBeApproved
+import PendingCorrection from './components/PendingCorrection'; // New import for PendingCorrection
 import merge1 from './merge1.png';
 import './App.css';
 import './DarkMode.css';
@@ -156,8 +158,18 @@ function MainAppContent() {
         <div style={{ display: 'flex', height: 'calc(100vh - 80px)' }}> {/* Adjust height based on header height */}
           <nav style={{ width: '200px', background: '#7fab61', padding: '20px 0', borderRight: '1px solid #ddd', textAlign: 'left' }}>
             <ul style={{ listStyle: 'none', padding: '0 20px' }}>
-              <li style={{ marginBottom: '20px' }}><Link to="/api/projects" className="sidebar-link">Projects</Link></li>
-              <li style={{ marginBottom: '20px' }}><span style={{ color: '#fffcf0', fontWeight: 'bold', cursor: 'default' }}>Tools</span>
+              <li style={{ marginBottom: '20px' }}><Link to="/api/projects" className="sidebar-link">Projects</Link>
+                {user && user.user.role === 'approver' && ( // Only show to approvers
+                  <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
+                    <li style={{ marginBottom: '10px' }}><Link to="/projects/to-be-approved" className="sidebar-link">To Be Approved</Link></li>
+                  </ul>
+                )}
+                {/* New sub-category for Pending Correction */}
+                <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
+                  <li style={{ marginBottom: '10px' }}><Link to="/projects/pending-correction" className="sidebar-link">Pending Correction</Link></li>
+                </ul>
+              </li>
+              <li style={{ marginBottom: '20px' }}><span style={{ color: '#3e51b5', fontWeight: 'bold', cursor: 'default' }}>Tools</span>
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/past-proposals" className="sidebar-link">Past Proposals</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/file-storer" className="sidebar-link">File Cabinet</Link></li>
@@ -170,7 +182,7 @@ function MainAppContent() {
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/grant-calendar" className="sidebar-link">Grant Calendar</Link></li>
                 </ul>
               </li>
-              <li style={{ marginTop: 'auto', marginBottom: '10px' }}><span style={{ color: '#debf84', fontWeight: 'bold', cursor: 'default' }}>Settings</span>
+              <li style={{ marginTop: 'auto', marginBottom: '10px' }}><span style={{ color: '#3e51b5', fontWeight: 'bold', cursor: 'default' }}>Settings</span>
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px'}}>
                   {user && user.user.role === 'admin' && (
                     <li style={{ marginBottom: '10px' }}><Link to="/admin" className="sidebar-settings-link">Admin Dashboard</Link></li>
@@ -185,8 +197,10 @@ function MainAppContent() {
           </nav>
           <main className={darkMode ? 'dark-mode' : ''} style={{ flexGrow: 1, padding: '20px', overflowY: 'auto' }}>
             <Routes>
-              <Route path="/api/projects" element={<ProjectsHome />} />
+              <Route path="/api/projects" element={<ProjectsHome user={user} />} />
               <Route path="/api/projects/:id/view" element={<ProjectView />} />
+              <Route path="/projects/to-be-approved" element={<ToBeApproved />} /> {/* New route */}
+              <Route path="/projects/pending-correction" element={<PendingCorrection />} /> {/* New route */}
               <Route path="/tools/past-proposals" element={<PastProposals />} />
               <Route path="/tools/file-storer" element={<FileStorer />} />
               <Route path="/tools/ai-reviewer" element={<AIReviewerTool />} />

@@ -40,6 +40,7 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   background: #fff; /* Added background */
+  max-width: 900px; /* Increased width */
 }
 
 .projects-home-add-form h3 {
@@ -52,7 +53,7 @@
   margin: 5px;
   border-radius: 5px;
   border: 1px solid #ddd;
-  width: 300px;
+  max-width: 900px; /* Increased width */
   font-size: 1em; /* Adjusted font size */
   color: #333; /* Added color */
 }
@@ -93,7 +94,7 @@
   margin: 10px 0;
   padding: 15px;
   border-radius: 5px;
-  max-width: 600px;
+  max-width: 900px; /* Increased width */
   width: 100%;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   display: flex;
@@ -103,6 +104,7 @@
 
 .projects-home-edit-form {
   width: 100%;
+  max-width: 900px; /* Increased width */
 }
 
 .projects-home-edit-form input[type="text"],

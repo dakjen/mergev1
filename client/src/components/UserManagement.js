@@ -1,9 +1,7 @@
 import React, { useState } from 'react'; // Add useState
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 const UserManagement = ({ allUsers, setAllUsers, companies, fetchData }) => {
-  const navigate = useNavigate();
 
   const [showAddUserForm, setShowAddUserForm] = useState(false); // State to toggle add user form
   const [newUsername, setNewUsername] = useState('');

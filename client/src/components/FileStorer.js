@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Assuming navigate might be used for back button or similar
 
 const FileStorer = () => {
-  const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState(null);
   const [newFilename, setNewFilename] = useState(''); // New state for user-provided filename
   const [files, setFiles] = useState([]);
