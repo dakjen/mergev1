@@ -37,6 +37,7 @@ model User {
   projectVersions ProjectVersion[]
   approvedLogs ApprovedLog[] @relation("ApprovedUser")
   approverLogs ApprovedLog[] @relation("ApproverUser")
+  files       File[] // Add relation to File model
 }
 
 model Company {
@@ -46,6 +47,7 @@ model Company {
   users     User[]
   projects  Project[]
   approvedLogs ApprovedLog[]
+  files       File[] // Add relation to File model
 }
 
 model Project {
@@ -95,4 +97,17 @@ model ApprovedLog {
   roleAssigned      Role
   companyAssigned   Company?  @relation(fields: [companyAssignedId], references: [id])
   companyAssignedId String?
+}
+
+// New File model for storing files directly in the database
+model File {
+  id          String    @id @default(cuid())
+  filename    String
+  mimetype    String
+  data        Bytes     // Stores the actual file content
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id])
+  uploadedBy  User      @relation(fields: [uploadedById], references: [id])
+  uploadedById String
+  createdAt   DateTime  @default(now())
 }

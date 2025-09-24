@@ -159,7 +159,7 @@ function MainAppContent() {
               <li style={{ marginBottom: '20px' }}><span style={{ color: '#fffcf0', fontWeight: 'bold', cursor: 'default' }}>Tools</span>
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/past-proposals" className="sidebar-link">Past Proposals</Link></li>
-                  <li style={{ marginBottom: '10px' }}><Link to="/tools/file-storer" className="sidebar-link">File Storer</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/file-storer" className="sidebar-link">File Cabinet</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/ai-reviewer" className="sidebar-link">AI Reviewer Tool</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/compliance-checker" className="sidebar-link">Compliance Checker</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/grant-calendar" className="sidebar-link">Grant Calendar</Link></li>
