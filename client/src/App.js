@@ -167,12 +167,12 @@ function MainAppContent() {
               <li style={{ marginTop: 'auto', marginBottom: '10px' }}><span style={{ color: '#debf84', fontWeight: 'bold', cursor: 'default' }}>Settings</span>
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px'}}>
                   {user && user.user.role === 'admin' && (
-                    <li style={{ marginBottom: '10px' }}><Link to="/admin" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Admin Dashboard</Link></li>
+                    <li style={{ marginBottom: '10px' }}><Link to="/admin" style={{ textDecoration: 'none', color: '#debf84', fontWeight: 'bold' }}>Admin Dashboard</Link></li>
                   )}
                   {user && user.user.role === 'admin' && (
-                    <li style={{ marginBottom: '10px' }}><Link to="/admin/permissions" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Permissions</Link></li>
+                    <li style={{ marginBottom: '10px' }}><Link to="/admin/user-management" style={{ textDecoration: 'none', color: '#debf84', fontWeight: 'bold' }}>Permissions</Link></li>
                   )}
-                  <li style={{ marginBottom: '10px' }}><Link to="/change-password" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Change Password</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/change-password" style={{ textDecoration: 'none', color: '#debf84', fontWeight: 'bold' }}>Change Password</Link></li>
                 </ul>
               </li>
             </ul>
@@ -193,7 +193,7 @@ function MainAppContent() {
                 <Route path="/admin" element={<ProjectsHome />} />
               )}
               {user && user.user.role === 'admin' ? (
-                <Route path="/admin/company-management" element={<CompanyManagement />} />
+                <Route path="/admin/company-management" element={<CompanyManagement fetchData={fetchData} />} />
               ) : (
                 <Route path="/admin/company-management" element={<ProjectsHome />} />
               )}

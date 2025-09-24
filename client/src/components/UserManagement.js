@@ -16,7 +16,7 @@ const UserManagement = ({ allUsers, setAllUsers, companies, fetchData }) => {
       };
       await axios.put(`http://localhost:8000/api/admin/users/${userId}/update`, { role, companyId: companyId || null }, config);
       alert('User updated successfully!');
-      // No need to refetch all data here, as the state is already updated by the dropdowns
+      fetchData(); // Refresh all data
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
       alert(err.response ? err.response.data.msg : 'Failed to update user.');

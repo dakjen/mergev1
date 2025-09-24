@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const Permissions = () => {
+const Permissions = ({ fetchData }) => {
   const [companies, setCompanies] = useState([]);
   const [newCompanyName, setNewCompanyName] = useState('');
   const [editingCompanyId, setEditingCompanyId] = useState(null);
@@ -53,6 +53,7 @@ const Permissions = () => {
       await axios.post('http://localhost:8000/api/companies', { name: newCompanyName }, config);
       setNewCompanyName('');
       fetchCompanies();
+      if (fetchData) fetchData(); // Refresh global data in App.js
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
       alert(err.response ? err.response.data.msg : 'Failed to add company.');
@@ -82,6 +83,7 @@ const Permissions = () => {
       await axios.put(`http://localhost:8000/api/companies/${editingCompanyId}`, { name: editingCompanyName }, config);
       cancelEdit();
       fetchCompanies();
+      if (fetchData) fetchData(); // Refresh global data in App.js
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
       alert(err.response ? err.response.data.msg : 'Failed to update company.');
@@ -99,6 +101,7 @@ const Permissions = () => {
         };
         await axios.delete(`http://localhost:8000/api/companies/${companyId}`, config); // DELETE now archives
         fetchCompanies();
+        if (fetchData) fetchData(); // Refresh global data in App.js
       } catch (err) {
         console.error(err.response ? err.response.data : err.message);
         alert(err.response ? err.response.data.msg : 'Failed to archive company.');
@@ -117,6 +120,7 @@ const Permissions = () => {
         };
         await axios.put(`http://localhost:8000/api/companies/${companyId}/unarchive`, {}, config);
         fetchCompanies();
+        if (fetchData) fetchData(); // Refresh global data in App.js
       } catch (err) {
         console.error(err.response ? err.response.data : err.message);
         alert(err.response ? err.response.data.msg : 'Failed to unarchive company.');

@@ -90,7 +90,7 @@ const AdminDashboard = () => {
       <div style={{ marginBottom: '20px' }}>
         <button onClick={() => navigate('/admin/approval-history')} style={{ margin: '0 10px', padding: '10px 20px', backgroundColor: '#3e51b5', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Approval History</button>
         <button onClick={() => navigate('/admin/company-management')} style={{ margin: '0 10px', padding: '10px 20px', backgroundColor: '#3e51b5', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Company Management</button>
-        <button onClick={() => navigate('/admin/user-management')} style={{ margin: '0 10px', padding: '10px 20px', backgroundColor: '#3e51b5', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>User Management</button>
+
       </div>
 
       <h2>Pending User Approvals</h2>
