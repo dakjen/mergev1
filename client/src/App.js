@@ -17,6 +17,7 @@ import AIReviewerTool from './components/AIReviewerTool';
 import ComplianceChecker from './components/ComplianceChecker';
 import GrantCalendar from './components/GrantCalendar';
 import ApprovalHistory from './components/ApprovalHistory'; // New import for ApprovalHistory
+import PastAIReviews from './components/PastAIReviews'; // New import for PastAIReviews
 import merge1 from './merge1.png';
 import './App.css';
 import './DarkMode.css';
@@ -160,7 +161,11 @@ function MainAppContent() {
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/past-proposals" className="sidebar-link">Past Proposals</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/file-storer" className="sidebar-link">File Cabinet</Link></li>
-                  <li style={{ marginBottom: '10px' }}><Link to="/tools/ai-reviewer" className="sidebar-link">AI Reviewer Tool</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/ai-reviewer" className="sidebar-link">AI Reviewer Tool</Link>
+                    <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
+                      <li style={{ marginBottom: '10px' }}><Link to="/tools/ai-reviewer/past-reviews" className="sidebar-link">Past Reviews</Link></li>
+                    </ul>
+                  </li>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/compliance-checker" className="sidebar-link">Compliance Checker</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/grant-calendar" className="sidebar-link">Grant Calendar</Link></li>
                 </ul>
@@ -185,6 +190,7 @@ function MainAppContent() {
               <Route path="/tools/past-proposals" element={<PastProposals />} />
               <Route path="/tools/file-storer" element={<FileStorer />} />
               <Route path="/tools/ai-reviewer" element={<AIReviewerTool />} />
+              <Route path="/tools/ai-reviewer/past-reviews" element={<PastAIReviews />} /> {/* New route */}
               <Route path="/tools/compliance-checker" element={<ComplianceChecker />} />
               <Route path="/tools/grant-calendar" element={<GrantCalendar />} />
 

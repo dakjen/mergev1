@@ -38,6 +38,7 @@ model User {
   approvedLogs ApprovedLog[] @relation("ApprovedUser")
   approverLogs ApprovedLog[] @relation("ApproverUser")
   files       File[] // Add relation to File model
+  aiReviewLogs AIReviewLog[] // New relation to AIReviewLog model
 }
 
 model Company {
@@ -62,6 +63,7 @@ model Project {
   companyId   String?
   company     Company? @relation(fields: [companyId], references: [id])
   versions    ProjectVersion[]
+  aiReviewLogs AIReviewLog[] // New relation to AIReviewLog model
 }
 
 model Narrative {
@@ -110,4 +112,17 @@ model File {
   uploadedBy  User      @relation(fields: [uploadedById], references: [id])
   uploadedById String
   createdAt   DateTime  @default(now())
+}
+
+// New AIReviewLog model to record AI reviews
+model AIReviewLog {
+  id                    String    @id @default(cuid())
+  projectId             String
+  project               Project   @relation(fields: [projectId], references: [id])
+  reviewedAt            DateTime  @default(now())
+  reviewedById          String
+  reviewedBy            User      @relation(fields: [reviewedById], references: [id])
+  aiResponse            String    @db.Text // Store potentially long AI responses
+  grantWebsite          String?
+  grantPurposeStatement String?
 }

@@ -185,11 +185,13 @@ console.log(res.data);
               onChange={(e) => setNewProjectDescription(e.target.value)}
               rows="3"
             ></textarea>
+            <label htmlFor="newProjectDeadlineDate" style={{ display: 'block', marginTop: '10px', marginBottom: '5px', textAlign: 'left' }}>Due Date:</label>
             <input // New input for deadline date
               type="date"
+              id="newProjectDeadlineDate" // Add id for label
               value={newProjectDeadlineDate}
               onChange={(e) => setNewProjectDeadlineDate(e.target.value)}
-              style={{ marginTop: '10px' }}
+              style={{ marginTop: '0px' }} // Adjust margin as label adds space
             />
             <div className="projects-home-add-form-buttons">
               <button type="submit" className="create-button">Create Project</button>
@@ -247,8 +249,13 @@ console.log(res.data);
                 </form>
               ) : (
                 <>
-                  <div className="projects-home-project-header">
+                  <div className="projects-home-project-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h3>{project.name}</h3>
+                    {project.deadlineDate && (
+                      <span style={{ color: '#3e51b5', fontWeight: 'bold', fontSize: '0.9em' }}>
+                        Due: {new Date(project.deadlineDate).toLocaleDateString()}
+                      </span>
+                    )}
                     <Link to={`/api/projects/${project.id}/view`} className="projects-home-view-link">View</Link>
                   </div>
                   <p className="projects-home-project-description">{project.description}</p>
