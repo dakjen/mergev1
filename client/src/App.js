@@ -154,25 +154,25 @@ function MainAppContent() {
         <div style={{ display: 'flex', height: 'calc(100vh - 80px)' }}> {/* Adjust height based on header height */}
           <nav style={{ width: '200px', background: '#7fab61', padding: '20px 0', borderRight: '1px solid #ddd', textAlign: 'left' }}>
             <ul style={{ listStyle: 'none', padding: '0 20px' }}>
-              <li style={{ marginBottom: '20px' }}><Link to="/api/projects" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Projects</Link></li>
+              <li style={{ marginBottom: '20px' }}><Link to="/api/projects" className="sidebar-link">Projects</Link></li>
               <li style={{ marginBottom: '20px' }}><span style={{ color: '#fffcf0', fontWeight: 'bold', cursor: 'default' }}>Tools</span>
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
-                  <li style={{ marginBottom: '10px' }}><Link to="/tools/past-proposals" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Past Proposals</Link></li>
-                  <li style={{ marginBottom: '10px' }}><Link to="/tools/file-storer" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>File Storer</Link></li>
-                  <li style={{ marginBottom: '10px' }}><Link to="/tools/ai-reviewer" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>AI Reviewer Tool</Link></li>
-                  <li style={{ marginBottom: '10px' }}><Link to="/tools/compliance-checker" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Compliance Checker</Link></li>
-                  <li style={{ marginBottom: '10px' }}><Link to="/tools/grant-calendar" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Grant Calendar</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/past-proposals" className="sidebar-link">Past Proposals</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/file-storer" className="sidebar-link">File Storer</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/ai-reviewer" className="sidebar-link">AI Reviewer Tool</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/compliance-checker" className="sidebar-link">Compliance Checker</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/grant-calendar" className="sidebar-link">Grant Calendar</Link></li>
                 </ul>
               </li>
               <li style={{ marginTop: 'auto', marginBottom: '10px' }}><span style={{ color: '#debf84', fontWeight: 'bold', cursor: 'default' }}>Settings</span>
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px'}}>
                   {user && user.user.role === 'admin' && (
-                    <li style={{ marginBottom: '10px' }}><Link to="/admin" style={{ textDecoration: 'none', color: '#debf84', fontWeight: 'bold' }}>Admin Dashboard</Link></li>
+                    <li style={{ marginBottom: '10px' }}><Link to="/admin" className="sidebar-settings-link">Admin Dashboard</Link></li>
                   )}
                   {user && user.user.role === 'admin' && (
-                    <li style={{ marginBottom: '10px' }}><Link to="/admin/user-management" style={{ textDecoration: 'none', color: '#debf84', fontWeight: 'bold' }}>Permissions</Link></li>
+                    <li style={{ marginBottom: '10px' }}><Link to="/admin/user-management" className="sidebar-settings-link">Permissions</Link></li>
                   )}
-                  <li style={{ marginBottom: '10px' }}><Link to="/change-password" style={{ textDecoration: 'none', color: '#debf84', fontWeight: 'bold' }}>Change Password</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/change-password" className="sidebar-settings-link">Change Password</Link></li>
                 </ul>
               </li>
             </ul>

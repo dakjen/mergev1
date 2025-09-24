@@ -31,3 +31,33 @@ h1 {
   font-size: 5em;
   color: #7fab61;
 }
+
+/* Sidebar Link Styles */
+.sidebar-link {
+  text-decoration: none;
+  color: #fffcf0; /* Original color */
+  font-weight: bold;
+  padding: 8px 0;
+  display: block;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* Sidebar Settings Link Styles */
+.sidebar-settings-link {
+  text-decoration: none;
+  color: #debf84; /* Original color */
+  font-weight: bold;
+  padding: 8px 0;
+  display: block;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.sidebar-settings-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
