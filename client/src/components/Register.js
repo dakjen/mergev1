@@ -22,7 +22,7 @@ const Register = () => {
         const config = {
           withCredentials: true
         };
-        const res = await axios.get('http://localhost:8000/api/companies', config);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, config);
         setCompanies(res.data);
         setLoading(false);
       } catch (err) {
@@ -51,7 +51,7 @@ const Register = () => {
         withCredentials: true
       };
       // No need to convert birthdate to ISO string here, send as YYYY-MM-DD
-      const res = await axios.post('http://localhost:8000/api/auth/register', payload, config);
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, payload, config);
       console.log(res.data);
       alert('Registration successful! Your account is awaiting admin approval.');
       // Optionally redirect or clear form
