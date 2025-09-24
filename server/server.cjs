@@ -1,13 +1,10 @@
 require('dotenv').config();
 console.log('JWT_SECRET:', process.env.JWT_SECRET); // Add this line
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
 const cors = require('cors');
+const prisma = require('./utils/prisma.cjs');
 
 const app = express();
-const prisma = new PrismaClient();
-
-module.exports = app;
 
 // Test database connection
 async function connectDB() {
@@ -46,3 +43,5 @@ app.use('/api/companies', require('./routes/companies'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/files', require('./routes/files')); // New route for file operations
 app.use('/api/ai', require('./routes/ai')); // New route for AI operations
+
+module.exports = app;

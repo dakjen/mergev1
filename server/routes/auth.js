@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const prisma = require('../server.cjs');
+const prisma = require('../utils/prisma.cjs');
 const auth = require('../middleware/auth'); // Import auth middleware
 
 // Register User
