@@ -18,7 +18,10 @@ const Login = ({ onLoginSuccess }) => {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/api/companies');
+        const config = {
+          withCredentials: true
+        };
+        const res = await axios.get('http://localhost:8000/api/companies', config);
         setCompanies(res.data);
         setLoading(false);
       } catch (err) {
@@ -39,7 +42,13 @@ const Login = ({ onLoginSuccess }) => {
   const onSubmit = async e => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:8000/api/auth/login', { username, password, companyName: selectedCompany });
+      const config = {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
+      };
+      const res = await axios.post('http://localhost:8000/api/auth/login', { username, password, companyId: selectedCompany }, config);
       localStorage.setItem('token', res.data.token);
       onLoginSuccess(res.data.token);
       navigate('/api/projects');

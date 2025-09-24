@@ -57,7 +57,7 @@ router.get('/:id', auth, async (req, res) => {
 // @desc    Create a new project
 // @access  Private
 router.post('/', auth, async (req, res) => {
-  const { name, description } = req.body;
+  const { name, description, deadlineDate } = req.body; // Add deadlineDate
 
   try {
     const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
@@ -69,6 +69,7 @@ router.post('/', auth, async (req, res) => {
       data: {
         name,
         description,
+        deadlineDate: deadlineDate ? new Date(deadlineDate) : null, // Save deadlineDate
         ownerId: req.user.id,
         companyId: user.companyId,
       },
@@ -165,6 +166,48 @@ router.get('/:id/versions', auth, async (req, res) => {
       include: { createdBy: { select: { username: true } } },
     });
     res.json(projectVersions);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   GET api/projects/deadlines
+// @desc    Get all project deadlines for the logged-in user's company
+// @access  Private
+router.get('/deadlines', auth, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
+    if (!user || !user.companyId) {
+      return res.status(400).json({ msg: 'User not associated with a company' });
+    }
+
+    const deadlines = await prisma.project.findMany({
+      where: {
+        companyId: user.companyId,
+        deadlineDate: {
+          not: null, // Only projects with a deadline date
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        deadlineDate: true,
+      },
+      orderBy: {
+        deadlineDate: 'asc', // Order by deadline date
+      },
+    });
+
+    // Format the deadlines for the client
+    const formattedDeadlines = deadlines.map(project => ({
+      id: project.id,
+      name: project.name,
+      projectName: project.name, // Use project name as deadline name for now
+      deadlineDate: project.deadlineDate,
+    }));
+
+    res.json(formattedDeadlines);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

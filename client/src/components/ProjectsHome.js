@@ -9,6 +9,7 @@ const ProjectsHome = () => {
   const [projects, setProjects] = useState([]);
   const [newProjectName, setNewProjectName] = useState('');
   const [newProjectDescription, setNewProjectDescription] = useState('');
+  const [newProjectDeadlineDate, setNewProjectDeadlineDate] = useState(''); // New state for deadline
   const [editingProjectId, setEditingProjectId] = useState(null);
   const [editingProjectName, setEditingProjectName] = useState('');
   const [editingProjectDescription, setEditingProjectDescription] = useState('');
@@ -54,11 +55,12 @@ console.log(res.data);
       };
       await axios.post(
         'http://localhost:8000/api/projects',
-        { name: newProjectName, description: newProjectDescription },
+        { name: newProjectName, description: newProjectDescription, deadlineDate: newProjectDeadlineDate }, // Pass deadlineDate
         config
       );
       setNewProjectName('');
       setNewProjectDescription('');
+      setNewProjectDeadlineDate(''); // Clear deadline date
       setShowAddProjectForm(false);
       fetchProjects();
     } catch (err) {
@@ -161,6 +163,7 @@ console.log(res.data);
           setEditingProjectId(null);
           setNewProjectName('');
           setNewProjectDescription('');
+          setNewProjectDeadlineDate(''); // Clear deadline date
           setShowAddProjectForm(true);
         }} className="projects-home-add-button">Add Project</button>
       </div>
@@ -182,6 +185,12 @@ console.log(res.data);
               onChange={(e) => setNewProjectDescription(e.target.value)}
               rows="3"
             ></textarea>
+            <input // New input for deadline date
+              type="date"
+              value={newProjectDeadlineDate}
+              onChange={(e) => setNewProjectDeadlineDate(e.target.value)}
+              style={{ marginTop: '10px' }}
+            />
             <div className="projects-home-add-form-buttons">
               <button type="submit" className="create-button">Create Project</button>
               <button type="button" onClick={() => setShowAddProjectForm(false)} className="cancel-button">Cancel</button>

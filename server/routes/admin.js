@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const bcrypt = require('bcryptjs'); // Import bcryptjs
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -147,6 +148,52 @@ router.get('/approvals/history', auth, async (req, res) => {
       orderBy: { approvedAt: 'desc' },
     });
     res.json(approvalHistory);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   POST api/admin/users
+// @desc    Create a new user
+// @access  Private (admin only)
+router.post('/users', auth, async (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ msg: 'Authorization denied. Not an admin.' });
+  }
+
+  const { username, email, password, role, companyId } = req.body;
+
+  try {
+    // Check if user already exists
+    let user = await prisma.user.findUnique({ where: { email } });
+    if (user) {
+      return res.status(400).json({ msg: 'User with that email already exists' });
+    }
+
+    user = await prisma.user.findUnique({ where: { username } });
+    if (user) {
+      return res.status(400).json({ msg: 'User with that username already exists' });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create new user
+    const newUser = await prisma.user.create({
+      data: {
+        username,
+        email,
+        password: hashedPassword,
+        role: role || 'viewer', // Default to viewer if not provided
+        companyId: companyId || null, // Assign company if provided
+        isApproved: true, // Manually added users are approved by default
+      },
+      select: { id: true, username: true, email: true, role: true, isApproved: true, createdAt: true, company: { select: { id: true, name: true } } }
+    });
+
+    res.json({ msg: 'User created successfully', user: newUser });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

@@ -1,4 +1,5 @@
 require('dotenv').config();
+console.log('JWT_SECRET:', process.env.JWT_SECRET); // Add this line
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const cors = require('cors');
@@ -21,7 +22,8 @@ connectDB();
 
 // Init Middleware
 app.use(cors({
-  origin: '*'
+  origin: 'http://localhost:3002', // Specify the exact frontend origin
+  credentials: true // Allow sending cookies/authorization headers
 }));
 app.use(express.json());
 

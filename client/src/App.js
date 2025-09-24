@@ -47,7 +47,8 @@ function MainAppContent() {
       const config = {
         headers: {
           'x-auth-token': token
-        }
+        },
+        withCredentials: true
       };
 
       const [allUsersRes, companiesRes] = await Promise.all([

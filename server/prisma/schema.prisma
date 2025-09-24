@@ -53,6 +53,7 @@ model Project {
   name        String
   description String? 
   details Json?
+  deadlineDate DateTime? // New field for project deadline
   createdAt   DateTime  @default(now())
   owner       User      @relation(fields: [ownerId], references: [id])
   ownerId     String

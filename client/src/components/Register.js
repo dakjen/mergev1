@@ -19,7 +19,10 @@ const Register = () => {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/api/companies');
+        const config = {
+          withCredentials: true
+        };
+        const res = await axios.get('http://localhost:8000/api/companies', config);
         setCompanies(res.data);
         setLoading(false);
       } catch (err) {
@@ -40,7 +43,15 @@ const Register = () => {
   const onSubmit = async e => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:8000/api/auth/register', { ...formData, companyId: selectedCompanyId });
+      const payload = { ...formData, companyId: selectedCompanyId };
+      const config = {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
+      };
+      // No need to convert birthdate to ISO string here, send as YYYY-MM-DD
+      const res = await axios.post('http://localhost:8000/api/auth/register', payload, config);
       console.log(res.data);
       alert('Registration successful! Your account is awaiting admin approval.');
       // Optionally redirect or clear form
