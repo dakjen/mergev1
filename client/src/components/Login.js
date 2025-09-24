@@ -21,7 +21,7 @@ const Login = ({ onLoginSuccess }) => {
         const config = {
           withCredentials: true
         };
-        const res = await axios.get('/api/companies', config);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, config);
         console.log('API Response:', res.data);
         setCompanies(res.data);
         setLoading(false);
@@ -49,7 +49,7 @@ const Login = ({ onLoginSuccess }) => {
         },
         withCredentials: true
       };
-      const res = await axios.post('/api/auth/login', { username, password, companyId: selectedCompany }, config);
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, { username, password, companyId: selectedCompany }, config);
       localStorage.setItem('token', res.data.token);
       onLoginSuccess(res.data.token);
       navigate('/api/projects');
