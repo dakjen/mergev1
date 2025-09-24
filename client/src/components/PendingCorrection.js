@@ -25,7 +25,7 @@ const PendingCorrection = () => {
         headers: { 'x-auth-token': token },
         withCredentials: true
       };
-      const res = await axios.get('http://localhost:8000/api/projects/rejected', config); // New API endpoint
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/rejected`, config); // New API endpoint
       setRejectedProjects(res.data);
       setLoading(false);
     } catch (err) {

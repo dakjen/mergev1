@@ -24,7 +24,7 @@ const ApprovalHistory = () => {
             'x-auth-token': token
           }
         };
-        const res = await axios.get('http://localhost:8000/api/admin/approvals/history', config);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/approvals/history`, config);
         setApprovalLogs(res.data);
         setLoading(false);
       } catch (err) {

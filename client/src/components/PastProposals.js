@@ -26,7 +26,7 @@ const PastProposals = () => {
         withCredentials: true
       };
       // Assuming a new API endpoint for fetching completed projects
-      const res = await axios.get('http://localhost:8000/api/projects/completed', config);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/completed`, config);
       setCompletedProjects(res.data);
       setLoading(false);
     } catch (err) {

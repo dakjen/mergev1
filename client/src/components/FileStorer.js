@@ -28,7 +28,7 @@ const FileStorer = () => {
         },
         withCredentials: true
       };
-      const res = await axios.get('http://localhost:8000/api/files', config);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/files`, config);
       setFiles(res.data);
       setLoading(false);
     } catch (err) {
@@ -72,7 +72,7 @@ const FileStorer = () => {
         withCredentials: true
       };
 
-      await axios.post('http://localhost:8000/api/files/upload', formData, config);
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/files/upload`, formData, config);
       alert('File uploaded successfully!');
       setSelectedFile(null); // Clear selected file
       setNewFilename(''); // Clear new filename
@@ -95,7 +95,7 @@ const FileStorer = () => {
         responseType: 'blob' // Important for downloading binary data
       };
 
-      const res = await axios.get(`http://localhost:8000/api/files/${fileId}`, config);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/files/${fileId}`, config);
 
       // Create a blob from the response data
       const blob = new Blob([res.data], { type: res.headers['content-type'] });

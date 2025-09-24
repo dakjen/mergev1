@@ -20,7 +20,7 @@ const UserManagement = ({ allUsers, setAllUsers, companies, fetchData }) => {
         },
         withCredentials: true
       };
-      await axios.put(`http://localhost:8000/api/admin/users/${userId}/update`, { role, companyId: companyId || null }, config);
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/admin/users/${userId}/update`, { role, companyId: companyId || null }, config);
       alert('User updated successfully!');
       fetchData(); // Refresh all data
     } catch (err) {
@@ -41,7 +41,7 @@ const UserManagement = ({ allUsers, setAllUsers, companies, fetchData }) => {
         withCredentials: true
       };
       await axios.post(
-        'http://localhost:8000/api/admin/users', // New API endpoint for adding users
+        `${process.env.REACT_APP_API_URL}/api/admin/users`, // New API endpoint for adding users
         {
           username: newUsername,
           email: newEmail,

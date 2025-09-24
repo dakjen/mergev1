@@ -28,7 +28,7 @@ const ToBeApproved = () => {
         headers: { 'x-auth-token': token },
         withCredentials: true
       };
-      const res = await axios.get('http://localhost:8000/api/projects/pending-approval', config);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/pending-approval`, config);
       setPendingApprovals(res.data);
       setLoading(false);
     } catch (err) {
@@ -47,7 +47,7 @@ const ToBeApproved = () => {
           withCredentials: true
         };
         await axios.put(
-          `http://localhost:8000/api/projects/${projectId}/respond-approval`,
+          `${process.env.REACT_APP_API_URL}/api/projects/${projectId}/respond-approval`,
           { approvalStatus: 'approved' },
           config
         );
@@ -80,7 +80,7 @@ const ToBeApproved = () => {
         withCredentials: true
       };
       await axios.put(
-        `http://localhost:8000/api/projects/${currentProjectId}/respond-approval`,
+        `${process.env.REACT_APP_API_URL}/api/projects/${currentProjectId}/respond-approval`,
         { approvalStatus: 'rejected', comments: rejectionComments.trim() },
         config
       );

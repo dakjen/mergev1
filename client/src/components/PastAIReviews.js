@@ -25,7 +25,7 @@ const PastAIReviews = () => {
         headers: { 'x-auth-token': token },
         withCredentials: true
       };
-      const res = await axios.get('http://localhost:8000/api/ai/reviews', config); // New API endpoint
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/ai/reviews`, config); // New API endpoint
       setReviews(res.data);
       setLoading(false);
     } catch (err) {

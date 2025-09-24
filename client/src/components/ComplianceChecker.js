@@ -34,7 +34,7 @@ const ComplianceChecker = () => {
         headers: { 'x-auth-token': token },
         withCredentials: true
       };
-      const res = await axios.get('http://localhost:8000/api/projects', config);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects`, config);
       setProjects(res.data);
       if (res.data.length > 0) {
         setSelectedProjectId(res.data[0].id); // Select first project by default
@@ -61,7 +61,7 @@ const ComplianceChecker = () => {
         headers: { 'x-auth-token': token },
         withCredentials: true
       };
-      const res = await axios.get(`http://localhost:8000/api/projects/${projectId}`, config);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}`, config);
       // Ensure details is an array and initialize limits if not present
       const details = res.data.details && Array.isArray(res.data.details)
         ? res.data.details.map(detail => ({

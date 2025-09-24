@@ -30,7 +30,7 @@ const Permissions = ({ fetchData }) => {
         },
         params: { includeArchived: true } // Fetch all companies, including archived
       };
-      const res = await axios.get('http://localhost:8000/api/companies', config);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, config);
       setCompanies(res.data);
       setLoading(false);
     } catch (err) {
@@ -50,7 +50,7 @@ const Permissions = ({ fetchData }) => {
           'Content-Type': 'application/json'
         }
       };
-      await axios.post('http://localhost:8000/api/companies', { name: newCompanyName }, config);
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/companies`, { name: newCompanyName }, config);
       setNewCompanyName('');
       fetchCompanies();
       if (fetchData) fetchData(); // Refresh global data in App.js
@@ -80,7 +80,7 @@ const Permissions = ({ fetchData }) => {
           'Content-Type': 'application/json'
         }
       };
-      await axios.put(`http://localhost:8000/api/companies/${editingCompanyId}`, { name: editingCompanyName }, config);
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/companies/${editingCompanyId}`, { name: editingCompanyName }, config);
       cancelEdit();
       fetchCompanies();
       if (fetchData) fetchData(); // Refresh global data in App.js
@@ -99,7 +99,7 @@ const Permissions = ({ fetchData }) => {
             'x-auth-token': token
           }
         };
-        await axios.delete(`http://localhost:8000/api/companies/${companyId}`, config); // DELETE now archives
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/companies/${companyId}`, config); // DELETE now archives
         fetchCompanies();
         if (fetchData) fetchData(); // Refresh global data in App.js
       } catch (err) {
@@ -118,7 +118,7 @@ const Permissions = ({ fetchData }) => {
             'x-auth-token': token
           }
         };
-        await axios.put(`http://localhost:8000/api/companies/${companyId}/unarchive`, {}, config);
+        await axios.put(`${process.env.REACT_APP_API_URL}/api/companies/${companyId}/unarchive`, {}, config);
         fetchCompanies();
         if (fetchData) fetchData(); // Refresh global data in App.js
       } catch (err) {

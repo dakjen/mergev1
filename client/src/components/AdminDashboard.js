@@ -29,8 +29,8 @@ const AdminDashboard = () => {
       };
 
       const [pendingRes, companiesRes] = await Promise.all([
-        axios.get('http://localhost:8000/api/admin/users/pending', config),
-        axios.get('http://localhost:8000/api/companies', config) // Fetch all companies
+        axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users/pending`, config),
+        axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, config) // Fetch all companies
       ]);
 
       setPendingUsers(pendingRes.data.map(user => ({ ...user, selectedRole: user.role, selectedCompanyId: user.company?.id || '' })));
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
           'Content-Type': 'application/json'
         }
       };
-      await axios.put(`http://localhost:8000/api/admin/users/${userId}/approve`, { role, companyId: companyId || null }, config);
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/admin/users/${userId}/approve`, { role, companyId: companyId || null }, config);
       alert('User approved successfully!');
       fetchData(); // Refresh all data
     } catch (err) {

@@ -67,8 +67,8 @@ const ProjectView = ({ darkMode }) => { // Accept darkMode prop
         const config = { headers: { 'x-auth-token': token } };
         
         const [projectRes, versionsRes] = await Promise.all([
-          axios.get(`http://localhost:8000/api/projects/${id}`, config),
-          axios.get(`http://localhost:8000/api/projects/${id}/versions`, config)
+          axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${id}`, config),
+          axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${id}/versions`, config)
         ]);
 
         setProject(projectRes.data);

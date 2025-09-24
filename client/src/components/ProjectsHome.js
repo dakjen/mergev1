@@ -37,7 +37,7 @@ const ProjectsHome = ({ user }) => { // Accept user prop
       const config = {
         headers: { 'x-auth-token': token }
       };
-      const res = await axios.get('http://localhost:8000/api/projects', config);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects`, config);
       setProjects(res.data);
 console.log(res.data);
       setLoading(false);
@@ -56,7 +56,7 @@ console.log(res.data);
         headers: { 'x-auth-token': token, 'Content-Type': 'application/json' }
       };
       await axios.post(
-        'http://localhost:8000/api/projects',
+        `${process.env.REACT_APP_API_URL}/api/projects`,
         { name: newProjectName, description: newProjectDescription, deadlineDate: newProjectDeadlineDate }, // Pass deadlineDate
         config
       );
@@ -122,7 +122,7 @@ console.log(res.data);
         headers: { 'x-auth-token': token, 'Content-Type': 'application/json' }
       };
       await axios.put(
-        `http://localhost:8000/api/projects/${editingProjectId}`,
+        `${process.env.REACT_APP_API_URL}/api/projects/${editingProjectId}`,
         { name: editingProjectName, description: editingProjectDescription, details: editingProjectDetails },
         config
       );
@@ -139,7 +139,7 @@ console.log(res.data);
       try {
         const token = localStorage.getItem('token');
         const config = { headers: { 'x-auth-token': token } };
-        await axios.delete(`http://localhost:8000/api/projects/${projectId}`, config);
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}`, config);
         fetchProjects();
       } catch (err) {
         console.error(err.response ? err.response.data : err.message);
@@ -165,7 +165,7 @@ console.log(res.data);
         withCredentials: true
       };
       // Fetch approvers from the same company
-      const res = await axios.get('http://localhost:8000/api/admin/users', config);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users`, config);
       const companyApprovers = res.data.filter(u => u.companyId === user.user.companyId && u.role === 'approver');
       setApprovers(companyApprovers);
       if (companyApprovers.length > 0) {
@@ -190,7 +190,7 @@ console.log(res.data);
         withCredentials: true
       };
       await axios.post(
-        `http://localhost:8000/api/projects/${projectToApproveId}/request-approval`,
+        `${process.env.REACT_APP_API_URL}/api/projects/${projectToApproveId}/request-approval`,
         { approverId: selectedApproverId },
         config
       );
@@ -212,7 +212,7 @@ console.log(res.data);
           withCredentials: true
         };
         await axios.put(
-          `http://localhost:8000/api/projects/${projectId}`,
+          `${process.env.REACT_APP_API_URL}/api/projects/${projectId}`,
           { isCompleted: true }, // Send isCompleted status
           config
         );

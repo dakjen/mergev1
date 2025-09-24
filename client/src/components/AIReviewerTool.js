@@ -30,7 +30,7 @@ const AIReviewerTool = () => {
         headers: { 'x-auth-token': token },
         withCredentials: true
       };
-      const res = await axios.get('http://localhost:8000/api/projects', config);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects`, config);
       setProjects(res.data);
       if (res.data.length > 0) {
         setSelectedProjectId(res.data[0].id); // Select first project by default
@@ -71,7 +71,7 @@ const AIReviewerTool = () => {
       };
 
       const res = await axios.post(
-        'http://localhost:8000/api/ai/review',
+        `${process.env.REACT_APP_API_URL}/api/ai/review`,
         {
           projectId: selectedProjectId,
           grantWebsite,
