@@ -18,7 +18,6 @@ router.get('/', auth, async (req, res) => {
       where: {
         companyId: user.companyId,
       },
-      include: { owner: { select: { username: true } } },
       // Select status as well
       select: {
         id: true,
@@ -255,8 +254,6 @@ router.get('/completed', auth, async (req, res) => {
   }
 });
 
-});
-
 // @route   POST api/projects/:id/request-approval
 // @desc    Request approval for a project
 // @access  Private
@@ -383,8 +380,6 @@ router.put('/:id/respond-approval', auth, async (req, res) => {
   }
 });
 
-});
-
 // @route   GET api/projects/rejected
 // @desc    Get all rejected projects for the logged-in user's company
 // @access  Private
@@ -418,8 +413,6 @@ router.get('/rejected', auth, async (req, res) => {
     console.error(err.message);
     res.status(500).send('Server Error');
   }
-});
-
 });
 
 // @route   GET api/projects/rejected
