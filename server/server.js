@@ -21,10 +21,19 @@ async function connectDB() {
 connectDB();
 
 // Init Middleware
-app.use(cors({
-  origin: 'http://localhost:3002', // Specify the exact frontend origin
-  credentials: true // Allow sending cookies/authorization headers
-}));
+const whitelist = ['http://localhost:3000', 'https://mergev1.vercel.app'];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Define Routes

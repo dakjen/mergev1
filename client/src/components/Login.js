@@ -21,7 +21,7 @@ const Login = ({ onLoginSuccess }) => {
         const config = {
           withCredentials: true
         };
-        const res = await axios.get('http://localhost:8000/api/companies', config);
+        const res = await axios.get('/api/companies', config);
         setCompanies(res.data);
         setLoading(false);
       } catch (err) {
@@ -48,7 +48,7 @@ const Login = ({ onLoginSuccess }) => {
         },
         withCredentials: true
       };
-      const res = await axios.post('http://localhost:8000/api/auth/login', { username, password, companyId: selectedCompany }, config);
+      const res = await axios.post('/api/auth/login', { username, password, companyId: selectedCompany }, config);
       localStorage.setItem('token', res.data.token);
       onLoginSuccess(res.data.token);
       navigate('/api/projects');
