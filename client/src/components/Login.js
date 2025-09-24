@@ -42,7 +42,7 @@ const Login = ({ onLoginSuccess }) => {
       const res = await axios.post('http://localhost:8000/api/auth/login', { username, password, companyName: selectedCompany });
       localStorage.setItem('token', res.data.token);
       onLoginSuccess(res.data.token);
-      navigate('/projects');
+      navigate('/api/projects');
     } catch (err) {
       console.error(err.response.data);
       alert(err.response.data.msg || 'Login failed');

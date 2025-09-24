@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const UserManagement = ({ allUsers, setAllUsers, companies, fetchData, navigate }) => {
+const UserManagement = ({ allUsers, setAllUsers, companies, fetchData }) => {
+  const navigate = useNavigate();
 
   const updateUser = async (userId, role, companyId) => {
     try {

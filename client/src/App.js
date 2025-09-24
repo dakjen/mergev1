@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; // Import jwt-decode
 import Register from './components/Register';
 import Login from './components/Login';
@@ -27,7 +28,42 @@ function MainAppContent() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null); // State to store user info
   const [darkMode, setDarkMode] = useState(false);
+  const [allUsers, setAllUsers] = useState([]); // State for all users
+  const [companies, setCompanies] = useState([]); // State for companies
+  const [dataLoading, setDataLoading] = useState(false); // Loading state for data fetching
+  const [dataError, setDataError] = useState(null); // Error state for data fetching
   const navigate = useNavigate();
+
+  const fetchData = async () => {
+    setDataLoading(true);
+    setDataError(null);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setDataError('No token found. Please log in.');
+        setDataLoading(false);
+        return;
+      }
+      const config = {
+        headers: {
+          'x-auth-token': token
+        }
+      };
+
+      const [allUsersRes, companiesRes] = await Promise.all([
+        axios.get('http://localhost:8000/api/admin/users', config),
+        axios.get('http://localhost:8000/api/companies', config)
+      ]);
+
+      setAllUsers(allUsersRes.data.map(u => ({ ...u, selectedRole: u.role, selectedCompanyId: u.company?.id || '' })));
+      setCompanies(companiesRes.data);
+      setDataLoading(false);
+    } catch (err) {
+      console.error(err.response ? err.response.data : err.message);
+      setDataError(err.response ? err.response.data.msg : 'Failed to fetch data.');
+      setDataLoading(false);
+    }
+  };
 
   const onLoginSuccess = (token) => {
     setIsAuthenticated(true);
@@ -55,6 +91,7 @@ function MainAppContent() {
         } else {
           setIsAuthenticated(true);
           setUser(decoded); // Set user info from decoded token
+          fetchData(); // Fetch data when user is authenticated
         }
       } catch (error) {
         console.error("Failed to decode token in useEffect:", error);
@@ -64,13 +101,13 @@ function MainAppContent() {
       }
     }
     setLoading(false);
-  }, []);
+  }, [isAuthenticated]); // Re-run when isAuthenticated changes
 
   useEffect(() => {
   if (isAuthenticated && !loading) {
     // Only navigate if current path is "/"
     if (window.location.pathname === '/') {
-      navigate('/projects');
+      navigate('/api/projects');
     }
   }
 }, [isAuthenticated, loading, navigate]);
@@ -83,8 +120,12 @@ function MainAppContent() {
     navigate('/login'); // Redirect to login after logout
   };
 
-  if (loading) {
+  if (loading || dataLoading) {
     return <p style={{ textAlign: 'center', marginTop: '50px' }}>Loading application...</p>;
+  }
+
+  if (dataError) {
+    return <p style={{ textAlign: 'center', marginTop: '50px', color: 'red' }}>Error: {dataError}</p>;
   }
 
   return (
@@ -113,7 +154,7 @@ function MainAppContent() {
         <div style={{ display: 'flex', height: 'calc(100vh - 80px)' }}> {/* Adjust height based on header height */}
           <nav style={{ width: '200px', background: '#7fab61', padding: '20px 0', borderRight: '1px solid #ddd', textAlign: 'left' }}>
             <ul style={{ listStyle: 'none', padding: '0 20px' }}>
-              <li style={{ marginBottom: '20px' }}><Link to="/projects" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Projects</Link></li>
+              <li style={{ marginBottom: '20px' }}><Link to="/api/projects" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Projects</Link></li>
               <li style={{ marginBottom: '20px' }}><span style={{ color: '#fffcf0', fontWeight: 'bold', cursor: 'default' }}>Tools</span>
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/past-proposals" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Past Proposals</Link></li>
@@ -125,8 +166,12 @@ function MainAppContent() {
               </li>
               <li style={{ marginTop: 'auto', marginBottom: '10px' }}><span style={{ color: '#debf84', fontWeight: 'bold', cursor: 'default' }}>Settings</span>
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px'}}>
-                  <li style={{ marginBottom: '10px' }}><Link to="/admin" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Admin Dashboard</Link></li>
-                  <li style={{ marginBottom: '10px' }}><Link to="/admin/permissions" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Permissions</Link></li>
+                  {user && user.user.role === 'admin' && (
+                    <li style={{ marginBottom: '10px' }}><Link to="/admin" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Admin Dashboard</Link></li>
+                  )}
+                  {user && user.user.role === 'admin' && (
+                    <li style={{ marginBottom: '10px' }}><Link to="/admin/permissions" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Permissions</Link></li>
+                  )}
                   <li style={{ marginBottom: '10px' }}><Link to="/change-password" style={{ textDecoration: 'none', color: '#fffcf0', fontWeight: 'bold' }}>Change Password</Link></li>
                 </ul>
               </li>
@@ -134,18 +179,34 @@ function MainAppContent() {
           </nav>
           <main className={darkMode ? 'dark-mode' : ''} style={{ flexGrow: 1, padding: '20px', overflowY: 'auto' }}>
             <Routes>
-              <Route path="/projects" element={<ProjectsHome />} />
-              <Route path="/projects/:id/view" element={<ProjectView />} />
+              <Route path="/api/projects" element={<ProjectsHome />} />
+              <Route path="/api/projects/:id/view" element={<ProjectView />} />
               <Route path="/tools/past-proposals" element={<PastProposals />} />
               <Route path="/tools/file-storer" element={<FileStorer />} />
               <Route path="/tools/ai-reviewer" element={<AIReviewerTool />} />
               <Route path="/tools/compliance-checker" element={<ComplianceChecker />} />
               <Route path="/tools/grant-calendar" element={<GrantCalendar />} />
 
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/company-management" element={<CompanyManagement />} /> {/* New route for Company Management */}
-              <Route path="/admin/user-management" element={<UserManagement />} /> {/* New route for User Management */}
-              <Route path="/admin/approval-history" element={<ApprovalHistory />} /> {/* New route for Approval History */}
+              {user && user.user.role === 'admin' ? (
+                <Route path="/admin" element={<AdminDashboard />} />
+              ) : (
+                <Route path="/admin" element={<ProjectsHome />} />
+              )}
+              {user && user.user.role === 'admin' ? (
+                <Route path="/admin/company-management" element={<CompanyManagement />} />
+              ) : (
+                <Route path="/admin/company-management" element={<ProjectsHome />} />
+              )}
+              {user && user.user.role === 'admin' ? (
+                <Route path="/admin/user-management" element={<UserManagement allUsers={allUsers} setAllUsers={setAllUsers} companies={companies} fetchData={fetchData} navigate={navigate} />} />
+              ) : (
+                <Route path="/admin/user-management" element={<ProjectsHome />} />
+              )}
+              {user && user.user.role === 'admin' ? (
+                <Route path="/admin/approval-history" element={<ApprovalHistory />} />
+              ) : (
+                <Route path="/admin/approval-history" element={<ProjectsHome />} />
+              )}
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="*" element={<ProjectsHome />} /> {/* Default authenticated route */}
             </Routes>

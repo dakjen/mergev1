@@ -9,14 +9,14 @@ const prisma = new PrismaClient();
 // @access  Private
 router.get('/', auth, async (req, res) => {
   try {
-    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-    if (!user || !user.companyName) {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
+    if (!user || !user.companyId) {
       return res.status(400).json({ msg: 'User not associated with a company' });
     }
 
     const projects = await prisma.project.findMany({
       where: {
-        companyName: user.companyName,
+        companyId: user.companyId,
       },
       include: { owner: { select: { username: true } } },
     });
@@ -34,7 +34,7 @@ router.get('/:id', auth, async (req, res) => {
   try {
     const project = await prisma.project.findUnique({
       where: { id: req.params.id },
-      include: { owner: { select: { username: true } } },
+      include: { owner: { select: { username: true } }, company: true },
     });
 
     if (!project) {
@@ -42,7 +42,7 @@ router.get('/:id', auth, async (req, res) => {
     }
 
     const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-    if (!user || user.companyName !== project.companyName) {
+    if (!user || user.companyId !== project.companyId) {
       return res.status(401).json({ msg: 'User not authorized to view this project' });
     }
 
@@ -60,8 +60,8 @@ router.post('/', auth, async (req, res) => {
   const { name, description } = req.body;
 
   try {
-    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-    if (!user || !user.companyName) {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
+    if (!user || !user.companyId) {
       return res.status(400).json({ msg: 'User not associated with a company' });
     }
 
@@ -70,7 +70,7 @@ router.post('/', auth, async (req, res) => {
         name,
         description,
         ownerId: req.user.id,
-        companyName: user.companyName,
+        companyId: user.companyId,
       },
     });
     res.json(newProject);
@@ -87,7 +87,7 @@ router.put('/:id', auth, async (req, res) => {
   const { name, description, details } = req.body;
 
   try {
-    let project = await prisma.project.findUnique({ where: { id: req.params.id } });
+    let project = await prisma.project.findUnique({ where: { id: req.params.id }, include: { company: true } });
 
     if (!project) {
       return res.status(404).json({ msg: 'Project not found' });
@@ -110,7 +110,7 @@ router.put('/:id', auth, async (req, res) => {
       data: {
         projectId: project.id,
         versionNumber: newVersionNumber,
-        snapshot: project, // Store the current project state as a snapshot
+        snapshot: { ...project, companyName: project.company?.name || null }, // Store the current project state as a snapshot, including companyName for display
         createdById: req.user.id,
       },
     });
@@ -135,13 +135,14 @@ router.put('/:id', auth, async (req, res) => {
 // @access  Private (owner only)
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+    const project = await prisma.project.findUnique({ where: { id: req.params.id }, include: { company: true } });
 
     if (!project) {
       return res.status(404).json({ msg: 'Project not found' });
     }
 
-    if (project.ownerId !== req.user.id) {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user || user.companyId !== project.companyId) {
       return res.status(401).json({ msg: 'User not authorized to delete this project' });
     }
 

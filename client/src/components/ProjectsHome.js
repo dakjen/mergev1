@@ -240,7 +240,7 @@ console.log(res.data);
                 <>
                   <div className="projects-home-project-header">
                     <h3>{project.name}</h3>
-                    <Link to={`/projects/${project.id}/view`} className="projects-home-view-link">View</Link>
+                    <Link to={`/api/projects/${project.id}/view`} className="projects-home-view-link">View</Link>
                   </div>
                   <p className="projects-home-project-description">{project.description}</p>
                   <p className="projects-home-project-owner">Owner: {project.owner.username} | Company: {project.companyName}</p>

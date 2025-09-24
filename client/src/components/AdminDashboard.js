@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const [pendingUsers, setPendingUsers] = useState([]);
-  const [allUsers, setAllUsers] = useState([]); // New state for all users
   const [companies, setCompanies] = useState([]); // New state for companies
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,14 +28,12 @@ const AdminDashboard = () => {
         }
       };
 
-      const [pendingRes, allUsersRes, companiesRes] = await Promise.all([
+      const [pendingRes, companiesRes] = await Promise.all([
         axios.get('http://localhost:8000/api/admin/users/pending', config),
-        axios.get('http://localhost:8000/api/admin/users', config),
         axios.get('http://localhost:8000/api/companies', config) // Fetch all companies
       ]);
 
       setPendingUsers(pendingRes.data.map(user => ({ ...user, selectedRole: user.role, selectedCompanyId: user.company?.id || '' })));
-      setAllUsers(allUsersRes.data.map(user => ({ ...user, selectedRole: user.role, selectedCompanyId: user.company?.id || '' })));
       setCompanies(companiesRes.data);
       setLoading(false);
     } catch (err) {

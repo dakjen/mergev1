@@ -46,13 +46,14 @@ const ProjectView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
+  const [projectVersions, setProjectVersions] = useState([]); // New state for project versions
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [keywords, setKeywords] = useState([]);
 const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    const fetchProject = async () => {
+    const fetchProjectData = async () => {
       setLoading(true);
       setError(null);
       try {
@@ -63,16 +64,22 @@ const [darkMode, setDarkMode] = useState(false);
           return;
         }
         const config = { headers: { 'x-auth-token': token } };
-        const res = await axios.get(`http://localhost:8000/api/projects/${id}`, config);
-        setProject(res.data);
+        
+        const [projectRes, versionsRes] = await Promise.all([
+          axios.get(`http://localhost:8000/api/projects/${id}`, config),
+          axios.get(`http://localhost:8000/api/projects/${id}/versions`, config)
+        ]);
+
+        setProject(projectRes.data);
+        setProjectVersions(versionsRes.data);
         setLoading(false);
       } catch (err) {
         console.error(err.response ? err.response.data : err.message);
-        setError(err.response ? err.response.data.msg : 'Failed to fetch project.');
+        setError(err.response ? err.response.data.msg : 'Failed to fetch project data.');
         setLoading(false);
       }
     };
-    fetchProject();
+    fetchProjectData();
   }, [id]);
 
   useEffect(() => {
@@ -124,6 +131,24 @@ const [darkMode, setDarkMode] = useState(false);
       )}
 
       <button onClick={() => navigate(-1)} style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '20px' }}>Back to Projects</button>
+
+      <div style={{ marginTop: '30px', textAlign: 'left' }}>
+        <h3>Project Versions</h3>
+        {projectVersions.length === 0 ? (
+          <p>No versions found for this project.</p>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {projectVersions.map(version => (
+              <li key={version.id} style={{ marginBottom: '10px', padding: '10px', background: '#fff', borderRadius: '5px', border: '1px solid #eee' }}>
+                <p><strong>Version:</strong> {version.versionNumber}</p>
+                <p><strong>Created By:</strong> {version.createdBy.username}</p>
+                <p><strong>Created At:</strong> {new Date(version.createdAt).toLocaleString()}</p>
+                <button onClick={() => console.log('Version Snapshot:', version.snapshot)} style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>View Snapshot</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };
