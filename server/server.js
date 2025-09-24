@@ -7,6 +7,8 @@ const cors = require('cors');
 const app = express();
 const prisma = new PrismaClient();
 
+module.exports = prisma;
+
 // Test database connection
 async function connectDB() {
   try {
