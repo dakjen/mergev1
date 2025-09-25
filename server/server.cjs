@@ -1,3 +1,4 @@
+// Force new deployment
 require('dotenv').config();
 console.log('JWT_SECRET:', process.env.JWT_SECRET); // Add this line
 const express = require('express');
