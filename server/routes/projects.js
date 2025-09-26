@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const prisma = require('../server.cjs');
+const prisma = require('../utils/prisma.cjs');
 
 // @route   GET api/projects
 // @desc    Get all projects for the logged-in user's company
