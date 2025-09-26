@@ -360,7 +360,7 @@ router.put('/:id/respond-approval', auth, async (req, res) => {
     await prisma.project.update({
       where: { id: req.params.id },
       data: {
-        status: approvalStatus === 'approved' ? 'approved' : 'draft', // If rejected, revert to draft
+        status: approvalStatus, // Set status to 'approved' or 'rejected'
       },
     });
 
