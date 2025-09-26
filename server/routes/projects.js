@@ -17,16 +17,8 @@ router.get('/', auth, async (req, res) => {
       where: {
         companyId: user.companyId,
       },
-      // Select status as well
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        deadlineDate: true,
-        isCompleted: true,
-        status: true, // Include status
+      include: {
         owner: { select: { username: true } },
-        companyId: true,
         company: { select: { name: true } },
       }
     });
@@ -396,6 +388,7 @@ router.get('/rejected', auth, async (req, res) => {
       },
       include: {
         owner: { select: { username: true } },
+        company: { select: { name: true } },
         approvalRequests: {
           where: { status: 'rejected' },
           orderBy: { respondedAt: 'desc' },
