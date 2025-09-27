@@ -124,6 +124,9 @@ const PastAIReviews = () => {
           ))}
         </div>
       )}
+      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <Link to="/tools/ai-reviewer/archived-reviews" className="archived-link">Archived</Link>
+      </div>
     </div>
   );
 };
