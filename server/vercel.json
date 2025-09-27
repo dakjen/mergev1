@@ -1,13 +1,8 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "server.cjs",
-      "use": "@vercel/node"
-    }
-  ],
   "functions": {
     "server.cjs": {
+      "runtime": "@vercel/node",
       "memory": 1024,
       "maxDuration": 10
     }
