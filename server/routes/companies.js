@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const prisma = require('../utils/prisma.cjs');
-console.log('Prisma instance in companies.js:', prisma);
 
 // @route   GET api/companies
 // @desc    Get all companies

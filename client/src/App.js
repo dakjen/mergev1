@@ -20,6 +20,7 @@ import ApprovalHistory from './components/ApprovalHistory'; // New import for Ap
 import PastAIReviews from './components/PastAIReviews'; // New import for PastAIReviews
 import ToBeApproved from './components/ToBeApproved'; // New import for ToBeApproved
 import PendingCorrection from './components/PendingCorrection'; // New import for PendingCorrection
+import Merge from './components/Merge';
 import merge1 from './merge1.png';
 import './App.css';
 import './DarkMode.css';
@@ -158,6 +159,7 @@ function MainAppContent() {
         <div style={{ display: 'flex', height: 'calc(100vh - 80px)' }}> {/* Adjust height based on header height */}
           <nav style={{ width: '200px', background: '#7fab61', padding: '20px 0', borderRight: '1px solid #ddd', textAlign: 'left' }}>
             <ul style={{ listStyle: 'none', padding: '0 20px' }}>
+              <li style={{ marginBottom: '20px' }}><Link to="/merge" className="sidebar-link">Merge</Link></li>
               <li style={{ marginBottom: '20px' }}><Link to="/api/projects" className="sidebar-link">Projects</Link>
                 {user && user.user.role === 'approver' && ( // Only show to approvers
                   <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
@@ -197,6 +199,7 @@ function MainAppContent() {
           </nav>
           <main className={darkMode ? 'dark-mode' : ''} style={{ flexGrow: 1, padding: '20px', overflowY: 'auto' }}>
             <Routes>
+              <Route path="/merge" element={<Merge />} />
               <Route path="/api/projects" element={<ProjectsHome user={user} />} />
               <Route path="/api/projects/:id/view" element={<ProjectView darkMode={darkMode} />} />
               <Route path="/projects/to-be-approved" element={<ToBeApproved />} /> {/* New route */}

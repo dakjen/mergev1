@@ -1,6 +1,5 @@
 // Force new deployment
 require('dotenv').config();
-console.log('JWT_SECRET:', process.env.JWT_SECRET); // Add this line
 const express = require('express');
 const cors = require('cors');
 const prisma = require('./utils/prisma.cjs');
@@ -36,5 +35,10 @@ app.use('/api/companies', require('./routes/companies'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/files', require('./routes/files')); // New route for file operations
 app.use('/api/ai', require('./routes/ai')); // New route for AI operations
+app.use('/api/users', require('./routes/users'));
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
 module.exports = app;
