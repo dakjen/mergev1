@@ -21,6 +21,7 @@ import PastAIReviews from './components/PastAIReviews'; // New import for PastAI
 import ToBeApproved from './components/ToBeApproved'; // New import for ToBeApproved
 import PendingCorrection from './components/PendingCorrection'; // New import for PendingCorrection
 import Merge from './components/Merge';
+import AIReviewDetail from './components/AIReviewDetail';
 import merge1 from './merge1.png';
 import './App.css';
 import './DarkMode.css';
@@ -208,6 +209,7 @@ function MainAppContent() {
               <Route path="/tools/file-storer" element={<FileStorer />} />
               <Route path="/tools/ai-reviewer" element={<AIReviewerTool />} />
               <Route path="/tools/ai-reviewer/past-reviews" element={<PastAIReviews />} /> {/* New route */}
+              <Route path="/tools/ai-reviewer/past-reviews/:id" element={<AIReviewDetail />} />
               <Route path="/tools/compliance-checker" element={<ComplianceChecker />} />
               <Route path="/tools/grant-calendar" element={<GrantCalendar />} />
 

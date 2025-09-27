@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { marked } from 'marked';
+import { Link } from 'react-router-dom';
 import './PastAIReviews.css';
 
 const PastAIReviews = () => {
@@ -46,28 +46,17 @@ const PastAIReviews = () => {
       {reviews.length === 0 ? (
         <p className="no-reviews">No past AI reviews found.</p>
       ) : (
-        <ul className="reviews-list">
+        <div className="reviews-list">
           {reviews.map(review => (
-            <li key={review.id} className="review-card">
-              <h3>{review.project.name}</h3>
-              <p><strong>Reviewed By:</strong> {review.reviewedBy.username}</p>
-              <p><strong>Reviewed At:</strong> {new Date(review.reviewedAt).toLocaleString()}</p>
-              {review.grantWebsite && (
-                <p>
-                  <strong>Grant Website:</strong>{' '}
-                  <a href={review.grantWebsite} target="_blank" rel="noopener noreferrer">
-                    {review.grantWebsite}
-                  </a>
-                </p>
-              )}
-              {review.grantPurposeStatement && <p><strong>Grant Purpose Statement:</strong> {review.grantPurposeStatement}</p>}
-              <div className="ai-response">
-                <h4>AI Response:</h4>
-                <div className="ai-response-content" dangerouslySetInnerHTML={{ __html: marked.parse(review.aiResponse) }} />
-              </div>
-            </li>
+            <Link key={review.id} to={`/tools/ai-reviewer/past-reviews/${review.id}`} className="review-button-link">
+                <button className="review-button">
+                    <span className="project-name">{review.project.name}</span>
+                    <span className="review-date">{new Date(review.reviewedAt).toLocaleDateString()}</span>
+                    <span className="reviewer-name">{review.reviewedBy.username}</span>
+                </button>
+            </Link>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

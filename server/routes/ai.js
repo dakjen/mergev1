@@ -99,4 +99,35 @@ router.get('/reviews', auth, async (req, res) => {
   }
 });
 
+// @route   GET api/ai/reviews/:id
+// @desc    Get a single AI review by ID
+// @access  Private
+router.get('/reviews/:id', auth, async (req, res) => {
+  try {
+    const review = await prisma.aIReviewLog.findUnique({
+      where: { id: req.params.id },
+      include: {
+        project: { select: { name: true } },
+        reviewedBy: { select: { username: true } },
+      },
+    });
+
+    if (!review) {
+      return res.status(404).json({ msg: 'Review not found' });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    const project = await prisma.project.findUnique({ where: { id: review.projectId } });
+
+    if (!user || user.companyId !== project.companyId) {
+      return res.status(401).json({ msg: 'User not authorized to view this review' });
+    }
+
+    res.json(review);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router;
