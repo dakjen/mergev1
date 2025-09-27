@@ -1,11 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { marked } from 'marked';
 import './AIReviewDetail.css';
 
-const AIReviewDetail = () => {
+const AIReviewDetail = ({ user }) => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [review, setReview] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -31,6 +33,22 @@ const AIReviewDetail = () => {
 
         fetchReview();
     }, [id]);
+
+    const handleArchive = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const config = {
+                headers: { 'x-auth-token': token },
+                withCredentials: true
+            };
+            await axios.put(`${process.env.REACT_APP_API_URL}/api/ai/reviews/${id}/archive`, {}, config);
+            alert('Review archived successfully!');
+            navigate('/tools/ai-reviewer/past-reviews'); // Redirect after archiving
+        } catch (err) {
+            console.error(err.response ? err.response.data : err.message);
+            setError(err.response ? err.response.data.msg : 'Failed to archive review.');
+        }
+    };
 
     if (loading) {
         return <p>Loading review...</p>;
@@ -62,6 +80,9 @@ const AIReviewDetail = () => {
                 <h4>AI Response:</h4>
                 <div className="ai-response-content" dangerouslySetInnerHTML={{ __html: marked.parse(review.aiResponse) }} />
             </div>
+            {user && user.user.role === 'admin' && (
+                <button onClick={handleArchive} className="archive-button" style={{ marginTop: '20px' }}>Archive Review</button>
+            )}
         </div>
     );
 };

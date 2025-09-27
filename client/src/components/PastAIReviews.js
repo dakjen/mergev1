@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './PastAIReviews.css';
 
-const PastAIReviews = () => {
+const PastAIReviews = ({ user }) => {
   const [reviews, setReviews] = useState([]);
   const [projects, setProjects] = useState([]);
   const [users, setUsers] = useState([]);
@@ -81,6 +80,21 @@ const PastAIReviews = () => {
     }
   };
 
+  const handleArchive = async (reviewId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const config = {
+        headers: { 'x-auth-token': token },
+        withCredentials: true
+      };
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/ai/reviews/${reviewId}/archive`, {}, config);
+      fetchFilteredReviews(); // Refresh the list
+    } catch (err) {
+      console.error(err.response ? err.response.data : err.message);
+      setError(err.response ? err.response.data.msg : 'Failed to archive review.');
+    }
+  };
+
   if (loading) return <p className="loading-message">Loading past reviews...</p>;
   if (error) return <p className="error-message">Error: {error}</p>;
 
@@ -113,14 +127,19 @@ const PastAIReviews = () => {
       ) : (
         <div className="reviews-list">
           {reviews.map(review => (
-            <Link key={review.id} to={`/tools/ai-reviewer/past-reviews/${review.id}`} className="review-button-link">
-                <button className="review-button">
-                    <span className="project-name">{review.project.name}</span>
-                    <span className="review-date">{new Date(review.reviewedAt).toLocaleDateString()}</span>
-                    {review.project.deadlineDate && <span className="due-date">Due: {new Date(review.project.deadlineDate).toLocaleDateString()}</span>}
-                    <span className="reviewer-name">{review.reviewedBy.username}</span>
-                </button>
-            </Link>
+            <div key={review.id} className="review-item-wrapper">
+              <Link to={`/tools/ai-reviewer/past-reviews/${review.id}`} className="review-button-link">
+                  <button className="review-button">
+                      <span className="project-name">{review.project.name}</span>
+                      <span className="review-date">{new Date(review.reviewedAt).toLocaleDateString()}</span>
+                      {review.project.deadlineDate && <span className="due-date">Due: {new Date(review.project.deadlineDate).toLocaleDateString()}</span>}
+                      <span className="reviewer-name">{review.reviewedBy.username}</span>
+                  </button>
+              </Link>
+              {user && user.user.role === 'admin' && (
+                <button onClick={() => handleArchive(review.id)} className="archive-button">Archive</button>
+              )}
+            </div>
           ))}
         </div>
       )}

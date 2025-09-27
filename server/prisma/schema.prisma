@@ -130,6 +130,7 @@ model AIReviewLog {
   aiResponse            String    @db.Text // Store potentially long AI responses
   grantWebsite          String?
   grantPurposeStatement String?
+  isArchived            Boolean   @default(false) // New field for archiving reviews
 }
 
 // New ApprovalRequest model to track project approval workflows

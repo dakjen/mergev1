@@ -100,7 +100,10 @@ router.get('/reviews', auth, async (req, res) => {
     }
 
     const reviews = await prisma.aIReviewLog.findMany({
-      where,
+      where: {
+        ...where,
+        isArchived: false, // Only fetch non-archived reviews by default
+      },
       include: {
         project: {
           select: { name: true, deadlineDate: true },
@@ -113,6 +116,31 @@ router.get('/reviews', auth, async (req, res) => {
     });
 
     res.json(reviews);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   PUT api/ai/reviews/:id/archive
+// @desc    Archive an AI review
+// @access  Private (admin only)
+router.put('/reviews/:id/archive', auth, async (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ msg: 'Authorization denied. Not an admin.' });
+  }
+
+  try {
+    const review = await prisma.aIReviewLog.update({
+      where: { id: req.params.id },
+      data: { isArchived: true },
+    });
+
+    if (!review) {
+      return res.status(404).json({ msg: 'Review not found' });
+    }
+
+    res.json({ msg: 'Review archived successfully', review });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -144,6 +172,47 @@ router.get('/reviews/:id', auth, async (req, res) => {
     }
 
     res.json(review);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   GET api/ai/archived-reviews
+// @desc    Get all archived AI review logs for the logged-in user's company
+// @access  Private (admin only)
+router.get('/archived-reviews', auth, async (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ msg: 'Authorization denied. Not an admin.' });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user || !user.companyId) {
+      return res.status(400).json({ msg: 'User not associated with a company' });
+    }
+
+    const reviews = await prisma.aIReviewLog.findMany({
+      where: {
+        project: {
+          companyId: user.companyId,
+        },
+        isArchived: true, // Only fetch archived reviews
+      },
+      include: {
+        project: {
+          select: { name: true, deadlineDate: true },
+        },
+        reviewedBy: {
+          select: { username: true },
+        },
+      },
+      orderBy: {
+        reviewedAt: 'desc',
+      },
+    });
+
+    res.json(reviews);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

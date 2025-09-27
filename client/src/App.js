@@ -209,9 +209,9 @@ function MainAppContent() {
               <Route path="/tools/past-proposals" element={<PastProposals />} />
               <Route path="/tools/file-storer" element={<FileStorer />} />
               <Route path="/tools/ai-reviewer" element={<AIReviewerTool />} />
-              <Route path="/tools/ai-reviewer/past-reviews" element={<PastAIReviews />} /> {/* New route */}
-              <Route path="/tools/ai-reviewer/past-reviews/:id" element={<AIReviewDetail />} />
-              <Route path="/tools/ai-reviewer/archived-reviews" element={<ArchivedAIReviews />} />
+              <Route path="/tools/ai-reviewer/past-reviews" element={<PastAIReviews user={user} />} /> {/* New route */}
+              <Route path="/tools/ai-reviewer/past-reviews/:id" element={<AIReviewDetail user={user} />} />
+              <Route path="/tools/ai-reviewer/archived-reviews" element={<ArchivedAIReviews user={user} />} />
               <Route path="/tools/compliance-checker" element={<ComplianceChecker />} />
               <Route path="/tools/grant-calendar" element={<GrantCalendar />} />
 
