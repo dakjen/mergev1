@@ -91,6 +91,10 @@ router.get('/reviews', auth, async (req, res) => {
     const orderBy = {};
     if (sortBy === 'oldest') {
       orderBy.reviewedAt = 'asc';
+    } else if (sortBy === 'dueDate_asc') {
+      orderBy.project = { deadlineDate: 'asc' };
+    } else if (sortBy === 'dueDate_desc') {
+      orderBy.project = { deadlineDate: 'desc' };
     } else {
       orderBy.reviewedAt = 'desc';
     }

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -102,6 +103,8 @@ const PastAIReviews = () => {
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
           <option value="newest">Newest</option>
           <option value="oldest">Oldest</option>
+          <option value="dueDate_asc">Due Date (Soonest)</option>
+          <option value="dueDate_desc">Due Date (Latest)</option>
         </select>
       </div>
 
