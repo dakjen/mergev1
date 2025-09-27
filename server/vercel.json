@@ -8,35 +8,7 @@
   ],
   "routes": [
     {
-      "src": "/api/auth/(.*)",
-      "dest": "server.cjs"
-    },
-    {
-      "src": "/api/narratives/(.*)",
-      "dest": "server.cjs"
-    },
-    {
-      "src": "/api/admin/(.*)",
-      "dest": "server.cjs"
-    },
-    {
-      "src": "/api/companies/(.*)",
-      "dest": "server.cjs"
-    },
-    {
-      "src": "/api/projects/(.*)",
-      "dest": "server.cjs"
-    },
-    {
-      "src": "/api/files/(.*)",
-      "dest": "server.cjs"
-    },
-    {
-      "src": "/api/ai/(.*)",
-      "dest": "server.cjs"
-    },
-    {
-      "src": "/api/users/(.*)",
+      "src": "/api/(.*)",
       "dest": "server.cjs"
     },
     {
