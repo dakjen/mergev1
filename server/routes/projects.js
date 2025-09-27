@@ -36,7 +36,15 @@ router.get('/:id', auth, async (req, res) => {
   try {
     const project = await prisma.project.findUnique({
       where: { id: req.params.id },
-      include: { owner: { select: { username: true } }, company: true },
+      include: {
+        owner: { select: { username: true } },
+        company: true,
+        questions: {
+          include: {
+            assignedTo: { select: { id: true, username: true, name: true } },
+          },
+        },
+      },
     });
 
     if (!project) {
@@ -59,7 +67,7 @@ router.get('/:id', auth, async (req, res) => {
 // @desc    Create a new project
 // @access  Private
 router.post('/', auth, async (req, res) => {
-  const { name, description, deadlineDate } = req.body; // Add deadlineDate
+  const { name, description, deadlineDate, questions } = req.body; // Add deadlineDate and questions
 
   try {
     const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
@@ -74,6 +82,16 @@ router.post('/', auth, async (req, res) => {
         deadlineDate: deadlineDate ? new Date(deadlineDate) : null, // Save deadlineDate
         ownerId: req.user.id,
         companyId: user.companyId,
+        questions: {
+          create: questions ? questions.map(q => ({
+            text: q.text,
+            assignedToId: q.assignedToId || null, // Assign if provided, otherwise null
+            status: q.status || 'pending', // Default status
+          })) : [],
+        },
+      },
+      include: {
+        questions: true, // Include questions in the response
       },
     });
     res.json(newProject);
@@ -410,6 +428,39 @@ router.get('/rejected', auth, async (req, res) => {
 // @route   GET api/projects/pending-approval-count
 // @desc    Get count of pending approval requests for the current approver
 // @access  Private (approver only)
+router.put('/questions/:id/assign', auth, async (req, res) => {
+  const { assignedToId, status } = req.body;
+
+  try {
+    let question = await prisma.question.findUnique({ where: { id: req.params.id } });
+
+    if (!question) {
+      return res.status(404).json({ msg: 'Question not found' });
+    }
+
+    // Authorization: Only project owner or admin can assign/update questions
+    const project = await prisma.project.findUnique({ where: { id: question.projectId } });
+    if (!project || (project.ownerId !== req.user.id && req.user.role !== 'admin')) {
+      return res.status(401).json({ msg: 'User not authorized to update this question' });
+    }
+
+    question = await prisma.question.update({
+      where: { id: req.params.id },
+      data: {
+        assignedToId: assignedToId || question.assignedToId,
+        status: status || question.status,
+      },
+    });
+    res.json(question);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   GET api/projects/pending-approval-count
+// @desc    Get count of pending approval requests for the current approver
+// @access  Private (approver only)
 router.get('/pending-approval-count', auth, async (req, res) => {
   if (req.user.role !== 'approver') {
     return res.status(403).json({ msg: 'Authorization denied. Not an approver.' });
@@ -423,6 +474,43 @@ router.get('/pending-approval-count', auth, async (req, res) => {
       },
     });
     res.json({ count: pendingCount });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   GET api/questions/assigned
+// @desc    Get all questions assigned to the logged-in user
+// @access  Private
+router.get('/questions/assigned', auth, async (req, res) => {
+  try {
+    const assignedQuestions = await prisma.question.findMany({
+      where: {
+        assignedToId: req.user.id,
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            deadlineDate: true,
+          },
+        },
+        assignedTo: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    res.json(assignedQuestions);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

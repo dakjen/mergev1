@@ -41,6 +41,7 @@ model User {
   aiReviewLogs AIReviewLog[] // New relation to AIReviewLog model
   requestedApprovals ApprovalRequest[] @relation("RequestedApprovals") // New relation
   assignedApprovals  ApprovalRequest[] @relation("AssignedApprovals")  // New relation
+  assignedQuestions Question[] @relation("AssignedQuestions") // New relation for questions assigned to this user
 }
 
 model Company {
@@ -69,6 +70,7 @@ model Project {
   versions    ProjectVersion[]
   aiReviewLogs AIReviewLog[] // New relation to AIReviewLog model
   approvalRequests ApprovalRequest[] // New relation to ApprovalRequest model
+  questions        Question[] // New relation to Question model
 }
 
 model Narrative {
@@ -146,4 +148,16 @@ model ApprovalRequest {
   comments              String?   @db.Text
   requestedAt           DateTime  @default(now())
   respondedAt           DateTime? 
+}
+
+model Question {
+  id          String    @id @default(cuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  text        String    @db.Text
+  assignedToId String?
+  assignedTo  User?     @relation(fields: [assignedToId], references: [id], name: "AssignedQuestions")
+  status      String    @default("pending")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
