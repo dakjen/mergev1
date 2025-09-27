@@ -36,6 +36,7 @@ function MainAppContent() {
   const [darkMode, setDarkMode] = useState(false);
   const [allUsers, setAllUsers] = useState([]); // State for all users
   const [companies, setCompanies] = useState([]); // State for companies
+  const [pendingApprovalCount, setPendingApprovalCount] = useState(0); // New state for pending approval count
   const [dataLoading, setDataLoading] = useState(false); // Loading state for data fetching
   const [dataError, setDataError] = useState(null); // Error state for data fetching
   const navigate = useNavigate();
@@ -57,15 +58,19 @@ function MainAppContent() {
         withCredentials: true
       };
 
-      const [allUsersRes, companiesRes] = await Promise.all([
+      const [allUsersRes, companiesRes, pendingCountRes] = await Promise.all([
         user && user.user.role === 'admin' ? axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users`, config) : Promise.resolve({ data: [] }),
-        axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, config)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, config),
+        user && user.user.role === 'approver' ? axios.get(`${process.env.REACT_APP_API_URL}/api/projects/pending-approval-count`, config) : Promise.resolve({ data: { count: 0 } })
       ]);
 
       if (user && user.user.role === 'admin') {
         setAllUsers(allUsersRes.data.map(u => ({ ...u, selectedRole: u.role, selectedCompanyId: u.company?.id || '' })));
       }
       setCompanies(companiesRes.data);
+      if (user && user.user.role === 'approver') {
+        setPendingApprovalCount(pendingCountRes.data.count);
+      }
       setDataLoading(false);
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
@@ -167,7 +172,9 @@ function MainAppContent() {
               <li style={{ marginBottom: '20px' }}><Link to="/api/projects" className="sidebar-link">Projects</Link>
                 {user && user.user.role === 'approver' && ( // Only show to approvers
                   <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
-                    <li style={{ marginBottom: '10px' }}><Link to="/projects/to-be-approved" className="sidebar-link">To Be Approved</Link></li>
+                    <li style={{ marginBottom: '10px' }}><Link to="/projects/to-be-approved" className="sidebar-link">
+                      To Be Approved {pendingApprovalCount > 0 && <span className="notification-bubble">{pendingApprovalCount}</span>}
+                    </Link></li>
                   </ul>
                 )}
                 {/* New sub-category for Pending Correction */}

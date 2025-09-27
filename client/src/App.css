@@ -38,13 +38,27 @@ h1 {
   color: #fffcf0; /* Original color */
   font-weight: bold;
   padding: 8px 0;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   transition: background-color 0.2s ease-in-out;
 }
 
 .sidebar-link:hover {
   background-color: rgba(255, 255, 255, 0.1);
   color: #ffffff;
+}
+
+.notification-bubble {
+  background-color: #dc3545; /* Red color for notification */
+  color: white;
+  border-radius: 50%;
+  padding: 2px 8px;
+  font-size: 0.7em;
+  font-weight: bold;
+  margin-left: 10px;
+  min-width: 20px; /* Ensure it's a circle even for single digits */
+  text-align: center;
 }
 
 /* Sidebar Settings Link Styles */

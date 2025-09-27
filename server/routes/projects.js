@@ -407,4 +407,26 @@ router.get('/rejected', auth, async (req, res) => {
   }
 });
 
+// @route   GET api/projects/pending-approval-count
+// @desc    Get count of pending approval requests for the current approver
+// @access  Private (approver only)
+router.get('/pending-approval-count', auth, async (req, res) => {
+  if (req.user.role !== 'approver') {
+    return res.status(403).json({ msg: 'Authorization denied. Not an approver.' });
+  }
+
+  try {
+    const pendingCount = await prisma.approvalRequest.count({
+      where: {
+        approverId: req.user.id,
+        status: 'pending',
+      },
+    });
+    res.json({ count: pendingCount });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router;

@@ -166,9 +166,7 @@ console.log(res.data);
       };
       // Fetch approvers from the same company
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/users`, config);
-      console.log('All users from company:', res.data);
       const companyApprovers = res.data.filter(u => u.role === 'approver');
-      console.log('Filtered company approvers:', companyApprovers);
       setApprovers(companyApprovers);
       if (companyApprovers.length > 0) {
         setSelectedApproverId(companyApprovers[0].id);
