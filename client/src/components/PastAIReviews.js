@@ -80,7 +80,8 @@ const PastAIReviews = ({ user }) => {
     }
   };
 
-  const handleArchive = async (reviewId) => {
+  const handleArchive = async (event, reviewId) => {
+    event.stopPropagation(); // Prevent the Link from being triggered
     try {
       const token = localStorage.getItem('token');
       const config = {
@@ -127,19 +128,17 @@ const PastAIReviews = ({ user }) => {
       ) : (
         <div className="reviews-list">
           {reviews.map(review => (
-            <div key={review.id} className="review-item-wrapper">
-              <Link to={`/tools/ai-reviewer/past-reviews/${review.id}`} className="review-button-link">
-                  <button className="review-button">
-                      <span className="project-name">{review.project.name}</span>
-                      <span className="review-date">{new Date(review.reviewedAt).toLocaleDateString()}</span>
-                      {review.project.deadlineDate && <span className="due-date">Due: {new Date(review.project.deadlineDate).toLocaleDateString()}</span>}
-                      <span className="reviewer-name">{review.reviewedBy.username}</span>
-                  </button>
-              </Link>
-              {user && user.user.role === 'admin' && (
-                <button onClick={() => handleArchive(review.id)} className="archive-button">Archive</button>
-              )}
-            </div>
+            <Link key={review.id} to={`/tools/ai-reviewer/past-reviews/${review.id}`} className="review-button-link">
+                <button className="review-button">
+                    <span className="project-name">{review.project.name}</span>
+                    <span className="review-date">{new Date(review.reviewedAt).toLocaleDateString()}</span>
+                    {review.project.deadlineDate && <span className="due-date">Due: {new Date(review.project.deadlineDate).toLocaleDateString()}</span>}
+                    <span className="reviewer-name">{review.reviewedBy.username}</span>
+                    {user && user.user.role === 'admin' && (
+                      <button onClick={(event) => handleArchive(event, review.id)} className="archive-button">Archive</button>
+                    )}
+                </button>
+            </Link>
           ))}
         </div>
       )}
