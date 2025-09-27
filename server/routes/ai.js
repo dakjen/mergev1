@@ -73,12 +73,30 @@ router.get('/reviews', auth, async (req, res) => {
       return res.status(400).json({ msg: 'User not associated with a company' });
     }
 
-    const reviews = await prisma.aIReviewLog.findMany({
-      where: {
-        project: { // Filter by project's companyId
-          companyId: user.companyId,
-        },
+    const { projectId, reviewedById, sortBy } = req.query;
+    const where = {
+      project: { // Filter by project's companyId
+        companyId: user.companyId,
       },
+    };
+
+    if (projectId) {
+      where.projectId = projectId;
+    }
+
+    if (reviewedById) {
+      where.reviewedById = reviewedById;
+    }
+
+    const orderBy = {};
+    if (sortBy === 'oldest') {
+      orderBy.reviewedAt = 'asc';
+    } else {
+      orderBy.reviewedAt = 'desc';
+    }
+
+    const reviews = await prisma.aIReviewLog.findMany({
+      where,
       include: {
         project: {
           select: { name: true },
@@ -87,9 +105,7 @@ router.get('/reviews', auth, async (req, res) => {
           select: { username: true },
         },
       },
-      orderBy: {
-        reviewedAt: 'desc',
-      },
+      orderBy,
     });
 
     res.json(reviews);
