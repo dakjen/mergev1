@@ -315,7 +315,7 @@ router.get('/pending-approval', auth, async (req, res) => {
         requestedAt: 'asc',
       },
     });
-
+    console.log('Pending Approvals from DB:', pendingApprovals);
     res.json(pendingApprovals);
   } catch (err) {
     console.error(err.message);
