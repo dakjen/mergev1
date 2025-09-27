@@ -8,16 +8,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai'); // Import Googl
 // Access your API key as an environment variable (ensure GEMINI_API_KEY is set in .env)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-async function listModels() {
-  try {
-    const result = await genAI.listModels();
-    console.log('Available Gemini Models:', result.models);
-  } catch (err) {
-    console.error('Error listing models:', err);
-  }
-}
 
-listModels();
 
 // @route   POST api/ai/review
 // @desc    Send a project for AI review
@@ -48,13 +39,16 @@ router.post('/review', auth, async (req, res) => {
     }
 
     // Construct the prompt for the Gemini API
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
-
     const prompt = `You are an expert grant reviewer. Review the following project proposal in the context of a grant application.\nProject Name: ${project.name}\nProject Description: ${project.description || 'No description provided.'}\nProject Details: ${JSON.stringify(project.details || {})}\n\nGrant Website: ${grantWebsite}\nGrant Purpose Statement: ${grantPurposeStatement}\n\nPlease provide a comprehensive review of the project's suitability for the grant, considering the grant's purpose.\nHighlight the project's strengths and weaknesses in relation to the grant.\nOffer specific recommendations on what can be fixed or modified in the project proposal to better align with the grant's objectives and increase its chances of success.\nFormat your response as a markdown document with clear headings for Strengths, Weaknesses, and Recommendations.`;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const result = await genAI.generateText({
+      model: 'models/text-bison-001', // valid model for this SDK
+      prompt: prompt,
+      temperature: 0.7,
+      maxOutputTokens: 512,
+    });
+
+    const text = result?.candidates?.[0]?.output || 'No response from AI';
 
     // Save the AI review to the database
     await prisma.aIReviewLog.create({
