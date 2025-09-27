@@ -8,6 +8,7 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   const [newProjectName, setNewProjectName] = useState('');
   const [newProjectDescription, setNewProjectDescription] = useState('');
   const [newProjectDeadlineDate, setNewProjectDeadlineDate] = useState(''); // New state for deadline
+  const [newProjectQuestions, setNewProjectQuestions] = useState([]); // New state for questions in new project
   const [editingProjectId, setEditingProjectId] = useState(null);
   const [editingProjectName, setEditingProjectName] = useState('');
   const [editingProjectDescription, setEditingProjectDescription] = useState('');
@@ -19,10 +20,26 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   const [approvers, setApprovers] = useState([]); // State for list of approvers
   const [selectedApproverId, setSelectedApproverId] = useState(''); // State for selected approver
   const [projectToApproveId, setProjectToApproveId] = useState(null); // Project ID for current approval request
+  const [companyUsers, setCompanyUsers] = useState([]); // New state for users in the company
 
   useEffect(() => {
     fetchProjects();
+    fetchCompanyUsers(); // Fetch company users when component mounts
   }, []);
+
+  const fetchCompanyUsers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const config = {
+        headers: { 'x-auth-token': token }
+      };
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/users`, config);
+      setCompanyUsers(res.data);
+    } catch (err) {
+      console.error('Failed to fetch company users:', err.response ? err.response.data : err.message);
+    }
+  };
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -57,12 +74,13 @@ console.log(res.data);
       };
       await axios.post(
         `${process.env.REACT_APP_API_URL}/api/projects`,
-        { name: newProjectName, description: newProjectDescription, deadlineDate: newProjectDeadlineDate }, // Pass deadlineDate
+        { name: newProjectName, description: newProjectDescription, deadlineDate: newProjectDeadlineDate, questions: newProjectQuestions }, // Pass deadlineDate and questions
         config
       );
       setNewProjectName('');
       setNewProjectDescription('');
       setNewProjectDeadlineDate(''); // Clear deadline date
+      setNewProjectQuestions([]); // Clear questions
       setShowAddProjectForm(false);
       fetchProjects();
     } catch (err) {
@@ -75,8 +93,8 @@ console.log(res.data);
     setEditingProjectId(project.id);
     setEditingProjectName(project.name);
     setEditingProjectDescription(project.description || '');
-    setEditingProjectDetails(project.details && project.details.length > 0
-      ? project.details.map(detail => ({ ...detail, isEditingQuestion: false })) // Initialize isEditingQuestion
+    setEditingProjectDetails(project.questions && project.questions.length > 0
+      ? project.questions.map(q => ({ ...q, question: q.text, answer: '', isEditingQuestion: false })) // Map question text to 'question' field
       : [{ question: '', answer: '', isEditingQuestion: false }]); // Initialize with isEditingQuestion
   };
 
@@ -89,7 +107,16 @@ console.log(res.data);
 
   const handleDetailChange = (index, field, value) => {
     const newDetails = [...editingProjectDetails];
-    newDetails[index][field] = value;
+    if (field === 'assignedToId') {
+      newDetails[index].assignedToId = value === '' ? null : value; // Convert empty string to null
+    } else if (field === 'status') {
+      newDetails[index].status = value;
+    } else if (field === 'question') {
+      newDetails[index].text = value; // Update the 'text' field of the question
+      newDetails[index].question = value; // Keep 'question' for UI compatibility
+    } else {
+      newDetails[index][field] = value;
+    }
     setEditingProjectDetails(newDetails);
   };
 
@@ -100,13 +127,12 @@ console.log(res.data);
   };
 
   const handleSaveQuestion = (index) => {
-    // In a real app, you might want to save this change to the server immediately
-    // For now, just exit edit mode
+    // For now, just exit edit mode for the question text
     handleEditQuestionToggle(index, false);
   };
 
   const addDetailPair = () => {
-    setEditingProjectDetails([...editingProjectDetails, { question: '', answer: '', isEditingQuestion: false }]); // Initialize with isEditingQuestion
+    setEditingProjectDetails([...editingProjectDetails, { question: '', answer: '', isEditingQuestion: true, assignedToId: null, status: 'pending' }]); // Initialize with isEditingQuestion, assignedToId, and status
   };
 
   const removeDetailPair = (index) => {
@@ -123,9 +149,26 @@ console.log(res.data);
       };
       await axios.put(
         `${process.env.REACT_APP_API_URL}/api/projects/${editingProjectId}`,
-        { name: editingProjectName, description: editingProjectDescription, details: editingProjectDetails },
+        { name: editingProjectName, description: editingProjectDescription },
         config
       );
+
+      // Update each question individually
+      for (const question of editingProjectDetails) {
+        if (question.id) { // Only update existing questions
+          await axios.put(
+            `${process.env.REACT_APP_API_URL}/api/questions/${question.id}/assign`,
+            { text: question.question, assignedToId: question.assignedToId, status: question.status },
+            config
+          );
+        } else { // Create new questions if they don't have an ID (added during edit)
+          await axios.post(
+            `${process.env.REACT_APP_API_URL}/api/projects/${editingProjectId}/questions`,
+            { text: question.question, assignedToId: question.assignedToId, status: question.status },
+            config
+          );
+        }
+      }
       cancelEdit();
       fetchProjects();
     } catch (err) {
@@ -266,6 +309,42 @@ console.log(res.data);
               onChange={(e) => setNewProjectDeadlineDate(e.target.value)}
               style={{ marginTop: '0px' }} // Adjust margin as label adds space
             />
+
+            {/* Questions for New Project */}
+            <div className="new-project-questions-section" style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
+              <h4>Questions (Optional)</h4>
+              {newProjectQuestions.map((q, index) => (
+                <div key={index} className="new-project-question-item" style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
+                  <textarea
+                    placeholder="Question text"
+                    value={q.text}
+                    onChange={(e) => {
+                      const updatedQuestions = [...newProjectQuestions];
+                      updatedQuestions[index].text = e.target.value;
+                      setNewProjectQuestions(updatedQuestions);
+                    }}
+                    rows="2"
+                    style={{ width: '100%', marginBottom: '5px' }}
+                  ></textarea>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updatedQuestions = newProjectQuestions.filter((_, i) => i !== index);
+                      setNewProjectQuestions(updatedQuestions);
+                    }}
+                    className="remove-detail-button"
+                    style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px' }}
+                  >Remove Question</button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => setNewProjectQuestions([...newProjectQuestions, { text: '' }])}
+                className="add-detail-button"
+                style={{ backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px', marginTop: '10px' }}
+              >Add Question</button>
+            </div>
+
             <div className="projects-home-add-form-buttons">
               <button type="submit" className="create-button">Create Project</button>
               <button type="button" onClick={() => setShowAddProjectForm(false)} className="cancel-button">Cancel</button>
@@ -297,7 +376,7 @@ console.log(res.data);
                   ></textarea>
 
                   {editingProjectDetails.map((detail, index) => (
-                    <div key={index} className="detail-pair">
+                    <div key={detail.id || `new-${index}`} className="detail-pair">
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
                         {detail.isEditingQuestion ? (
                           <input
@@ -319,6 +398,36 @@ console.log(res.data);
                             <button type="button" onClick={() => handleEditQuestionToggle(index, true)} style={{ backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px' }}>Edit</button>
                           )
                         )}
+                      </div>
+                      {/* Assigned To Dropdown */}
+                      <div style={{ marginBottom: '10px' }}>
+                        <label htmlFor={`assignedTo-${index}`} style={{ marginRight: '5px' }}>Assigned To:</label>
+                        <select
+                          id={`assignedTo-${index}`}
+                          value={detail.assignedToId || ''}
+                          onChange={(e) => handleDetailChange(index, 'assignedToId', e.target.value || null)}
+                          style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc' }}
+                        >
+                          <option value="">Unassigned</option>
+                          {companyUsers.map(u => (
+                            <option key={u.id} value={u.id}>{u.name || u.username}</option>
+                          ))}
+                        </select>
+                      </div>
+                      {/* Status Dropdown */}
+                      <div style={{ marginBottom: '10px' }}>
+                        <label htmlFor={`status-${index}`} style={{ marginRight: '5px' }}>Status:</label>
+                        <select
+                          id={`status-${index}`}
+                          value={detail.status || 'pending'}
+                          onChange={(e) => handleDetailChange(index, 'status', e.target.value)}
+                          style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc' }}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="in-progress">In Progress</option>
+                          <option value="completed">Completed</option>
+                          <option value="in-review">In Review</option>
+                        </select>
                       </div>
                       <textarea
                         placeholder="Answer (Use Markdown for bold/bullets)"
