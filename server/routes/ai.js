@@ -39,11 +39,11 @@ router.post('/review', auth, async (req, res) => {
     }
 
     // Construct the prompt for the Gemini API
-    const model = genAI.getGenerativeModel({ model: 'text-bison-001' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro-latest' });
 
     const prompt = `You are an expert grant reviewer. Review the following project proposal in the context of a grant application.\nProject Name: ${project.name}\nProject Description: ${project.description || 'No description provided.'}\nProject Details: ${JSON.stringify(project.details || {})}\n\nGrant Website: ${grantWebsite}\nGrant Purpose Statement: ${grantPurposeStatement}\n\nPlease provide a comprehensive review of the project's suitability for the grant, considering the grant's purpose.\nHighlight the project's strengths and weaknesses in relation to the grant.\nOffer specific recommendations on what can be fixed or modified in the project proposal to better align with the grant's objectives and increase its chances of success.\nFormat your response as a markdown document with clear headings for Strengths, Weaknesses, and Recommendations.`;
 
-    const result = await model.generateContent([{ content: prompt }]);
+    const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
 
