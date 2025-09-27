@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { marked } from 'marked';
+import './AIReviewDetail.css';
 
 const AIReviewDetail = () => {
     const { id } = useParams();
@@ -45,7 +45,7 @@ const AIReviewDetail = () => {
     }
 
     return (
-        <div className="review-card">
+        <div className="review-detail-container">
             <h3>{review.project.name}</h3>
             <p><strong>Reviewed By:</strong> {review.reviewedBy.username}</p>
             <p><strong>Reviewed At:</strong> {new Date(review.reviewedAt).toLocaleString()}</p>
