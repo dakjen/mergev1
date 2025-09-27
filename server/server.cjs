@@ -37,8 +37,4 @@ app.use('/api/files', require('./routes/files')); // New route for file operatio
 app.use('/api/ai', require('./routes/ai')); // New route for AI operations
 app.use('/api/users', require('./routes/users'));
 
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
-
 module.exports = app;
