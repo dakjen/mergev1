@@ -4,10 +4,18 @@ const auth = require('../middleware/auth');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { PredictionServiceClient } = require('@google-cloud/aiplatform');
+const fs = require('fs');
+const path = require('path');
+
+// Create a temporary file for the service account credentials
+const credentials = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+const tempFilePath = path.join('/tmp', 'gcp-credentials.json');
+fs.writeFileSync(tempFilePath, credentials);
 
 // Configure the Vertex AI client
 const clientOptions = {
   apiEndpoint: 'us-central1-aiplatform.googleapis.com',
+  keyFilename: tempFilePath,
 };
 const predictionServiceClient = new PredictionServiceClient(clientOptions);
 
