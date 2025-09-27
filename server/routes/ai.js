@@ -8,6 +8,17 @@ const { GoogleGenerativeAI } = require('@google/generative-ai'); // Import Googl
 // Access your API key as an environment variable (ensure GEMINI_API_KEY is set in .env)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+async function listModels() {
+  try {
+    const result = await genAI.listModels();
+    console.log('Available Gemini Models:', result.models);
+  } catch (err) {
+    console.error('Error listing models:', err);
+  }
+}
+
+listModels();
+
 // @route   POST api/ai/review
 // @desc    Send a project for AI review
 // @access  Private
