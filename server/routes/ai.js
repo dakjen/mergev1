@@ -3,55 +3,58 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { TextServiceClient } = require("@google-ai/generativelanguage").v1beta2;
-const { GoogleAuth } = require("google-auth-library");
+const { PredictionServiceClient } = require('@google-cloud/aiplatform');
 
-// Access your API key as an environment variable (ensure GEMINI_API_KEY is set in .env)
-const client = new TextServiceClient({
-  authClient: new GoogleAuth().fromAPIKey(process.env.GEMINI_API_KEY),
-});
-
-
+// Configure the Vertex AI client
+const clientOptions = {
+  apiEndpoint: 'us-central1-aiplatform.googleapis.com',
+};
+const predictionServiceClient = new PredictionServiceClient(clientOptions);
 
 // @route   POST api/ai/review
 // @desc    Send a project for AI review
 // @access  Private
 router.post('/review', auth, async (req, res) => {
-  const { projectId, grantWebsite, grantPurposeStatement } = req.body; // Updated to receive new parameters
+  const { projectId, grantWebsite, grantPurposeStatement } = req.body;
 
   try {
-    // Ensure GEMINI_API_KEY is set
-    if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({ msg: 'Google Gemini API Key not configured on server.' });
-    }
-
     // Fetch project details from the database
     const project = await prisma.project.findUnique({
       where: { id: projectId },
-      include: { owner: { select: { username: true } } }, // Include owner for context
+      include: { owner: { select: { username: true } } },
     });
 
     if (!project) {
       return res.status(404).json({ msg: 'Project not found' });
     }
 
-    // Basic authorization: ensure user is associated with the project's company
+    // Basic authorization
     const user = await prisma.user.findUnique({ where: { id: req.user.id } });
     if (!user || user.companyId !== project.companyId) {
       return res.status(401).json({ msg: 'User not authorized to review this project' });
     }
 
-    // Construct the prompt for the PaLM API
+    // Construct the prompt
     const prompt = `You are an expert grant reviewer. Review the following project proposal in the context of a grant application.\nProject Name: ${project.name}\nProject Description: ${project.description || 'No description provided.'}\nProject Details: ${JSON.stringify(project.details || {})}\n\nGrant Website: ${grantWebsite}\nGrant Purpose Statement: ${grantPurposeStatement}\n\nPlease provide a comprehensive review of the project's suitability for the grant, considering the grant's purpose.\nHighlight the project's strengths and weaknesses in relation to the grant.\nOffer specific recommendations on what can be fixed or modified in the project proposal to better align with the grant's objectives and increase its chances of success.\nFormat your response as a markdown document with clear headings for Strengths, Weaknesses, and Recommendations.`;
 
-    const result = await client.generateText({
-      model: 'models/text-bison-001',
-      prompt: {
-        text: prompt,
-      },
-    });
+    // Construct the request for the Vertex AI API
+    const endpoint = `projects/gen-lang-client-0643345293/locations/us-central1/publishers/google/models/text-bison@001`;
+    const instances = [{ content: prompt }];
+    const parameters = {
+      temperature: 0.7,
+      maxOutputTokens: 512,
+      topK: 40,
+      topP: 0.95,
+    };
+    const request = {
+      endpoint,
+      instances,
+      parameters,
+    };
 
-    const text = result[0]?.candidates?.[0]?.output || 'No response from AI';
+    // Make the API call
+    const [response] = await predictionServiceClient.predict(request);
+    const text = response.predictions[0].content;
 
     // Save the AI review to the database
     await prisma.aIReviewLog.create({
