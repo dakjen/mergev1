@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { marked } from 'marked'; // For rendering markdown response
+import { marked } from 'marked';
+import './PastAIReviews.css';
 
 const PastAIReviews = () => {
   const [reviews, setReviews] = useState([]);
@@ -25,7 +26,7 @@ const PastAIReviews = () => {
         headers: { 'x-auth-token': token },
         withCredentials: true
       };
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/ai/reviews`, config); // New API endpoint
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/ai/reviews`, config);
       setReviews(res.data);
       setLoading(false);
     } catch (err) {
@@ -35,27 +36,34 @@ const PastAIReviews = () => {
     }
   };
 
-  if (loading) return <p style={{ textAlign: 'center' }}>Loading past reviews...</p>;
-  if (error) return <p style={{ textAlign: 'center', color: 'red' }}>Error: {error}</p>;
+  if (loading) return <p className="loading-message">Loading past reviews...</p>;
+  if (error) return <p className="error-message">Error: {error}</p>;
 
   return (
-    <div style={{ padding: '20px', textAlign: 'center' }}>
+    <div className="past-reviews-container">
       <h2>Past AI Reviews</h2>
 
       {reviews.length === 0 ? (
-        <p>No past AI reviews found.</p>
+        <p className="no-reviews">No past AI reviews found.</p>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <ul className="reviews-list">
           {reviews.map(review => (
-            <li key={review.id} style={{ marginBottom: '30px', border: '1px solid #eee', padding: '20px', borderRadius: '8px', maxWidth: '800px', margin: '0 auto', textAlign: 'left' }}>
-              <h3>Project: {review.project.name}</h3>
+            <li key={review.id} className="review-card">
+              <h3>{review.project.name}</h3>
               <p><strong>Reviewed By:</strong> {review.reviewedBy.username}</p>
               <p><strong>Reviewed At:</strong> {new Date(review.reviewedAt).toLocaleString()}</p>
-              {review.grantWebsite && <p><strong>Grant Website:</strong> <a href={review.grantWebsite} target="_blank" rel="noopener noreferrer">{review.grantWebsite}</a></p>}
+              {review.grantWebsite && (
+                <p>
+                  <strong>Grant Website:</strong>{' '}
+                  <a href={review.grantWebsite} target="_blank" rel="noopener noreferrer">
+                    {review.grantWebsite}
+                  </a>
+                </p>
+              )}
               {review.grantPurposeStatement && <p><strong>Grant Purpose Statement:</strong> {review.grantPurposeStatement}</p>}
-              <div style={{ marginTop: '15px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+              <div className="ai-response">
                 <h4>AI Response:</h4>
-                <div dangerouslySetInnerHTML={{ __html: marked.parse(review.aiResponse) }} />
+                <div className="ai-response-content" dangerouslySetInnerHTML={{ __html: marked.parse(review.aiResponse) }} />
               </div>
             </li>
           ))}
