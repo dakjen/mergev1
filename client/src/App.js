@@ -58,11 +58,13 @@ function MainAppContent() {
       };
 
       const [allUsersRes, companiesRes] = await Promise.all([
-        axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users`, config),
+        user && user.user.role === 'admin' ? axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users`, config) : Promise.resolve({ data: [] }),
         axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, config)
       ]);
 
-      setAllUsers(allUsersRes.data.map(u => ({ ...u, selectedRole: u.role, selectedCompanyId: u.company?.id || '' })));
+      if (user && user.user.role === 'admin') {
+        setAllUsers(allUsersRes.data.map(u => ({ ...u, selectedRole: u.role, selectedCompanyId: u.company?.id || '' })));
+      }
       setCompanies(companiesRes.data);
       setDataLoading(false);
     } catch (err) {
