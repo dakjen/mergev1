@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -115,6 +114,7 @@ const PastAIReviews = () => {
                 <button className="review-button">
                     <span className="project-name">{review.project.name}</span>
                     <span className="review-date">{new Date(review.reviewedAt).toLocaleDateString()}</span>
+                    {review.project.deadlineDate && <span className="due-date">Due: {new Date(review.project.deadlineDate).toLocaleDateString()}</span>}
                     <span className="reviewer-name">{review.reviewedBy.username}</span>
                 </button>
             </Link>

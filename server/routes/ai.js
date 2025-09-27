@@ -99,7 +99,7 @@ router.get('/reviews', auth, async (req, res) => {
       where,
       include: {
         project: {
-          select: { name: true },
+          select: { name: true, deadlineDate: true },
         },
         reviewedBy: {
           select: { username: true },
