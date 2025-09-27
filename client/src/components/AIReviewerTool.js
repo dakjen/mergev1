@@ -83,7 +83,7 @@ const AIReviewerTool = () => {
       setReviewLoading(false);
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
-      setError(err.response ? err.response.data.msg : 'Failed to get AI review.');
+      setError(err.response ? (err.response.data.msg || err.response.data) : 'Failed to get AI review.');
       setReviewLoading(false);
     }
   };
