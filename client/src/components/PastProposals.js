@@ -11,63 +11,43 @@ const PastProposals = () => {
   const [newProjectDescription, setNewProjectDescription] = useState('');
   const [newProjectDeadlineDate, setNewProjectDeadlineDate] = useState('');
   const [newProjectQuestions, setNewProjectQuestions] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null); // New state for selected file
 
   useEffect(() => {
     fetchCompletedProjects();
   }, []);
 
-  const fetchCompletedProjects = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError('No token found. Please log in.');
-        setLoading(false);
-        return;
-      }
-      const config = {
-        headers: { 'x-auth-token': token },
-        withCredentials: true
-      };
-      // Assuming a new API endpoint for fetching completed projects
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/completed`, config);
-      setCompletedProjects(res.data);
-      setLoading(false);
-    } catch (err) {
-      console.error(err.response ? err.response.data : err.message);
-      setError('Failed to fetch completed projects. Please ensure you are logged in and have projects marked as completed.'); // More specific error
-      setLoading(false);
-    }
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
   };
 
-  const addProject = async (e) => {
+  const handleFileUpload = async (e) => {
     e.preventDefault();
+    if (!selectedFile) {
+      alert('Please select a file to upload.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('document', selectedFile);
+
     try {
       const token = localStorage.getItem('token');
       const config = {
-        headers: { 'x-auth-token': token, 'Content-Type': 'application/json' }
+        headers: { 'x-auth-token': token, 'Content-Type': 'multipart/form-data' }
       };
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/projects`,
-        { 
-          name: newProjectName, 
-          description: newProjectDescription, 
-          deadlineDate: newProjectDeadlineDate, 
-          questions: newProjectQuestions,
-          isCompleted: true // Mark as completed by default for past projects
-        },
-        config
-      );
-      setNewProjectName('');
-      setNewProjectDescription('');
-      setNewProjectDeadlineDate('');
-      setNewProjectQuestions([]);
+      // Assuming a new API endpoint for document upload and parsing
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/projects/upload-document`, formData, config);
+      alert('Document uploaded and parsed successfully!');
+      console.log('Parsed Data:', res.data);
+      // Here you would typically process res.data to populate project/question states
+      // For now, we'll just log it.
+      setSelectedFile(null);
       setShowAddProjectForm(false);
       fetchCompletedProjects(); // Refresh the list of completed projects
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
-      alert(err.response ? err.response.data.msg : 'Failed to add project.');
+      alert(err.response ? err.response.data.msg : 'Failed to upload and parse document.');
     }
   };
 
@@ -80,78 +60,24 @@ const PastProposals = () => {
       <p>This page displays projects that have been marked as completed.</p>
 
       <button onClick={() => {
-        setNewProjectName('');
-        setNewProjectDescription('');
-        setNewProjectDeadlineDate('');
-        setNewProjectQuestions([]);
+        setSelectedFile(null);
         setShowAddProjectForm(true);
       }} style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginBottom: '20px' }}>
-        Add Past Project
+        Upload Past Project Document
       </button>
 
       {showAddProjectForm && (
         <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px', marginBottom: '20px', backgroundColor: '#f9f9f9' }}>
-          <h3>Add New Past Project</h3>
-          <form onSubmit={addProject} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <h3>Upload Document for Past Project</h3>
+          <form onSubmit={handleFileUpload} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <input
-              type="text"
-              placeholder="Project Name"
-              value={newProjectName}
-              onChange={(e) => setNewProjectName(e.target.value)}
+              type="file"
+              onChange={handleFileChange}
               required
               style={{ padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }}
             />
-            <textarea
-              placeholder="Project Description (Optional)"
-              value={newProjectDescription}
-              onChange={(e) => setNewProjectDescription(e.target.value)}
-              rows="3"
-              style={{ padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }}
-            ></textarea>
-            <label htmlFor="newProjectDeadlineDate" style={{ textAlign: 'left', marginBottom: '-5px' }}>Completion Date:</label>
-            <input
-              type="date"
-              id="newProjectDeadlineDate"
-              value={newProjectDeadlineDate}
-              onChange={(e) => setNewProjectDeadlineDate(e.target.value)}
-              style={{ padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }}
-            />
-
-            {/* Questions for New Past Project */}
-            <div style={{ marginTop: '10px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
-              <h4>Questions (Optional)</h4>
-              {newProjectQuestions.map((q, index) => (
-                <div key={index} style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
-                  <textarea
-                    placeholder="Question text"
-                    value={q.text}
-                    onChange={(e) => {
-                      const updatedQuestions = [...newProjectQuestions];
-                      updatedQuestions[index].text = e.target.value;
-                      setNewProjectQuestions(updatedQuestions);
-                    }}
-                    rows="2"
-                    style={{ width: '100%', marginBottom: '5px' }}
-                  ></textarea>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const updatedQuestions = newProjectQuestions.filter((_, i) => i !== index);
-                      setNewProjectQuestions(updatedQuestions);
-                    }}
-                    style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px' }}
-                  >Remove Question</button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => setNewProjectQuestions([...newProjectQuestions, { text: '' }])}
-                style={{ backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px', marginTop: '10px' }}
-              >Add Question</button>
-            </div>
-
             <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
-              <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Create Past Project</button>
+              <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Upload and Parse</button>
               <button type="button" onClick={() => setShowAddProjectForm(false)} style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Cancel</button>
             </div>
           </form>

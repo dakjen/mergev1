@@ -20,6 +20,11 @@ router.get('/', auth, async (req, res) => {
       include: {
         owner: { select: { username: true } },
         company: { select: { name: true } },
+        questions: {
+          include: {
+            assignedTo: { select: { id: true, username: true, name: true } },
+          },
+        },
       }
     });
     res.json(projects);
@@ -458,6 +463,39 @@ router.put('/questions/:id/assign', auth, async (req, res) => {
   }
 });
 
+// @route   POST api/projects/:id/questions
+// @desc    Create a new question for an existing project
+// @access  Private (project owner or admin only)
+router.post('/questions/:projectId/questions', auth, async (req, res) => {
+  const { text, assignedToId, status } = req.body;
+
+  try {
+    const project = await prisma.project.findUnique({ where: { id: req.params.projectId } });
+
+    if (!project) {
+      return res.status(404).json({ msg: 'Project not found' });
+    }
+
+    // Authorization: Only project owner or admin can add questions
+    if (project.ownerId !== req.user.id && req.user.role !== 'admin') {
+      return res.status(401).json({ msg: 'User not authorized to add questions to this project' });
+    }
+
+    const newQuestion = await prisma.question.create({
+      data: {
+        projectId: req.params.projectId,
+        text,
+        assignedToId: assignedToId || null,
+        status: status || 'pending',
+      },
+    });
+    res.json(newQuestion);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 // @route   GET api/projects/pending-approval-count
 // @desc    Get count of pending approval requests for the current approver
 // @access  Private (approver only)
@@ -511,6 +549,95 @@ router.get('/questions/assigned', auth, async (req, res) => {
       },
     });
     res.json(assignedQuestions);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' }); // files will be stored in the 'uploads/' directory
+const pdf = require('pdf-parse'); // Import pdf-parse
+
+// @route   POST api/projects/upload-document
+// @desc    Upload a document, parse questions/answers, and create a project
+// @access  Private
+router.post('/upload-document', auth, upload.single('document'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ msg: 'No file uploaded' });
+    }
+
+    let extractedText = '';
+    const filePath = req.file.path;
+    const fileExtension = req.file.originalname.split('.').pop().toLowerCase();
+
+    if (fileExtension === 'pdf') {
+      const dataBuffer = fs.readFileSync(filePath);
+      const data = await pdf(dataBuffer);
+      extractedText = data.text;
+    } else if (fileExtension === 'txt') {
+      extractedText = fs.readFileSync(filePath, 'utf8');
+    } else {
+      // Handle other file types or return an error
+      fs.unlinkSync(filePath); // Clean up the uploaded file
+      return res.status(400).json({ msg: `Unsupported file type: ${fileExtension}` });
+    }
+
+    // --- Basic Q&A Extraction Logic ---
+    const questionsAndAnswers = [];
+    const sentences = extractedText.split(/(?<=[.?!])\s+/); // Split by sentence-ending punctuation
+
+    for (let i = 0; i < sentences.length; i++) {
+      const sentence = sentences[i].trim();
+      // Basic check for questions
+      if (sentence.endsWith('?') || /^(who|what|where|when|why|how)\b/i.test(sentence)) {
+        let answer = '';
+        // Try to find an answer in the next sentence(s)
+        if (i + 1 < sentences.length) {
+          answer = sentences[i + 1].trim();
+          // You might want more sophisticated logic here to combine multiple sentences for an answer
+        }
+        questionsAndAnswers.push({ text: sentence, answer: answer });
+        i++; // Skip the next sentence if it was used as an answer
+      }
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
+    if (!user || !user.companyId) {
+      return res.status(400).json({ msg: 'User not associated with a company' });
+    }
+
+    const projectName = `Parsed Project from ${req.file.originalname}`;
+    const projectDescription = extractedText.substring(0, 500) + (extractedText.length > 500 ? '...' : ''); // Use first 500 chars as description
+
+    const newProject = await prisma.project.create({
+      data: {
+        name: projectName,
+        description: projectDescription,
+        ownerId: req.user.id,
+        companyId: user.companyId,
+        isCompleted: true, // Mark as completed for past projects
+        questions: {
+          create: questionsAndAnswers.length > 0 ? questionsAndAnswers.map(qa => ({
+            text: qa.text,
+            // For now, we're storing the answer in the question's description or a separate field if available
+            // Since our Question model only has 'text', we'll append answer to text for now or ignore.
+            // For this iteration, we'll just create questions.
+            status: 'pending', // Default status for newly parsed questions
+          })) : [{ text: 'No specific questions found. Document parsed.', status: 'completed' }],
+        },
+      },
+      include: {
+        questions: true,
+      },
+    });
+
+    // Clean up the uploaded file
+    fs.unlinkSync(filePath);
+
+    res.json({ msg: 'Document processed', project: newProject, parsedContent: extractedText, questionsAndAnswers });
+
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
