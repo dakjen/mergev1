@@ -161,6 +161,8 @@ model Question {
   assignedTo  User?     @relation(fields: [assignedToId], references: [id], name: "AssignedQuestions")
   status      String    @default("pending")
   answer      String?   @db.Text // New field for the answer to the question
+  maxLimit    Int?      // New field for max character/word limit
+  limitUnit   String?   // New field for limit unit (characters or words)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   assignmentLogs QuestionAssignmentLog[] // Relation to assignment logs

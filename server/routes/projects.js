@@ -92,6 +92,8 @@ router.post('/', auth, async (req, res) => {
             text: q.text,
             assignedToId: q.assignedToId || null, // Assign if provided, otherwise null
             status: q.status || 'pending', // Default status
+            maxLimit: q.maxLimit ? parseInt(q.maxLimit, 10) : null,
+            limitUnit: q.limitUnit,
           })) : [],
         },
       },

@@ -195,6 +195,13 @@ const Merge = () => {
                             {/* Questions for New Project */}
                             <div style={{ marginTop: '10px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
                                 <h4>Questions (Optional)</h4>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setNewProjectQuestions([...newProjectQuestions, { text: '', assignedToId: null, maxLimit: 0, limitUnit: 'characters' }]);
+                                    }}
+                                    style={{ marginBottom: '10px' }}
+                                >Add Question</button>
                                 {newProjectQuestions.map((q, index) => (
                                     <div key={index} style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
@@ -228,6 +235,31 @@ const Merge = () => {
                                                 rows="2"
                                                 style={{ flexGrow: 1, marginBottom: '0px' }} // Adjust margin
                                             ></textarea>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
+                                            <input
+                                                type="number"
+                                                placeholder="Max"
+                                                value={q.maxLimit}
+                                                onChange={(e) => {
+                                                    const updatedQuestions = [...newProjectQuestions];
+                                                    updatedQuestions[index].maxLimit = e.target.value;
+                                                    setNewProjectQuestions(updatedQuestions);
+                                                }}
+                                                style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc', width: '80px' }}
+                                            />
+                                            <select
+                                                value={q.limitUnit}
+                                                onChange={(e) => {
+                                                    const updatedQuestions = [...newProjectQuestions];
+                                                    updatedQuestions[index].limitUnit = e.target.value;
+                                                    setNewProjectQuestions(updatedQuestions);
+                                                }}
+                                                style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc' }}
+                                            >
+                                                <option value="characters">characters</option>
+                                                <option value="words">words</option>
+                                            </select>
                                         </div>
                                         <button
                                             type="button"
@@ -287,6 +319,20 @@ const Merge = () => {
                                                 ></textarea>
                                                 <button onClick={() => updateQuestionAnswer(question.id, question.answer)} style={{ marginTop: '5px', padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Save Answer</button>
                                             </div>
+
+                                            {/* Assignment Log */}
+                                            {question.assignmentLogs && question.assignmentLogs.length > 0 && (
+                                                <div style={{ marginTop: '15px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
+                                                    <h4 style={{ marginBottom: '5px' }}>Assignment History:</h4>
+                                                    <ul style={{ listStyle: 'none', padding: 0, fontSize: '0.9em' }}>
+                                                        {question.assignmentLogs.map((log, logIndex) => (
+                                                            <li key={logIndex} style={{ marginBottom: '3px' }}>
+                                                                {log.assignedBy?.username || 'System'} assigned this question to {log.assignedTo?.username || 'N/A'}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
                                         </li>
                                     ))}
                                 </ul>
