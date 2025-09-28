@@ -175,6 +175,10 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(401).json({ msg: 'User not authorized to delete this project' });
     }
 
+    if (project.ownerId !== req.user.id && user.role !== 'admin') {
+      return res.status(401).json({ msg: 'User not authorized to delete this project' });
+    }
+
     await prisma.project.delete({ where: { id: req.params.id } });
     res.json({ msg: 'Project removed' });
   } catch (err) {
@@ -670,3 +674,26 @@ router.post('/upload-document', auth, upload.single('document'), async (req, res
 });
 
 module.exports = router;
+
+// @route   DELETE api/projects/questions/:id
+// @desc    Delete a question
+// @access  Private (admin only)
+router.delete('/questions/:id', auth, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user || user.role !== 'admin') {
+      return res.status(401).json({ msg: 'User not authorized to delete questions' });
+    }
+
+    const question = await prisma.question.findUnique({ where: { id: req.params.id } });
+    if (!question) {
+      return res.status(404).json({ msg: 'Question not found' });
+    }
+
+    await prisma.question.delete({ where: { id: req.params.id } });
+    res.json({ msg: 'Question removed' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import ConfirmModal from './ConfirmModal';
 
 const Permissions = ({ fetchData }) => {
   const [companies, setCompanies] = useState([]);
@@ -9,6 +10,12 @@ const Permissions = ({ fetchData }) => {
   const [editingCompanyName, setEditingCompanyName] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+  });
 
   useEffect(() => {
     fetchCompanies();
@@ -91,7 +98,7 @@ const Permissions = ({ fetchData }) => {
   };
 
   const archiveCompany = async (companyId) => {
-    if (window.confirm('Are you sure you want to archive this company?')) {
+    const onConfirm = async () => {
       try {
         const token = localStorage.getItem('token');
         const config = {
@@ -106,11 +113,19 @@ const Permissions = ({ fetchData }) => {
         console.error(err.response ? err.response.data : err.message);
         alert(err.response ? err.response.data.msg : 'Failed to archive company.');
       }
-    }
+      setModalState({ ...modalState, isOpen: false });
+    };
+
+    setModalState({
+      isOpen: true,
+      title: 'Archive Company',
+      message: 'Are you sure you want to archive this company?',
+      onConfirm,
+    });
   };
 
   const unarchiveCompany = async (companyId) => {
-    if (window.confirm('Are you sure you want to unarchive this company?')) {
+    const onConfirm = async () => {
       try {
         const token = localStorage.getItem('token');
         const config = {
@@ -125,7 +140,15 @@ const Permissions = ({ fetchData }) => {
         console.error(err.response ? err.response.data : err.message);
         alert(err.response ? err.response.data.msg : 'Failed to unarchive company.');
       }
-    }
+      setModalState({ ...modalState, isOpen: false });
+    };
+
+    setModalState({
+      isOpen: true,
+      title: 'Unarchive Company',
+      message: 'Are you sure you want to unarchive this company?',
+      onConfirm,
+    });
   };
 
   const navigate = useNavigate(); // Initialize useNavigate
@@ -135,6 +158,13 @@ const Permissions = ({ fetchData }) => {
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
+      <ConfirmModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState({ ...modalState, isOpen: false })}
+        onConfirm={modalState.onConfirm}
+        title={modalState.title}
+        message={modalState.message}
+      />
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', padding: '0 20px' }}>
         <button onClick={() => navigate('/admin')} style={{ marginRight: '20px', padding: '10px 15px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Back</button>
         <h1>Company Management</h1>

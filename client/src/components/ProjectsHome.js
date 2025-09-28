@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ProjectsHome.css';
 import ProjectView from './ProjectView'; // Import ProjectView
+import ConfirmModal from './ConfirmModal'; // Import ConfirmModal
 
 const ProjectsHome = ({ user }) => { // Accept user prop
   const [projects, setProjects] = useState([]);
@@ -17,6 +18,12 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   const [projectToApproveId, setProjectToApproveId] = useState(null); // Project ID for current approval request
   const [companyUsers, setCompanyUsers] = useState([]); // New state for users in the company
   const [selectedProject, setSelectedProject] = useState(null); // New state for selected project
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+  });
 
   useEffect(() => {
     fetchProjects();
@@ -105,9 +112,32 @@ const ProjectsHome = ({ user }) => { // Accept user prop
     setEditingProjectDetails([...editingProjectDetails, { question: '', answer: '', isEditingQuestion: true }]);
   };
 
-  const removeDetailPair = (index) => {
-    const newDetails = editingProjectDetails.filter((_, i) => i !== index);
-    setEditingProjectDetails(newDetails);
+  const removeDetailPair = async (index) => {
+    const questionToRemove = editingProjectDetails[index];
+    const onConfirm = async () => {
+        if (questionToRemove.id) { // Only try to delete if the question exists in the DB
+            try {
+                const token = localStorage.getItem('token');
+                const config = { headers: { 'x-auth-token': token } };
+                await axios.delete(`${process.env.REACT_APP_API_URL}/api/projects/questions/${questionToRemove.id}`, config);
+            } catch (err) {
+                console.error(err.response ? err.response.data : err.message);
+                alert(err.response ? err.response.data.msg : 'Failed to delete question.');
+                setModalState({ ...modalState, isOpen: false });
+                return; // Don't remove from UI if delete failed
+            }
+        }
+        const newDetails = editingProjectDetails.filter((_, i) => i !== index);
+        setEditingProjectDetails(newDetails);
+        setModalState({ ...modalState, isOpen: false });
+    };
+
+    setModalState({
+        isOpen: true,
+        title: 'Delete Question',
+        message: 'Are you sure you want to delete this question?',
+        onConfirm,
+    });
   };
 
   const updateProject = async (e) => {
@@ -148,7 +178,7 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   };
 
   const deleteProject = async (projectId) => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
+    const onConfirm = async () => {
       try {
         const token = localStorage.getItem('token');
         const config = { headers: { 'x-auth-token': token } };
@@ -158,14 +188,30 @@ const ProjectsHome = ({ user }) => { // Accept user prop
         console.error(err.response ? err.response.data : err.message);
         alert(err.response ? err.response.data.msg : 'Failed to delete project.');
       }
-    }
+      setModalState({ ...modalState, isOpen: false });
+    };
+
+    setModalState({
+        isOpen: true,
+        title: 'Delete Project',
+        message: 'Are you sure you want to delete this project?',
+        onConfirm,
+    });
   };
 
   const archiveProject = async (projectId) => {
-    if (window.confirm('Are you sure you want to archive this project?')) {
-      alert(`Project ${projectId} archived! (Placeholder)`);
-      fetchProjects();
-    }
+    const onConfirm = async () => {
+        alert(`Project ${projectId} archived! (Placeholder)`);
+        fetchProjects();
+        setModalState({ ...modalState, isOpen: false });
+    };
+
+    setModalState({
+        isOpen: true,
+        title: 'Archive Project',
+        message: 'Are you sure you want to archive this project?',
+        onConfirm,
+    });
   };
 
   const getApproval = async (projectId) => {
@@ -217,7 +263,7 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   };
 
   const markAsCompleted = async (projectId) => {
-    if (window.confirm('Mark this project as completed?')) {
+    const onConfirm = async () => {
       try {
         const token = localStorage.getItem('token');
         const config = {
@@ -235,7 +281,15 @@ const ProjectsHome = ({ user }) => { // Accept user prop
         console.error(err.response ? err.response.data : err.message);
         alert(err.response ? err.response.data.msg : 'Failed to mark project as completed.');
       }
-    }
+      setModalState({ ...modalState, isOpen: false });
+    };
+
+    setModalState({
+        isOpen: true,
+        title: 'Mark as Completed',
+        message: 'Mark this project as completed?',
+        onConfirm,
+    });
   };
 
   if (loading) return <p className="loading-message">Loading projects...</p>;
@@ -247,6 +301,13 @@ const ProjectsHome = ({ user }) => { // Accept user prop
 
   return (
     <div className="projects-home-container ProjectsHome">
+      <ConfirmModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState({ ...modalState, isOpen: false })}
+        onConfirm={modalState.onConfirm}
+        title={modalState.title}
+        message={modalState.message}
+      />
       <div className="projects-home-header">
         <h2>My Projects</h2>
       </div>

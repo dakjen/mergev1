@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import ConfirmModal from './ConfirmModal';
 
 const ToBeApproved = () => {
   const [pendingApprovals, setPendingApprovals] = useState([]);
@@ -9,6 +10,12 @@ const ToBeApproved = () => {
   const [showCommentsModal, setShowCommentsModal] = useState(false);
   const [currentProjectId, setCurrentProjectId] = useState(null);
   const [rejectionComments, setRejectionComments] = useState('');
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+  });
 
   useEffect(() => {
     fetchPendingApprovals();
@@ -39,7 +46,7 @@ const ToBeApproved = () => {
   };
 
   const handleApprove = async (projectId) => {
-    if (window.confirm('Are you sure you want to approve this project?')) {
+    const onConfirm = async () => {
       try {
         const token = localStorage.getItem('token');
         const config = {
@@ -57,7 +64,15 @@ const ToBeApproved = () => {
         console.error(err.response ? err.response.data : err.message);
         alert(err.response ? err.response.data.msg : 'Failed to approve project.');
       }
-    }
+      setModalState({ ...modalState, isOpen: false });
+    };
+
+    setModalState({
+      isOpen: true,
+      title: 'Approve Project',
+      message: 'Are you sure you want to approve this project?',
+      onConfirm,
+    });
   };
 
   const handleRejectClick = (projectId) => {
@@ -100,6 +115,13 @@ const ToBeApproved = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
+      <ConfirmModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState({ ...modalState, isOpen: false })}
+        onConfirm={modalState.onConfirm}
+        title={modalState.title}
+        message={modalState.message}
+      />
       <h2>Projects To Be Approved</h2>
 
       {pendingApprovals.length === 0 ? (
