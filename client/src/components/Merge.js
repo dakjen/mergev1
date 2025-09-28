@@ -127,7 +127,7 @@ const Merge = () => {
     };
 
     if (loading) return <p>Loading assigned questions...</p>;
-    if (error) return <p>Error: Failed to edit, 0 occurrences found for old_string (    if (loading) return <p>Loading assigned questions...</p>;
+
 
     return (
         <div style={{ padding: '20px', textAlign: 'center' }}>
