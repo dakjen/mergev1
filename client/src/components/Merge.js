@@ -9,6 +9,7 @@ const Merge = () => {
     const [newProjectName, setNewProjectName] = useState('');
     const [newProjectDescription, setNewProjectDescription] = useState('');
     const [newProjectDeadlineDate, setNewProjectDeadlineDate] = useState('');
+    const [newProjectThemeAngle, setNewProjectThemeAngle] = useState(''); // New state for theme/angle
     const [newProjectQuestions, setNewProjectQuestions] = useState([]);
     const [showAddProjectForm, setShowAddProjectForm] = useState(false);
     const [companyUsers, setCompanyUsers] = useState([]); // New state for users in the company
@@ -86,12 +87,19 @@ const Merge = () => {
             };
             await axios.post(
                 `${process.env.REACT_APP_API_URL}/api/projects`,
-                { name: newProjectName, description: newProjectDescription, deadlineDate: newProjectDeadlineDate, questions: newProjectQuestions },
+                { 
+                    name: newProjectName, 
+                    description: newProjectDescription, 
+                    deadlineDate: newProjectDeadlineDate, 
+                    details: { themeAngle: newProjectThemeAngle }, // Store theme/angle in details
+                    questions: newProjectQuestions 
+                },
                 config
             );
             setNewProjectName('');
             setNewProjectDescription('');
             setNewProjectDeadlineDate('');
+            setNewProjectThemeAngle(''); // Clear theme/angle
             setNewProjectQuestions([]);
             setShowAddProjectForm(false);
             // After creating a project, we might want to refresh assigned questions if any were assigned to the current user
@@ -137,6 +145,13 @@ const Merge = () => {
                                 rows="3"
                                 style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
                             ></textarea>
+                            <input
+                                type="text"
+                                placeholder="Theme or Angle (Optional)"
+                                value={newProjectThemeAngle}
+                                onChange={(e) => setNewProjectThemeAngle(e.target.value)}
+                                style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
+                            />
                             <label htmlFor="newProjectDeadlineDate" style={{ textAlign: 'left', marginBottom: '-5px' }}>Due Date:</label>
                             <input
                                 type="date"
@@ -162,6 +177,25 @@ const Merge = () => {
                                             rows="2"
                                             style={{ width: '100%', marginBottom: '5px' }}
                                         ></textarea>
+                                        {/* Assigned To Dropdown for New Project Questions */}
+                                        <div style={{ marginBottom: '10px' }}>
+                                            <label htmlFor={`new-question-assignedTo-${index}`} style={{ marginRight: '5px' }}>Assign To:</label>
+                                            <select
+                                                id={`new-question-assignedTo-${index}`}
+                                                value={q.assignedToId || ''}
+                                                onChange={(e) => {
+                                                    const updatedQuestions = [...newProjectQuestions];
+                                                    updatedQuestions[index].assignedToId = e.target.value || null;
+                                                    setNewProjectQuestions(updatedQuestions);
+                                                }}
+                                                style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc' }}
+                                            >
+                                                <option value="">Unassigned</option>
+                                                {companyUsers.map(u => (
+                                                    <option key={u.id} value={u.id}>{u.name || u.username}</option>
+                                                ))}
+                                            </select>
+                                        </div>
                                         <button
                                             type="button"
                                             onClick={() => {
@@ -174,7 +208,7 @@ const Merge = () => {
                                 ))}
                                 <button
                                     type="button"
-                                    onClick={() => setNewProjectQuestions([...newProjectQuestions, { text: '' }])}
+                                    onClick={() => setNewProjectQuestions([...newProjectQuestions, { text: '', assignedToId: null, status: 'pending' }])}
                                     style={{ backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px', marginTop: '10px' }}
                                 >Add Question</button>
                             </div>
