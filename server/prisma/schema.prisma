@@ -42,6 +42,8 @@ model User {
   requestedApprovals ApprovalRequest[] @relation("RequestedApprovals") // New relation
   assignedApprovals  ApprovalRequest[] @relation("AssignedApprovals")  // New relation
   assignedQuestions Question[] @relation("AssignedQuestions") // New relation for questions assigned to this user
+  assignedByLogs QuestionAssignmentLog[] @relation("AssignedByLog")
+  assignedToLogs QuestionAssignmentLog[] @relation("AssignedToLog")
 }
 
 model Company {
@@ -158,6 +160,19 @@ model Question {
   assignedToId String?
   assignedTo  User?     @relation(fields: [assignedToId], references: [id], name: "AssignedQuestions")
   status      String    @default("pending")
+  answer      String?   @db.Text // New field for the answer to the question
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  assignmentLogs QuestionAssignmentLog[] // Relation to assignment logs
+}
+
+model QuestionAssignmentLog {
+  id            String    @id @default(cuid())
+  questionId    String
+  question      Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  assignedById  String?   // User who performed the assignment (optional, e.g., initial assignment might not have an 'assignedBy')
+  assignedBy    User?     @relation("AssignedByLog", fields: [assignedById], references: [id])
+  assignedToId  String
+  assignedTo    User      @relation("AssignedToLog", fields: [assignedToId], references: [id])
+  assignedAt    DateTime  @default(now())
 }
