@@ -523,6 +523,7 @@ router.get('/pending-approval-count', auth, async (req, res) => {
 // @access  Private
 router.get('/questions/assigned', auth, async (req, res) => {
   try {
+    console.log('Fetching assigned questions for user ID:', req.user.id);
     const assignedQuestions = await prisma.question.findMany({
       where: {
         assignedToId: req.user.id,
@@ -548,6 +549,7 @@ router.get('/questions/assigned', auth, async (req, res) => {
         createdAt: 'desc',
       },
     });
+    console.log('Found assigned questions:', assignedQuestions.length);
     res.json(assignedQuestions);
   } catch (err) {
     console.error(err.message);
