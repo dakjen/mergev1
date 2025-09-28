@@ -13,8 +13,33 @@ const PastProposals = () => {
   const [newProjectQuestions, setNewProjectQuestions] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null); // New state for selected file
 
+  const fetchCompletedProjects = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('No token found. Please log in.');
+        setLoading(false);
+        return;
+      }
+      const config = {
+        headers: { 'x-auth-token': token },
+        withCredentials: true
+      };
+      // Assuming a new API endpoint for fetching completed projects
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/completed`, config);
+      setCompletedProjects(res.data);
+      setLoading(false);
+    } catch (err) {
+      console.error(err.response ? err.response.data : err.message);
+      setError('Failed to fetch completed projects. Please ensure you are logged in and have projects marked as completed.'); // More specific error
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchCompletedProjects();
+    fetchCompletedProjects(); // Call inside useEffect
   }, []);
 
   const handleFileChange = (e) => {
