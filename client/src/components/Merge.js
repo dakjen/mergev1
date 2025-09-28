@@ -71,7 +71,6 @@ const Merge = () => {
         fetchCompanyUsers(); // Fetch company users when component mounts
     }, []);
 
-    if (error) return <p>Error: {error}</p>;
 
     const updateQuestionStatus = async (questionId, newStatus, newAnswer, newAssignedToId) => {
         try {
@@ -123,6 +122,13 @@ const Merge = () => {
             console.error(err.response ? err.response.data : err.message);
             alert(err.response ? err.response.data.msg : 'Failed to add project.');
         }
+    };
+
+    const toggleProjectExpansion = (projectId) => {
+        setExpandedProjects(prev => ({
+            ...prev,
+            [projectId]: !prev[projectId]
+        }));
     };
 
 
