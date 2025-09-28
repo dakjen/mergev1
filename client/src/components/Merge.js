@@ -204,10 +204,10 @@ const Merge = () => {
                                 >Add Question</button>
                                 {newProjectQuestions.map((q, index) => (
                                     <div key={index} style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
                                             {/* Assigned To Dropdown for New Project Questions */}
-                                            <div style={{ marginRight: '10px' }}>
-                                                <label htmlFor={`new-question-assignedTo-${index}`} style={{ marginRight: '5px' }}>Assign To:</label>
+                                            <div>
+                                                <label htmlFor={`new-question-assignedTo-${index}`} style={{ display: 'block', marginBottom: '5px' }}>Assign To:</label>
                                                 <select
                                                     id={`new-question-assignedTo-${index}`}
                                                     value={q.assignedToId || ''}
@@ -224,42 +224,49 @@ const Merge = () => {
                                                     ))}
                                                 </select>
                                             </div>
-                                            <textarea
-                                                placeholder="Question text"
-                                                value={q.text}
-                                                onChange={(e) => {
-                                                    const updatedQuestions = [...newProjectQuestions];
-                                                    updatedQuestions[index].text = e.target.value;
-                                                    setNewProjectQuestions(updatedQuestions);
-                                                }}
-                                                rows="2"
-                                                style={{ flexGrow: 1, marginBottom: '0px' }} // Adjust margin
-                                            ></textarea>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
-                                            <input
-                                                type="number"
-                                                placeholder="Max"
-                                                value={q.maxLimit}
-                                                onChange={(e) => {
-                                                    const updatedQuestions = [...newProjectQuestions];
-                                                    updatedQuestions[index].maxLimit = e.target.value;
-                                                    setNewProjectQuestions(updatedQuestions);
-                                                }}
-                                                style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc', width: '80px' }}
-                                            />
-                                            <select
-                                                value={q.limitUnit}
-                                                onChange={(e) => {
-                                                    const updatedQuestions = [...newProjectQuestions];
-                                                    updatedQuestions[index].limitUnit = e.target.value;
-                                                    setNewProjectQuestions(updatedQuestions);
-                                                }}
-                                                style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc' }}
-                                            >
-                                                <option value="characters">characters</option>
-                                                <option value="words">words</option>
-                                            </select>
+                                            <div style={{ flexGrow: 1 }}>
+                                                <label htmlFor={`question-text-${index}`} style={{ display: 'block', marginBottom: '5px' }}>Question:</label>
+                                                <textarea
+                                                    id={`question-text-${index}`}
+                                                    placeholder="Question text"
+                                                    value={q.text}
+                                                    onChange={(e) => {
+                                                        const updatedQuestions = [...newProjectQuestions];
+                                                        updatedQuestions[index].text = e.target.value;
+                                                        setNewProjectQuestions(updatedQuestions);
+                                                    }}
+                                                    rows="2"
+                                                    style={{ width: '100%', boxSizing: 'border-box' }}
+                                                ></textarea>
+                                            </div>
+                                            <div>
+                                                <label style={{ display: 'block', marginBottom: '5px' }}>Limit:</label>
+                                                <div style={{ display: 'flex', gap: '5px' }}>
+                                                    <input
+                                                        type="number"
+                                                        placeholder="Max"
+                                                        value={q.maxLimit}
+                                                        onChange={(e) => {
+                                                            const updatedQuestions = [...newProjectQuestions];
+                                                            updatedQuestions[index].maxLimit = e.target.value;
+                                                            setNewProjectQuestions(updatedQuestions);
+                                                        }}
+                                                        style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc', width: '80px' }}
+                                                    />
+                                                    <select
+                                                        value={q.limitUnit}
+                                                        onChange={(e) => {
+                                                            const updatedQuestions = [...newProjectQuestions];
+                                                            updatedQuestions[index].limitUnit = e.target.value;
+                                                            setNewProjectQuestions(updatedQuestions);
+                                                        }}
+                                                        style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc' }}
+                                                    >
+                                                        <option value="characters">characters</option>
+                                                        <option value="words">words</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
                                         <button
                                             type="button"
@@ -267,10 +274,10 @@ const Merge = () => {
                                                 const updatedQuestions = newProjectQuestions.filter((_, i) => i !== index);
                                                 setNewProjectQuestions(updatedQuestions);
                                             }}
-                                            style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px', marginTop: '5px' }} // Adjust margin
+                                            style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px', marginTop: '5px' }}
                                         >Remove Question</button>
                                     </div>
-                                ))}
+                                ))}}
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
