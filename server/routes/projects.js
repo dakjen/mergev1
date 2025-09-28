@@ -434,7 +434,7 @@ router.get('/rejected', auth, async (req, res) => {
 // @desc    Get count of pending approval requests for the current approver
 // @access  Private (approver only)
 router.put('/questions/:id/assign', auth, async (req, res) => {
-  const { assignedToId, status } = req.body;
+  const { assignedToId, status, answer } = req.body; // Add answer
 
   try {
     let question = await prisma.question.findUnique({ where: { id: req.params.id } });
@@ -444,9 +444,24 @@ router.put('/questions/:id/assign', auth, async (req, res) => {
     }
 
     // Authorization: Only project owner or admin can assign/update questions
+    // Or the assigned user can update their own answer/status
     const project = await prisma.project.findUnique({ where: { id: question.projectId } });
-    if (!project || (project.ownerId !== req.user.id && req.user.role !== 'admin')) {
+    const isAuthorizedToAssign = (project.ownerId === req.user.id || req.user.role === 'admin');
+    const isAssignedUser = (question.assignedToId === req.user.id);
+
+    if (!isAuthorizedToAssign && !isAssignedUser) {
       return res.status(401).json({ msg: 'User not authorized to update this question' });
+    }
+
+    // Log assignment change if assignedToId is different and user is authorized to assign
+    if (assignedToId && assignedToId !== question.assignedToId && isAuthorizedToAssign) {
+      await prisma.questionAssignmentLog.create({
+        data: {
+          questionId: question.id,
+          assignedById: req.user.id, // User who performed the re-assignment
+          assignedToId: assignedToId,
+        },
+      });
     }
 
     question = await prisma.question.update({
@@ -454,6 +469,7 @@ router.put('/questions/:id/assign', auth, async (req, res) => {
       data: {
         assignedToId: assignedToId || question.assignedToId,
         status: status || question.status,
+        answer: answer || question.answer, // Update answer
       },
     });
     res.json(question);
@@ -543,6 +559,13 @@ router.get('/questions/assigned', auth, async (req, res) => {
             username: true,
             name: true,
           },
+        },
+        assignmentLogs: {
+          include: {
+            assignedBy: { select: { id: true, username: true, name: true } },
+            assignedTo: { select: { id: true, username: true, name: true } },
+          },
+          orderBy: { assignedAt: 'desc' },
         },
       },
       orderBy: {
