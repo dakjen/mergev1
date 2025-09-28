@@ -42,7 +42,7 @@ const Merge = () => {
             const config = {
                 headers: { 'x-auth-token': token }
             };
-            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/questions/assigned`, config);
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/questions/assigned`, config);
             setAssignedQuestions(res.data);
             setLoading(false);
         } catch (err) {
