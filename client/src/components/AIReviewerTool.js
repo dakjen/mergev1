@@ -80,6 +80,8 @@ const AIReviewerTool = () => {
         config
       );
       setAiReviewResult(res.data.review);
+      setGrantWebsite(''); // Clear grant website
+      setGrantPurposeStatement(''); // Clear grant purpose statement
       setReviewLoading(false);
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
