@@ -79,7 +79,7 @@ const Merge = () => {
                 headers: { 'x-auth-token': token, 'Content-Type': 'application/json' }
             };
             await axios.put(
-                `${process.env.REACT_APP_API_URL}/api/questions/${questionId}/assign`,
+                `${process.env.REACT_APP_API_URL}/api/projects/questions/${questionId}/assign`,
                 { status: newStatus, answer: newAnswer, assignedToId: newAssignedToId },
                 config
             );
