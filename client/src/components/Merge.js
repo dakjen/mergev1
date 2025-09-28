@@ -10,6 +10,7 @@ const Merge = () => {
     const [newProjectDescription, setNewProjectDescription] = useState('');
     const [newProjectDeadlineDate, setNewProjectDeadlineDate] = useState('');
     const [newProjectThemeAngle, setNewProjectThemeAngle] = useState(''); // New state for theme/angle
+    const [newProjectPartnership, setNewProjectPartnership] = useState(''); // New state for possible partnership
     const [newProjectQuestions, setNewProjectQuestions] = useState([]);
     const [showAddProjectForm, setShowAddProjectForm] = useState(false);
     const [companyUsers, setCompanyUsers] = useState([]); // New state for users in the company
@@ -91,7 +92,7 @@ const Merge = () => {
                     name: newProjectName, 
                     description: newProjectDescription, 
                     deadlineDate: newProjectDeadlineDate, 
-                    details: { themeAngle: newProjectThemeAngle }, // Store theme/angle in details
+                    details: { themeAngle: newProjectThemeAngle, possiblePartnership: newProjectPartnership }, // Store theme/angle and partnership in details
                     questions: newProjectQuestions 
                 },
                 config
@@ -99,7 +100,8 @@ const Merge = () => {
             setNewProjectName('');
             setNewProjectDescription('');
             setNewProjectDeadlineDate('');
-            setNewProjectThemeAngle(''); // Clear theme/angle
+            setNewProjectThemeAngle('');
+            setNewProjectPartnership(''); // Clear possible partnership
             setNewProjectQuestions([]);
             setShowAddProjectForm(false);
             // After creating a project, we might want to refresh assigned questions if any were assigned to the current user
@@ -145,13 +147,22 @@ const Merge = () => {
                                 rows="3"
                                 style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
                             ></textarea>
-                            <input
-                                type="text"
-                                placeholder="Theme or Angle (Optional)"
-                                value={newProjectThemeAngle}
-                                onChange={(e) => setNewProjectThemeAngle(e.target.value)}
-                                style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
-                            />
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Theme or Angle (Optional)"
+                                    value={newProjectThemeAngle}
+                                    onChange={(e) => setNewProjectThemeAngle(e.target.value)}
+                                    style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ddd', flex: 1 }}
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Possible Partnership (Optional)"
+                                    value={newProjectPartnership}
+                                    onChange={(e) => setNewProjectPartnership(e.target.value)}
+                                    style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ddd', flex: 1 }}
+                                />
+                            </div>
                             <label htmlFor="newProjectDeadlineDate" style={{ textAlign: 'left', marginBottom: '-5px' }}>Due Date:</label>
                             <input
                                 type="date"
