@@ -135,7 +135,7 @@ const Merge = () => {
     return (
         <div style={{ padding: '20px', textAlign: 'center' }}>
             <div style={{ marginBottom: '30px', border: '1px solid #ddd', padding: '20px', borderRadius: '8px', maxWidth: '800px', margin: '0 auto' }}>
-                <h2>Project Management</h2>
+                <h2>Start a New Project</h2>
                 <button onClick={() => {
                     setNewProjectName('');
                     setNewProjectDescription('');
