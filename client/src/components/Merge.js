@@ -71,7 +71,6 @@ const Merge = () => {
         fetchCompanyUsers(); // Fetch company users when component mounts
     }, []);
 
-    if (loading) return <p>Loading assigned questions...</p>;
     if (error) return <p>Error: {error}</p>;
 
     const updateQuestionStatus = async (questionId, newStatus, newAnswer, newAssignedToId) => {
