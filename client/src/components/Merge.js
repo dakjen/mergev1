@@ -256,8 +256,7 @@ const Merge = () => {
                     {Object.values(groupedQuestions).map(projectGroup => (
                         <div key={projectGroup.project.id} style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px', borderRadius: '8px', textAlign: 'left' }}>
                             <h2 onClick={() => toggleProjectExpansion(projectGroup.project.id)} style={{ cursor: 'pointer', color: '#3e51b5' }}>
-                                {projectGroup.project.name} ({projectGroup.questions.length} questions)
-                                <span style={{ float: 'right' }}>{expandedProjects[projectGroup.project.id] ? '▲' : '▼'}</span>
+                                {projectGroup.project.name} ({projectGroup.questions.length} questions                                <span style={{ float: 'right' }}>{expandedProjects[projectGroup.project.id] ? '▲' : '▼'}</span>
                             </h2>
                             {expandedProjects[projectGroup.project.id] && (
                                 <ul>
@@ -346,5 +345,3 @@ const Merge = () => {
 };
 
 export default Merge;
-
-)
