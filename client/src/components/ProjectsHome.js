@@ -349,7 +349,7 @@ const ProjectsHome = ({ user }) => { // Accept user prop
                   )}
                   <div className="projects-home-project-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div className="main-actions">
-                      {(!project.isCompleted || (user && user.user.role === 'admin')) && (
+                      {!project.isCompleted && (
                         <>
                           <button onClick={() => startEdit(project)} className="edit-button" style={{ backgroundColor: '#7fab61' }}>Edit</button>
                           <button onClick={() => archiveProject(project.id)} className="archive-button">Archive</button>
@@ -358,7 +358,9 @@ const ProjectsHome = ({ user }) => { // Accept user prop
                           )}
                         </>
                       )}
-                      <button onClick={() => markAsCompleted(project.id)} className="completed-button" style={{ backgroundColor: '#debf84' }}>Completed</button>
+                      {!project.isCompleted && (
+                        <button onClick={() => markAsCompleted(project.id)} className="completed-button" style={{ backgroundColor: '#debf84' }}>Completed</button>
+                      )}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       {user && user.user.role === 'admin' && (

@@ -290,7 +290,7 @@ const Merge = () => {
             </div>
 
             {/* Assigned Questions Section - Project Centric */}
-            <h1 style={{ color: '#3e51b5', marginTop: '40px' }}>Assigned Questions</h1>
+            <h1 style={{ color: '#3e51b5', marginTop: '40px' }}>Your Questions</h1>
             {Object.keys(groupedQuestions).length === 0 ? (
                 <p>No questions assigned to you.</p>
             ) : (
