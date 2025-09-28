@@ -556,7 +556,7 @@ router.get('/questions/assigned', auth, async (req, res) => {
 });
 
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' }); // files will be stored in the 'uploads/' directory
+const upload = multer({ storage: multer.memoryStorage() }); // files will be stored in memory
 const pdf = require('pdf-parse'); // Import pdf-parse
 
 // @route   POST api/projects/upload-document
@@ -569,18 +569,16 @@ router.post('/upload-document', auth, upload.single('document'), async (req, res
     }
 
     let extractedText = '';
-    const filePath = req.file.path;
     const fileExtension = req.file.originalname.split('.').pop().toLowerCase();
 
     if (fileExtension === 'pdf') {
-      const dataBuffer = fs.readFileSync(filePath);
+      const dataBuffer = req.file.buffer; // Read from buffer
       const data = await pdf(dataBuffer);
       extractedText = data.text;
     } else if (fileExtension === 'txt') {
-      extractedText = fs.readFileSync(filePath, 'utf8');
+      extractedText = req.file.buffer.toString('utf8'); // Read from buffer
     } else {
       // Handle other file types or return an error
-      fs.unlinkSync(filePath); // Clean up the uploaded file
       return res.status(400).json({ msg: `Unsupported file type: ${fileExtension}` });
     }
 
@@ -633,8 +631,7 @@ router.post('/upload-document', auth, upload.single('document'), async (req, res
       },
     });
 
-    // Clean up the uploaded file
-    fs.unlinkSync(filePath);
+    // No need to clean up file as it was stored in memory
 
     res.json({ msg: 'Document processed', project: newProject, parsedContent: extractedText, questionsAndAnswers });
 
