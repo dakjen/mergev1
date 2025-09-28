@@ -5,17 +5,12 @@ import './ProjectsHome.css';
 
 const ProjectsHome = ({ user }) => { // Accept user prop
   const [projects, setProjects] = useState([]);
-  const [newProjectName, setNewProjectName] = useState('');
-  const [newProjectDescription, setNewProjectDescription] = useState('');
-  const [newProjectDeadlineDate, setNewProjectDeadlineDate] = useState(''); // New state for deadline
-  const [newProjectQuestions, setNewProjectQuestions] = useState([]); // New state for questions in new project
   const [editingProjectId, setEditingProjectId] = useState(null);
   const [editingProjectName, setEditingProjectName] = useState('');
   const [editingProjectDescription, setEditingProjectDescription] = useState('');
   const [editingProjectDetails, setEditingProjectDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showAddProjectForm, setShowAddProjectForm] = useState(false);
   const [showApproverModal, setShowApproverModal] = useState(false); // State for approver modal
   const [approvers, setApprovers] = useState([]); // State for list of approvers
   const [selectedApproverId, setSelectedApproverId] = useState(''); // State for selected approver
@@ -62,30 +57,6 @@ console.log(res.data);
       console.error(err.response ? err.response.data : err.message);
       setError(err.response ? err.response.data.msg : 'Failed to fetch projects.');
       setLoading(false);
-    }
-  };
-
-  const addProject = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem('token');
-      const config = {
-        headers: { 'x-auth-token': token, 'Content-Type': 'application/json' }
-      };
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/projects`,
-        { name: newProjectName, description: newProjectDescription, deadlineDate: newProjectDeadlineDate, questions: newProjectQuestions }, // Pass deadlineDate and questions
-        config
-      );
-      setNewProjectName('');
-      setNewProjectDescription('');
-      setNewProjectDeadlineDate(''); // Clear deadline date
-      setNewProjectQuestions([]); // Clear questions
-      setShowAddProjectForm(false);
-      fetchProjects();
-    } catch (err) {
-      console.error(err.response ? err.response.data : err.message);
-      alert(err.response ? err.response.data.msg : 'Failed to add project.');
     }
   };
 
@@ -275,83 +246,7 @@ console.log(res.data);
     <div className="projects-home-container ProjectsHome">
       <div className="projects-home-header">
         <h2>My Projects</h2>
-        <button onClick={() => {
-          setEditingProjectId(null);
-          setNewProjectName('');
-          setNewProjectDescription('');
-          setNewProjectDeadlineDate(''); // Clear deadline date
-          setShowAddProjectForm(true);
-        }} className="projects-home-add-button">Add Project</button>
       </div>
-
-      {showAddProjectForm && (
-        <div className="projects-home-add-form-container">
-          <form onSubmit={addProject} className="projects-home-add-form">
-            <h3>Create New Project</h3>
-            <input
-              type="text"
-              placeholder="Project Name"
-              value={newProjectName}
-              onChange={(e) => setNewProjectName(e.target.value)}
-              required
-            />
-            <textarea
-              placeholder="Project Description (Optional)"
-              value={newProjectDescription}
-              onChange={(e) => setNewProjectDescription(e.target.value)}
-              rows="3"
-            ></textarea>
-            <label htmlFor="newProjectDeadlineDate" style={{ display: 'block', marginTop: '10px', marginBottom: '5px', textAlign: 'left' }}>Due Date:</label>
-            <input // New input for deadline date
-              type="date"
-              id="newProjectDeadlineDate" // Add id for label
-              value={newProjectDeadlineDate}
-              onChange={(e) => setNewProjectDeadlineDate(e.target.value)}
-              style={{ marginTop: '0px' }} // Adjust margin as label adds space
-            />
-
-            {/* Questions for New Project */}
-            <div className="new-project-questions-section" style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
-              <h4>Questions (Optional)</h4>
-              {newProjectQuestions.map((q, index) => (
-                <div key={index} className="new-project-question-item" style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
-                  <textarea
-                    placeholder="Question text"
-                    value={q.text}
-                    onChange={(e) => {
-                      const updatedQuestions = [...newProjectQuestions];
-                      updatedQuestions[index].text = e.target.value;
-                      setNewProjectQuestions(updatedQuestions);
-                    }}
-                    rows="2"
-                    style={{ width: '100%', marginBottom: '5px' }}
-                  ></textarea>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const updatedQuestions = newProjectQuestions.filter((_, i) => i !== index);
-                      setNewProjectQuestions(updatedQuestions);
-                    }}
-                    className="remove-detail-button"
-                    style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px' }}
-                  >Remove Question</button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => setNewProjectQuestions([...newProjectQuestions, { text: '' }])}
-                className="add-detail-button"
-                style={{ backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px', marginTop: '10px' }}
-              >Add Question</button>
-            </div>
-
-            <div className="projects-home-add-form-buttons">
-              <button type="submit" className="create-button">Create Project</button>
-              <button type="button" onClick={() => setShowAddProjectForm(false)} className="cancel-button">Cancel</button>
-            </div>
-          </form>
-        </div>
-      )}
 
       <ul className="projects-home-list">
         {projects.length === 0 ? (
