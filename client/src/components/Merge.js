@@ -72,7 +72,7 @@ const Merge = () => {
     }, []);
 
 
-    const updateQuestionStatus = async (questionId, newStatus, newAnswer, newAssignedToId) => {
+    const updateQuestionAnswer = async (questionId, newAnswer) => {
         try {
             const token = localStorage.getItem('token');
             const config = {
@@ -80,7 +80,7 @@ const Merge = () => {
             };
             await axios.put(
                 `${process.env.REACT_APP_API_URL}/api/projects/questions/${questionId}/assign`,
-                { status: newStatus, answer: newAnswer, assignedToId: newAssignedToId },
+                { answer: newAnswer },
                 config
             );
             // Re-fetch questions to update the UI
@@ -285,56 +285,8 @@ const Merge = () => {
                                                     rows="4"
                                                     style={{ width: '100%', padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
                                                 ></textarea>
-                                                <button onClick={() => updateQuestionStatus(question.id, question.status, question.answer, question.assignedToId)} style={{ marginTop: '5px', padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Save Answer</button>
+                                                <button onClick={() => updateQuestionAnswer(question.id, question.answer)} style={{ marginTop: '5px', padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Save Answer</button>
                                             </div>
-
-                                            {/* Status Dropdown */}
-                                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
-                                                <label htmlFor={`status-${question.id}`} style={{ marginRight: '10px' }}>Status:</label>
-                                                <select
-                                                    id={`status-${question.id}`}
-                                                    value={question.status}
-                                                    onChange={(e) => updateQuestionStatus(question.id, e.target.value, question.answer, question.assignedToId)}
-                                                    style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
-                                                >
-                                                    <option value="pending">Pending</option>
-                                                    <option value="in-progress">In Progress</option>
-                                                    <option value="completed">Completed</option>
-                                                    <option value="in-review">In Review</option>
-                                                </select>
-                                            </div>
-
-                                            {/* Re-assign Dropdown (Admin/Approver only) */}
-                                            {/* Assuming 'user' prop is passed or available via context for role check */}
-                                            {/* For now, this will be visible to all, but should be restricted by user role */}
-                                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
-                                                <label htmlFor={`reassign-${question.id}`} style={{ marginRight: '10px' }}>Re-assign To:</label>
-                                                <select
-                                                    id={`reassign-${question.id}`}
-                                                    value={question.assignedToId || ''}
-                                                    onChange={(e) => updateQuestionStatus(question.id, question.status, question.answer, e.target.value || null)}
-                                                    style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
-                                                >
-                                                    <option value="">Unassigned</option>
-                                                    {companyUsers.map(u => (
-                                                        <option key={u.id} value={u.id}>{u.name || u.username}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-
-                                            {/* Assignment Log */}
-                                            {question.assignmentLogs && question.assignmentLogs.length > 0 && (
-                                                <div style={{ marginTop: '15px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
-                                                    <h4 style={{ marginBottom: '5px' }}>Assignment History:</h4>
-                                                    <ul style={{ listStyle: 'none', padding: 0, fontSize: '0.9em' }}>
-                                                        {question.assignmentLogs.map((log, logIndex) => (
-                                                            <li key={logIndex} style={{ marginBottom: '3px' }}>
-                                                                Assigned by {log.assignedBy?.username || 'System'} to {log.assignedTo?.username || 'N/A'} on {new Date(log.assignedAt).toLocaleDateString()}
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            )}
                                         </li>
                                     ))}
                                 </ul>
