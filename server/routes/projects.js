@@ -534,10 +534,10 @@ router.get('/pending-approval-count', auth, async (req, res) => {
   }
 });
 
-// @route   GET api/projects/questions/assigned
+// @route   GET /api/projects/questions/assigned
 // @desc    Get all questions assigned to the logged-in user
 // @access  Private
-router.get('/projects/questions/assigned', auth, async (req, res) => {
+router.get('/questions/assigned', auth, async (req, res) => {
   try {
     console.log('Fetching assigned questions for user ID:', req.user.id);
     const assignedQuestions = await prisma.question.findMany({
