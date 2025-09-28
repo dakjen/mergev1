@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
-
-
 
 // Stop words to exclude from keywords
 const stopWords = ['the', 'and', 'for', 'with', 'our', 'individuals', 'through', 'communities', 'that', 'this', 'from', 'are', 'was', 'but', 'not', 'you', 'your', 'have', 'has'];
@@ -12,8 +9,8 @@ const getKeywords = (project, topN = 5) => {
 
   // Combine description + answers into one string
   let text = project.description || '';
-  if (project.details && project.details.length > 0) {
-    project.details.forEach(d => {
+  if (project.questions && project.questions.length > 0) {
+    project.questions.forEach(d => {
       text += ' ' + d.answer;
     });
   }
@@ -41,20 +38,15 @@ const getKeywords = (project, topN = 5) => {
 };
 
 
-const ProjectView = ({ darkMode }) => { // Accept darkMode prop
+const ProjectView = ({ project, onBack, darkMode }) => { // Accept project, onBack, and darkMode props
 
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [project, setProject] = useState(null);
   const [projectVersions, setProjectVersions] = useState([]); // New state for project versions
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [keywords, setKeywords] = useState([]);
-  const [showSnapshotModal, setShowSnapshotModal] = useState(false); // New state for snapshot modal
-  const [currentSnapshot, setCurrentSnapshot] = useState(null); // New state for current snapshot
 
   useEffect(() => {
-    const fetchProjectData = async () => {
+    const fetchProjectVersions = async () => {
       setLoading(true);
       setError(null);
       try {
@@ -66,22 +58,20 @@ const ProjectView = ({ darkMode }) => { // Accept darkMode prop
         }
         const config = { headers: { 'x-auth-token': token } };
         
-        const [projectRes, versionsRes] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${id}`, config),
-          axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${id}/versions`, config)
-        ]);
+        const versionsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${project.id}/versions`, config);
 
-        setProject(projectRes.data);
         setProjectVersions(versionsRes.data);
         setLoading(false);
       } catch (err) {
         console.error(err.response ? err.response.data : err.message);
-        setError(err.response ? err.response.data.msg : 'Failed to fetch project data.');
+        setError(err.response ? err.response.data.msg : 'Failed to fetch project versions.');
         setLoading(false);
       }
     };
-    fetchProjectData();
-  }, [id]);
+    if (project) {
+        fetchProjectVersions();
+    }
+  }, [project]);
 
   useEffect(() => {
     if (project) {
@@ -90,9 +80,9 @@ const ProjectView = ({ darkMode }) => { // Accept darkMode prop
     }
   }, [project]);
 
+  if (!project) return null;
   if (loading) return <p style={{ textAlign: 'center' }}>Loading project...</p>;
   if (error) return <p style={{ textAlign: 'center', color: 'red' }}>Error: {error}</p>;
-  if (!project) return <p style={{ textAlign: 'center' }}>Project not found.</p>;
 
   return (
     <div className={darkMode ? 'dark-mode-container' : ''} // Apply class conditionally
@@ -112,10 +102,10 @@ const ProjectView = ({ darkMode }) => { // Accept darkMode prop
         </div>
       )}
 
-      {project.details && project.details.length > 0 && (
+      {project.questions && project.questions.length > 0 && (
         <div style={{ marginBottom: '20px', textAlign: 'left' }}>
           <h3>Project Details:</h3>
-          {project.details.map((detail, index) => (
+          {project.questions.map((detail, index) => (
             <div key={index} style={{
               marginBottom: '15px',
               padding: '15px',
@@ -125,14 +115,14 @@ const ProjectView = ({ darkMode }) => { // Accept darkMode prop
               wordWrap: 'break-word',
               overflowWrap: 'break-word'
             }}>
-              <p style={{ margin: '0 0 5px 0', fontWeight: 'bold', color: darkMode ? '#fffcf0' : '#3e51b6' }}>Q: {detail.question}</p> {/* Conditional color */}
+              <p style={{ margin: '0 0 5px 0', fontWeight: 'bold', color: darkMode ? '#fffcf0' : '#3e51b6' }}>Q: {detail.text}</p> {/* Conditional color */}
               <p style={{ margin: '0', color: darkMode ? '#e0e0e0' : '#1e1e1e', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>A: {detail.answer}</p> {/* Conditional color */}
             </div>
           ))}
         </div>
       )}
 
-      <button onClick={() => navigate(-1)} style={{ padding: '10px 20px', backgroundColor: darkMode ? '#6c757d' : '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '20px' }}>Back to Projects</button>
+      <button onClick={onBack} style={{ padding: '10px 20px', backgroundColor: darkMode ? '#6c757d' : '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '20px' }}>Back to Projects</button>
 
       <div style={{ marginTop: '30px', textAlign: 'left' }}>
         <h3>Project Versions</h3>

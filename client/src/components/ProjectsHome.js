@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
 import './ProjectsHome.css';
+import ProjectView from './ProjectView'; // Import ProjectView
 
 const ProjectsHome = ({ user }) => { // Accept user prop
   const [projects, setProjects] = useState([]);
@@ -16,6 +16,7 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   const [selectedApproverId, setSelectedApproverId] = useState(''); // State for selected approver
   const [projectToApproveId, setProjectToApproveId] = useState(null); // Project ID for current approval request
   const [companyUsers, setCompanyUsers] = useState([]); // New state for users in the company
+  const [selectedProject, setSelectedProject] = useState(null); // New state for selected project
 
   useEffect(() => {
     fetchProjects();
@@ -51,7 +52,6 @@ const ProjectsHome = ({ user }) => { // Accept user prop
       };
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects`, config);
       setProjects(res.data);
-console.log(res.data);
       setLoading(false);
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
@@ -60,13 +60,16 @@ console.log(res.data);
     }
   };
 
+  const handleViewProject = (project) => {
+    setSelectedProject(project);
+  };
+
+  const handleBackToProjects = () => {
+    setSelectedProject(null);
+  };
+
   const startEdit = (project) => {
-    setEditingProjectId(project.id);
-    setEditingProjectName(project.name);
-    setEditingProjectDescription(project.description || '');
-    setEditingProjectDetails(project.questions && project.questions.length > 0
-      ? project.questions.map(q => ({ ...q, question: q.text, answer: '', isEditingQuestion: false })) // Map question text to 'question' field
-      : [{ question: '', answer: '', isEditingQuestion: false }]); // Initialize with isEditingQuestion
+    handleViewProject(project);
   };
 
   const cancelEdit = () => {
@@ -238,6 +241,10 @@ console.log(res.data);
   if (loading) return <p className="loading-message">Loading projects...</p>;
   if (error) return <p className="error-message">Error: {error}</p>;
 
+  if (selectedProject) {
+    return <ProjectView project={selectedProject} onBack={handleBackToProjects} darkMode={false} />;
+  }
+
   return (
     <div className="projects-home-container ProjectsHome">
       <div className="projects-home-header">
@@ -322,7 +329,7 @@ console.log(res.data);
                 <>
                   <div className="projects-home-project-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h3>{project.name}</h3>
-                    <Link to={`/api/projects/${project.id}/view`} className="projects-home-view-link">View</Link>
+                    <button onClick={() => handleViewProject(project)} className="projects-home-view-link">View</button>
                   </div>
                   {project.deadlineDate && (
                     <p style={{ color: '#3e51b5', fontWeight: 'bold', fontSize: '0.9em', textAlign: 'right', marginBottom: '10px' }}>
