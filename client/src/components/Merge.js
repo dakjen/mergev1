@@ -193,53 +193,49 @@ const Merge = () => {
                             <div style={{ marginTop: '10px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
                                 <h4>Questions (Optional)</h4>
                                 {newProjectQuestions.map((q, index) => (
-                                                                    <div key={index} style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
-                                                                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
-                                                                            {/* Assigned To Dropdown for New Project Questions */}
-                                                                            <div style={{ marginRight: '10px' }}>
-                                                                                <label htmlFor={`new-question-assignedTo-${index}`} style={{ marginRight: '5px' }}>Assign To:</label>
-                                                                                <select
-                                                                                    id={`new-question-assignedTo-${index}`}
-                                                                                    value={q.assignedToId || ''}
-                                                                                    onChange={(e) => {
-                                                                                        const updatedQuestions = [...newProjectQuestions];
-                                                                                        updatedQuestions[index].assignedToId = e.target.value || null;
-                                                                                        setNewProjectQuestions(updatedQuestions);
-                                                                                    }}
-                                                                                    style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc' }}
-                                                                                >
-                                                                                    <option value="">Unassigned</option>
-                                                                                    {companyUsers.map(u => (
-                                                                                        <option key={u.id} value={u.id}>{u.name || u.username}</option>
-                                                                                    ))}
-                                                                                </select>
-                                                                            </div>
-                                                                            <textarea
-                                                                                placeholder="Question text"
-                                                                                value={q.text}
-                                                                                onChange={(e) => {
-                                                                                    const updatedQuestions = [...newProjectQuestions];
-                                                                                    updatedQuestions[index].text = e.target.value;
-                                                                                    setNewProjectQuestions(updatedQuestions);
-                                                                                }}
-                                                                                rows="2"
-                                                                                style={{ flexGrow: 1, marginBottom: '0px' }} // Adjust margin
-                                                                            ></textarea>
-                                                                        </div>
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => {
-                                                                                const updatedQuestions = newProjectQuestions.filter((_, i) => i !== index);
-                                                                                setNewProjectQuestions(updatedQuestions);
-                                                                            }}
-                                                                            style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px', marginTop: '5px' }} // Adjust margin
-                                                                        >Remove Question</button>
-                                                                    </div>                                ))}
-                                <button
-                                    type="button"
-                                    onClick={() => setNewProjectQuestions([...newProjectQuestions, { text: '', assignedToId: null, status: 'pending' }])}
-                                    style={{ backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px', marginTop: '10px' }}
-                                >Add Question</button>
+                                    <div key={index} style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                                            {/* Assigned To Dropdown for New Project Questions */}
+                                            <div style={{ marginRight: '10px' }}>
+                                                <label htmlFor={`new-question-assignedTo-${index}`} style={{ marginRight: '5px' }}>Assign To:</label>
+                                                <select
+                                                    id={`new-question-assignedTo-${index}`}
+                                                    value={q.assignedToId || ''}
+                                                    onChange={(e) => {
+                                                        const updatedQuestions = [...newProjectQuestions];
+                                                        updatedQuestions[index].assignedToId = e.target.value || null;
+                                                        setNewProjectQuestions(updatedQuestions);
+                                                    }}
+                                                    style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc' }}
+                                                >
+                                                    <option value="">Unassigned</option>
+                                                    {companyUsers.map(u => (
+                                                        <option key={u.id} value={u.id}>{u.name || u.username}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <textarea
+                                                placeholder="Question text"
+                                                value={q.text}
+                                                onChange={(e) => {
+                                                    const updatedQuestions = [...newProjectQuestions];
+                                                    updatedQuestions[index].text = e.target.value;
+                                                    setNewProjectQuestions(updatedQuestions);
+                                                }}
+                                                rows="2"
+                                                style={{ flexGrow: 1, marginBottom: '0px' }} // Adjust margin
+                                            ></textarea>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const updatedQuestions = newProjectQuestions.filter((_, i) => i !== index);
+                                                setNewProjectQuestions(updatedQuestions);
+                                            }}
+                                            style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px', marginTop: '5px' }} // Adjust margin
+                                        >Remove Question</button>
+                                    </div>
+                                ))}
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
