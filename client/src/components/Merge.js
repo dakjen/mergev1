@@ -126,8 +126,6 @@ const Merge = () => {
         }
     };
 
-    if (loading) return <p>Loading assigned questions...</p>;
-
 
     return (
         <div style={{ padding: '20px', textAlign: 'center' }}>
