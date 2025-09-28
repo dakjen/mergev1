@@ -78,11 +78,7 @@ console.log(res.data);
 
   const handleDetailChange = (index, field, value) => {
     const newDetails = [...editingProjectDetails];
-    if (field === 'assignedToId') {
-      newDetails[index].assignedToId = value === '' ? null : value; // Convert empty string to null
-    } else if (field === 'status') {
-      newDetails[index].status = value;
-    } else if (field === 'question') {
+    if (field === 'question') {
       newDetails[index].text = value; // Update the 'text' field of the question
       newDetails[index].question = value; // Keep 'question' for UI compatibility
     } else {
@@ -103,7 +99,7 @@ console.log(res.data);
   };
 
   const addDetailPair = () => {
-    setEditingProjectDetails([...editingProjectDetails, { question: '', answer: '', isEditingQuestion: true, assignedToId: null, status: 'pending' }]); // Initialize with isEditingQuestion, assignedToId, and status
+    setEditingProjectDetails([...editingProjectDetails, { question: '', answer: '', isEditingQuestion: true }]);
   };
 
   const removeDetailPair = (index) => {
@@ -128,14 +124,14 @@ console.log(res.data);
       for (const question of editingProjectDetails) {
         if (question.id) { // Only update existing questions
           await axios.put(
-            `${process.env.REACT_APP_API_URL}/api/questions/${question.id}/assign`,
-            { text: question.question, assignedToId: question.assignedToId, status: question.status },
+            `${process.env.REACT_APP_API_URL}/api/projects/questions/${question.id}/assign`,
+            { text: question.question },
             config
           );
         } else { // Create new questions if they don't have an ID (added during edit)
           await axios.post(
             `${process.env.REACT_APP_API_URL}/api/projects/${editingProjectId}/questions`,
-            { text: question.question, assignedToId: question.assignedToId, status: question.status },
+            { text: question.question },
             config
           );
         }
@@ -294,36 +290,7 @@ console.log(res.data);
                           )
                         )}
                       </div>
-                      {/* Assigned To Dropdown */}
-                      <div style={{ marginBottom: '10px' }}>
-                        <label htmlFor={`assignedTo-${index}`} style={{ marginRight: '5px' }}>Assigned To:</label>
-                        <select
-                          id={`assignedTo-${index}`}
-                          value={detail.assignedToId || ''}
-                          onChange={(e) => handleDetailChange(index, 'assignedToId', e.target.value || null)}
-                          style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc' }}
-                        >
-                          <option value="">Unassigned</option>
-                          {companyUsers.map(u => (
-                            <option key={u.id} value={u.id}>{u.name || u.username}</option>
-                          ))}
-                        </select>
-                      </div>
-                      {/* Status Dropdown */}
-                      <div style={{ marginBottom: '10px' }}>
-                        <label htmlFor={`status-${index}`} style={{ marginRight: '5px' }}>Status:</label>
-                        <select
-                          id={`status-${index}`}
-                          value={detail.status || 'pending'}
-                          onChange={(e) => handleDetailChange(index, 'status', e.target.value)}
-                          style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc' }}
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="in-progress">In Progress</option>
-                          <option value="completed">Completed</option>
-                          <option value="in-review">In Review</option>
-                        </select>
-                      </div>
+
                       <textarea
                         placeholder="Answer (Use Markdown for bold/bullets)"
                         value={detail.answer}

@@ -436,7 +436,7 @@ router.get('/rejected', auth, async (req, res) => {
 // @desc    Get count of pending approval requests for the current approver
 // @access  Private (approver only)
 router.put('/questions/:id/assign', auth, async (req, res) => {
-  const { assignedToId, status, answer } = req.body; // Add answer
+  const { assignedToId, status, answer, text } = req.body; // Add text
 
   try {
     let question = await prisma.question.findUnique({ where: { id: req.params.id } });
@@ -472,6 +472,7 @@ router.put('/questions/:id/assign', auth, async (req, res) => {
         assignedToId: assignedToId || question.assignedToId,
         status: status || question.status,
         answer: answer || question.answer, // Update answer
+        text: text || question.text, // Update text
       },
     });
     res.json(question);

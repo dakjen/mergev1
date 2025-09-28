@@ -72,7 +72,7 @@ const Merge = () => {
     }, []);
 
 
-    const updateQuestionAnswer = async (questionId, newAnswer) => {
+    const updateQuestionStatus = async (questionId, newStatus, newAnswer, newAssignedToId) => {
         try {
             const token = localStorage.getItem('token');
             const config = {
@@ -80,7 +80,7 @@ const Merge = () => {
             };
             await axios.put(
                 `${process.env.REACT_APP_API_URL}/api/projects/questions/${questionId}/assign`,
-                { answer: newAnswer },
+                { status: newStatus, answer: newAnswer, assignedToId: newAssignedToId },
                 config
             );
             // Re-fetch questions to update the UI
@@ -317,7 +317,39 @@ const Merge = () => {
                                                     rows="4"
                                                     style={{ width: '100%', padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
                                                 ></textarea>
-                                                <button onClick={() => updateQuestionAnswer(question.id, question.answer)} style={{ marginTop: '5px', padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Save Answer</button>
+                                                <button onClick={() => updateQuestionStatus(question.id, question.status, question.answer, question.assignedToId)} style={{ marginTop: '5px', padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Save Answer</button>
+                                            </div>
+
+                                            {/* Status Dropdown */}
+                                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+                                                <label htmlFor={`status-${question.id}`} style={{ marginRight: '10px' }}>Status:</label>
+                                                <select
+                                                    id={`status-${question.id}`}
+                                                    value={question.status}
+                                                    onChange={(e) => updateQuestionStatus(question.id, e.target.value, question.answer, question.assignedToId)}
+                                                    style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="in-progress">In Progress</option>
+                                                    <option value="completed">Completed</option>
+                                                    <option value="in-review">In Review</option>
+                                                </select>
+                                            </div>
+
+                                            {/* Re-assign Dropdown (Admin/Approver only) */}
+                                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+                                                <label htmlFor={`reassign-${question.id}`} style={{ marginRight: '10px' }}>Re-assign To:</label>
+                                                <select
+                                                    id={`reassign-${question.id}`}
+                                                    value={question.assignedToId || ''}
+                                                    onChange={(e) => updateQuestionStatus(question.id, question.status, question.answer, e.target.value || null)}
+                                                    style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
+                                                >
+                                                    <option value="">Unassigned</option>
+                                                    {companyUsers.map(u => (
+                                                        <option key={u.id} value={u.id}>{u.name || u.username}</option>
+                                                    ))}
+                                                </select>
                                             </div>
 
                                             {/* Assignment Log */}
