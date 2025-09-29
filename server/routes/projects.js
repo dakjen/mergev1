@@ -20,10 +20,10 @@ router.get('/', auth, async (req, res) => {
       },
       include: {
         owner: { select: { username: true } },
-        company: { select: { name: true } },
         questions: {
           include: {
             assignedTo: { select: { id: true, username: true, name: true } },
+            assignmentLogs: true, // Include assignment logs
           },
         },
       }
