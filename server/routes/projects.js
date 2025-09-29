@@ -94,13 +94,9 @@ router.get('/:id', auth, async (req, res) => {
     }
 
     const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-    if (!user || user.companyId !== project.companyId) {
-      return res.status(401).json({ msg: 'User not authorized to view this project' });
-    }
-
     res.json(project);
   } catch (err) {
-    console.error(err.message);
+    console.error("Error fetching project by ID:", err);
     res.status(500).send('Server Error');
   }
 });
