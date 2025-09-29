@@ -20,6 +20,7 @@ import ApprovalHistory from './components/ApprovalHistory'; // New import for Ap
 import PastAIReviews from './components/PastAIReviews'; // New import for PastAIReviews
 import ToBeApproved from './components/ToBeApproved'; // New import for ToBeApproved
 import PendingCorrection from './components/PendingCorrection'; // New import for PendingCorrection
+import ArchivedProjects from './components/ArchivedProjects';
 import Merge from './components/Merge';
 import AIReviewDetail from './components/AIReviewDetail';
 import ArchivedAIReviews from './components/ArchivedAIReviews';
