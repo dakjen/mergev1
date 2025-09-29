@@ -162,7 +162,7 @@ const ProjectsHome = ({ user }) => { // Accept user prop
         if (question.id) { // Only update existing questions
           await axios.put(
             `${process.env.REACT_APP_API_URL}/api/projects/questions/${question.id}/assign`,
-            { text: question.question },
+            { text: question.text },
             config
           );
         } else { // Create new questions if they don't have an ID (added during edit)
@@ -409,11 +409,6 @@ const ProjectsHome = ({ user }) => { // Accept user prop
                     </p>
                   )}
                   <p className="projects-home-project-description">{project.description}</p>
-                  {project.deadlineDate && (
-                    <p style={{ color: '#3e51b5', fontWeight: 'bold', fontSize: '0.9em', textAlign: 'right', marginBottom: '10px' }}>
-                      Due: {new Date(project.deadlineDate).toLocaleDateString()}
-                    </p>
-                  )}
                   {project.questions && project.questions.length > 0 && (
                     <div className="project-questions">
                       <h4>Questions:</h4>
