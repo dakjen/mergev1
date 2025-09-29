@@ -19,7 +19,6 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   const [projectToApproveId, setProjectToApproveId] = useState(null); // Project ID for current approval request
   const [companyUsers, setCompanyUsers] = useState([]); // New state for users in the company
   const [selectedProject, setSelectedProject] = useState(null); // New state for selected project
-  const [filterProjectName, setFilterProjectName] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterOwner, setFilterOwner] = useState('');
   const [sortBy, setSortBy] = useState('newest');

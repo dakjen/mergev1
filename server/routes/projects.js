@@ -102,44 +102,32 @@ router.get('/archived', auth, async (req, res) => {
   }
 });
 
+// @route   GET api/projects/pending-approval-count
+// @desc    Get count of pending approval requests for the current approver
+// @access  Private (approver only)
+router.get('/pending-approval-count', auth, async (req, res) => {
+  if (req.user.role !== 'approver') {
+    return res.status(403).json({ msg: 'Authorization denied. Not an approver.' });
+  }
+
+  try {
+    const pendingCount = await prisma.approvalRequest.count({
+      where: {
+        approverId: req.user.id,
+        status: 'pending',
+      },
+    });
+    res.json({ count: pendingCount });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 // @route   GET api/projects/:id
 // @desc    Get a single project by ID
 // @access  Private
 router.get('/:id', auth, async (req, res) => {
-  try {
-    const project = await prisma.project.findUnique({
-      where: { id: req.params.id },
-      include: {
-        owner: { select: { username: true } },
-        company: true,
-        questions: {
-          select: { // Use select for scalar fields
-            id: true,
-            text: true,
-            status: true,
-            answer: true,
-            maxLimit: true,
-            limitUnit: true,
-            createdAt: true,
-            updatedAt: true,
-            assignedTo: { select: { id: true, username: true, name: true } },
-            assignmentLogs: true, // Include assignment logs
-          },
-        },
-      },
-    });
-
-    if (!project) {
-      return res.status(404).json({ msg: 'Project not found' });
-    }
-
-    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-    res.json(project);
-  } catch (err) {
-    console.error("Error fetching project by ID:", err);
-    res.status(500).send('Server Error');
-  }
-});
 
 // @route   PUT api/projects/:id
 // @desc    Update a project
