@@ -674,8 +674,6 @@ router.post('/upload-document', auth, upload.single('document'), async (req, res
   }
 });
 
-module.exports = router;
-
 // @route   PUT api/projects/:id/archive
 // @desc    Archive a project
 // @access  Private (owner or admin)
