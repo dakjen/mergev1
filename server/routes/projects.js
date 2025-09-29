@@ -21,7 +21,7 @@ router.get('/', auth, async (req, res) => {
       include: {
         owner: { select: { username: true } },
         questions: {
-          include: {
+          select: { // Use select for scalar fields
             id: true,
             text: true,
             status: true,
