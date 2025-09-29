@@ -411,19 +411,6 @@ const ProjectsHome = ({ user }) => { // Accept user prop
                     </p>
                   )}
                   <p className="projects-home-project-description">{project.description}</p>
-                  {project.questions && project.questions.length > 0 && (
-                    <div className="project-questions">
-                      <h4>Questions:</h4>
-                      <ul>
-                        {project.questions.map((question, index) => (
-                          <li key={index}>
-                            <p><strong>{question.text}</strong></p>
-                            <p>{question.answer}</p>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
                   <p className="projects-home-project-owner">Owner: {project.owner.username} | Company: {project.company?.name}</p>
                   {project.status === 'pending_approval' && (
                     <p style={{ color: 'black', fontWeight: 'bold', marginTop: '5px' }}>Status: Pending Approval</p>
