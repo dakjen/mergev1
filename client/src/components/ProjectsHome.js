@@ -406,7 +406,7 @@ const ProjectsHome = ({ user }) => { // Accept user prop
                     </p>
                   )}
                   <p className="projects-home-project-description">{project.description}</p>
-                  <p className="projects-home-project-owner">Owner: {project.owner.username} | Company: {project.companyName}</p>
+                  <p className="projects-home-project-owner">Owner: {project.owner.username} | Company: {project.company.name}</p>
                   {project.status === 'pending_approval' && (
                     <p style={{ color: 'black', fontWeight: 'bold', marginTop: '5px' }}>Status: Pending Approval</p>
                   )}
