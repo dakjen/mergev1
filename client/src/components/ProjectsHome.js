@@ -59,7 +59,12 @@ const ProjectsHome = ({ user }) => { // Accept user prop
         headers: { 'x-auth-token': token }
       };
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects`, config);
-      setProjects(res.data);
+      console.log("Fetched projects data:", res.data);
+      const transformedProjects = res.data.map(project => ({
+        ...project,
+        questions: project.questions || project.details || [] // Use questions if available, otherwise details
+      }));
+      setProjects(transformedProjects);
       setLoading(false);
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
@@ -328,7 +333,10 @@ const ProjectsHome = ({ user }) => { // Accept user prop
           <p>No projects found. Create one!</p>
         ) : (
           projects.map(project => (
-            <li key={project.id} className="projects-home-list-item"
+            {
+              console.log("Rendering project:", project);
+              return (
+                <li key={project.id} className="projects-home-list-item"
                 style={{ backgroundColor: project.isCompleted ? '#98abff' : '#f4f4f4' }}> {/* Conditional styling */}
               {editingProjectId === project.id ? (
                 <form onSubmit={updateProject} className="projects-home-edit-form">
