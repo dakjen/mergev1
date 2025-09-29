@@ -35,6 +35,33 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// @route   GET api/projects/archived
+// @desc    Get all archived projects for the logged-in user's company
+// @access  Private
+router.get('/archived', auth, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
+    if (!user || !user.companyId) {
+      return res.status(400).json({ msg: 'User not associated with a company' });
+    }
+
+    const projects = await prisma.project.findMany({
+      where: {
+        companyId: user.companyId,
+        isArchived: true,
+      },
+      include: {
+        owner: { select: { username: true } },
+        company: { select: { name: true } },
+      },
+    });
+    res.json(projects);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 // @route   GET api/projects/:id
 // @desc    Get a single project by ID
 // @access  Private
@@ -63,46 +90,6 @@ router.get('/:id', auth, async (req, res) => {
     }
 
     res.json(project);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
-
-// @route   POST api/projects
-// @desc    Create a new project
-// @access  Private
-router.post('/', auth, async (req, res) => {
-  const { name, description, deadlineDate, questions } = req.body; // Add deadlineDate and questions
-
-  try {
-    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
-    if (!user || !user.companyId) {
-      return res.status(400).json({ msg: 'User not associated with a company' });
-    }
-
-    const newProject = await prisma.project.create({
-      data: {
-        name,
-        description,
-        deadlineDate: deadlineDate ? new Date(deadlineDate) : null, // Save deadlineDate
-        ownerId: req.user.id,
-        companyId: user.companyId,
-        questions: {
-          create: questions ? questions.map(q => ({
-            text: q.text,
-            assignedToId: q.assignedToId || null, // Assign if provided, otherwise null
-            status: q.status || 'pending', // Default status
-            maxLimit: q.maxLimit ? parseInt(q.maxLimit, 10) : null,
-            limitUnit: q.limitUnit,
-          })) : [],
-        },
-      },
-      include: {
-        questions: true, // Include questions in the response
-      },
-    });
-    res.json(newProject);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
