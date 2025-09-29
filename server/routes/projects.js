@@ -30,7 +30,7 @@ router.get('/', auth, async (req, res) => {
     });
     res.json(projects);
   } catch (err) {
-    console.error(err.message);
+    console.error("Error fetching projects:", err);
     res.status(500).send('Server Error');
   }
 });
