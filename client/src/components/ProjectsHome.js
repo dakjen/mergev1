@@ -19,6 +19,10 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   const [projectToApproveId, setProjectToApproveId] = useState(null); // Project ID for current approval request
   const [companyUsers, setCompanyUsers] = useState([]); // New state for users in the company
   const [selectedProject, setSelectedProject] = useState(null); // New state for selected project
+  const [filterProjectName, setFilterProjectName] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterOwner, setFilterOwner] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
   const [modalState, setModalState] = useState({
     isOpen: false,
     title: '',
@@ -29,21 +33,7 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   useEffect(() => {
     fetchProjects();
     fetchCompanyUsers(); // Fetch company users when component mounts
-  }, []);
-
-  const fetchCompanyUsers = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-      const config = {
-        headers: { 'x-auth-token': token }
-      };
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/users`, config);
-      setCompanyUsers(res.data);
-    } catch (err) {
-      console.error('Failed to fetch company users:', err.response ? err.response.data : err.message);
-    }
-  };
+  }, [filterProjectName, filterStatus, filterOwner, sortBy]);
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -56,7 +46,13 @@ const ProjectsHome = ({ user }) => { // Accept user prop
         return;
       }
       const config = {
-        headers: { 'x-auth-token': token }
+        headers: { 'x-auth-token': token },
+        params: {
+          name: filterProjectName,
+          status: filterStatus,
+          ownerId: filterOwner,
+          sortBy: sortBy,
+        }
       };
       console.log("Fetching projects from API...");
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects`, config);
@@ -67,6 +63,20 @@ const ProjectsHome = ({ user }) => { // Accept user prop
       console.error("Error fetching projects:", err.response ? err.response.data : err.message);
       setError(err.response ? err.response.data.msg : 'Failed to fetch projects.');
       setLoading(false);
+    }
+  };
+
+  const fetchCompanyUsers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const config = {
+        headers: { 'x-auth-token': token }
+      };
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/users`, config);
+      setCompanyUsers(res.data);
+    } catch (err) {
+      console.error('Failed to fetch company users:', err.response ? err.response.data : err.message);
     }
   };
 
@@ -323,6 +333,35 @@ const ProjectsHome = ({ user }) => { // Accept user prop
       />
       <div className="projects-home-header">
         <h2>My Projects</h2>
+      </div>
+
+      <div className="filters">
+        <input
+          type="text"
+          placeholder="Filter by Project Name"
+          value={filterProjectName}
+          onChange={(e) => setFilterProjectName(e.target.value)}
+        />
+        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+          <option value="">All Statuses</option>
+          <option value="draft">Draft</option>
+          <option value="pending_approval">Pending Approval</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="completed">Completed</option>
+        </select>
+        <select value={filterOwner} onChange={(e) => setFilterOwner(e.target.value)}>
+          <option value="">All Owners</option>
+          {companyUsers.map(user => (
+            <option key={user.id} value={user.id}>{user.username}</option>
+          ))}
+        </select>
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="dueDate_asc">Due Date (Soonest)</option>
+          <option value="dueDate_desc">Due Date (Latest)</option>
+        </select>
       </div>
 
       <ul className="projects-home-list">

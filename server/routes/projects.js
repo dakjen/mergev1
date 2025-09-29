@@ -13,11 +13,40 @@ router.get('/', auth, async (req, res) => {
       return res.status(400).json({ msg: 'User not associated with a company' });
     }
 
+    const { name, status, ownerId, sortBy } = req.query;
+
+    const whereClause = {
+      companyId: user.companyId,
+      isArchived: false,
+    };
+
+    if (name) {
+      whereClause.name = {
+        contains: name,
+        mode: 'insensitive', // Case-insensitive search
+      };
+    }
+
+    if (status) {
+      whereClause.status = status;
+    }
+
+    if (ownerId) {
+      whereClause.ownerId = ownerId;
+    }
+
+    let orderByClause = { createdAt: 'desc' }; // Default sort
+
+    if (sortBy === 'oldest') {
+      orderByClause = { createdAt: 'asc' };
+    } else if (sortBy === 'dueDate_asc') {
+      orderByClause = { deadlineDate: 'asc' };
+    } else if (sortBy === 'dueDate_desc') {
+      orderByClause = { deadlineDate: 'desc' };
+    }
+
     const projects = await prisma.project.findMany({
-      where: {
-        companyId: user.companyId,
-        isArchived: false,
-      },
+      where: whereClause,
       include: {
         owner: { select: { username: true } },
         questions: {
@@ -34,7 +63,8 @@ router.get('/', auth, async (req, res) => {
             assignmentLogs: true, // Include assignment logs
           },
         },
-      }
+      },
+      orderBy: orderByClause,
     });
     console.log("Server sending projects data:", projects);
     res.json(projects);
