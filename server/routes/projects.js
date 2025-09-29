@@ -722,9 +722,10 @@ router.get('/archived', auth, async (req, res) => {
         company: { select: { name: true } },
       },
     });
+    console.log("Archived projects fetched:", projects);
     res.json(projects);
   } catch (err) {
-    console.error(err.message);
+    console.error("Error fetching archived projects:", err);
     res.status(500).send('Server Error');
   }
 });
