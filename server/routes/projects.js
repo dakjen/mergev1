@@ -674,6 +674,8 @@ router.post('/upload-document', auth, upload.single('document'), async (req, res
   }
 });
 
+module.exports = router;
+
 // @route   PUT api/projects/:id/archive
 // @desc    Archive a project
 // @access  Private (owner or admin)
@@ -722,10 +724,9 @@ router.get('/archived', auth, async (req, res) => {
         company: { select: { name: true } },
       },
     });
-    console.log("Archived projects fetched:", projects);
     res.json(projects);
   } catch (err) {
-    console.error("Error fetching archived projects:", err);
+    console.error(err.message);
     res.status(500).send('Server Error');
   }
 });
