@@ -22,14 +22,6 @@ router.get('/', auth, async (req, res) => {
         owner: { select: { username: true } },
         questions: {
           include: {
-            id: true,
-            text: true,
-            status: true,
-            answer: true,
-            maxLimit: true,
-            limitUnit: true,
-            createdAt: true,
-            updatedAt: true,
             assignedTo: { select: { id: true, username: true, name: true } },
             assignmentLogs: true, // Include assignment logs
           },

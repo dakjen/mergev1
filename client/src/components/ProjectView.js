@@ -39,6 +39,7 @@ const getKeywords = (project, topN = 5) => {
 
 
 const ProjectView = ({ project, onBack, darkMode }) => { // Accept project, onBack, and darkMode props
+  console.log("ProjectView received project:", project); // Add logging
 
   const [projectVersions, setProjectVersions] = useState([]); // New state for project versions
   const [loading, setLoading] = useState(true);
