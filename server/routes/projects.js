@@ -16,6 +16,7 @@ router.get('/', auth, async (req, res) => {
     const projects = await prisma.project.findMany({
       where: {
         companyId: user.companyId,
+        isArchived: false,
       },
       include: {
         owner: { select: { username: true } },
@@ -667,6 +668,61 @@ router.post('/upload-document', auth, upload.single('document'), async (req, res
 
     res.json({ msg: 'Document processed', project: newProject, parsedContent: extractedText, questionsAndAnswers });
 
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   PUT api/projects/:id/archive
+// @desc    Archive a project
+// @access  Private (owner or admin)
+router.put('/:id/archive', auth, async (req, res) => {
+  try {
+    const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+
+    if (!project) {
+      return res.status(404).json({ msg: 'Project not found' });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user || (project.ownerId !== req.user.id && user.role !== 'admin')) {
+      return res.status(401).json({ msg: 'User not authorized to archive this project' });
+    }
+
+    const updatedProject = await prisma.project.update({
+      where: { id: req.params.id },
+      data: { isArchived: true },
+    });
+
+    res.json(updatedProject);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   GET api/projects/archived
+// @desc    Get all archived projects for the logged-in user's company
+// @access  Private
+router.get('/archived', auth, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
+    if (!user || !user.companyId) {
+      return res.status(400).json({ msg: 'User not associated with a company' });
+    }
+
+    const projects = await prisma.project.findMany({
+      where: {
+        companyId: user.companyId,
+        isArchived: true,
+      },
+      include: {
+        owner: { select: { username: true } },
+        company: { select: { name: true } },
+      },
+    });
+    res.json(projects);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

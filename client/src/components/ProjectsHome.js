@@ -201,9 +201,16 @@ const ProjectsHome = ({ user }) => { // Accept user prop
 
   const archiveProject = async (projectId) => {
     const onConfirm = async () => {
-        alert(`Project ${projectId} archived! (Placeholder)`);
+      try {
+        const token = localStorage.getItem('token');
+        const config = { headers: { 'x-auth-token': token } };
+        await axios.put(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/archive`, {}, config);
         fetchProjects();
-        setModalState({ ...modalState, isOpen: false });
+      } catch (err) {
+        console.error(err.response ? err.response.data : err.message);
+        alert(err.response ? err.response.data.msg : 'Failed to archive project.');
+      }
+      setModalState({ ...modalState, isOpen: false });
     };
 
     setModalState({
@@ -400,7 +407,7 @@ const ProjectsHome = ({ user }) => { // Accept user prop
                   <p className="projects-home-project-description">{project.description}</p>
                   <p className="projects-home-project-owner">Owner: {project.owner.username} | Company: {project.companyName}</p>
                   {project.status === 'pending_approval' && (
-                    <p style={{ color: '#ff9800', fontWeight: 'bold', marginTop: '5px' }}>Status: Pending Approval</p>
+                    <p style={{ color: 'black', fontWeight: 'bold', marginTop: '5px' }}>Status: Pending Approval</p>
                   )}
                   {project.status === 'approved' && (
                     <p style={{ color: 'green', fontWeight: 'bold', marginTop: '5px' }}>Status: Approved</p>
@@ -413,12 +420,12 @@ const ProjectsHome = ({ user }) => { // Accept user prop
                       {!project.isCompleted && (
                         <>
                           <button onClick={() => startEdit(project)} className="edit-button" style={{ backgroundColor: '#7fab61' }}>Edit</button>
-                          <button onClick={() => archiveProject(project.id)} className="archive-button">Archive</button>
                           {project.status !== 'pending_approval' && ( // Hide if already pending approval
                             <button onClick={() => getApproval(project.id)} className="approval-button" style={{ backgroundColor: '#98abff' }}>Get Approval</button>
                           )}
                         </>
                       )}
+                      <button onClick={() => archiveProject(project.id)} className="archive-button">Archive</button>
                       {!project.isCompleted && (
                         <button onClick={() => markAsCompleted(project.id)} className="completed-button" style={{ backgroundColor: '#debf84' }}>Completed</button>
                       )}
@@ -480,6 +487,9 @@ const ProjectsHome = ({ user }) => { // Accept user prop
           ))
         )}
       </ul>
+      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <Link to="/projects/archived">View Archived Projects</Link>
+      </div>
     </div>
   );
 };

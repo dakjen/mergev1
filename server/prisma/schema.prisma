@@ -63,6 +63,7 @@ model Project {
   details Json?
   deadlineDate DateTime? // New field for project deadline
   isCompleted Boolean @default(false) // New field for completion status
+  isArchived  Boolean   @default(false) // New field for archiving status
   status      String  @default("draft") // New field for project status
   createdAt   DateTime  @default(now())
   owner       User      @relation(fields: [ownerId], references: [id])
