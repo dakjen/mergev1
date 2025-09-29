@@ -82,8 +82,17 @@ router.get('/:id', auth, async (req, res) => {
         owner: { select: { username: true } },
         company: true,
         questions: {
-          include: {
+          select: { // Use select for scalar fields
+            id: true,
+            text: true,
+            status: true,
+            answer: true,
+            maxLimit: true,
+            limitUnit: true,
+            createdAt: true,
+            updatedAt: true,
             assignedTo: { select: { id: true, username: true, name: true } },
+            assignmentLogs: true, // Include assignment logs
           },
         },
       },
