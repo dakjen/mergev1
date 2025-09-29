@@ -36,6 +36,7 @@ router.get('/', auth, async (req, res) => {
         },
       }
     });
+    console.log("Server sending projects data:", projects);
     res.json(projects);
   } catch (err) {
     console.error("Error fetching projects:", err);

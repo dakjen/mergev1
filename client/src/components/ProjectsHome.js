@@ -58,12 +58,13 @@ const ProjectsHome = ({ user }) => { // Accept user prop
       const config = {
         headers: { 'x-auth-token': token }
       };
+      console.log("Fetching projects from API...");
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects`, config);
       console.log("Raw fetched projects data:", res.data);
       setProjects(res.data);
       setLoading(false);
     } catch (err) {
-      console.error(err.response ? err.response.data : err.message);
+      console.error("Error fetching projects:", err.response ? err.response.data : err.message);
       setError(err.response ? err.response.data.msg : 'Failed to fetch projects.');
       setLoading(false);
     }
