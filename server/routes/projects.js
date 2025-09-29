@@ -30,7 +30,7 @@ router.get('/', auth, async (req, res) => {
     });
     res.json(projects);
   } catch (err) {
-    console.error(err.message);
+    console.error("Error fetching projects:", err);
     res.status(500).send('Server Error');
   }
 });
@@ -729,8 +729,6 @@ router.get('/archived', auth, async (req, res) => {
   }
 });
 
-module.exports = router;
-
 // @route   DELETE api/projects/questions/:id
 // @desc    Delete a question
 // @access  Private (admin only)
@@ -753,3 +751,5 @@ router.delete('/questions/:id', auth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
+module.exports = router;
