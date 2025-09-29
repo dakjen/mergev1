@@ -144,7 +144,7 @@ const Merge = () => {
                     setNewProjectPartnership('');
                     setNewProjectQuestions([]);
                     setShowAddProjectForm(true);
-                }} style={{ padding: '10px 20px', backgroundColor: '#6200EE', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+                }} style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
                     Create New Project
                 </button>
 
