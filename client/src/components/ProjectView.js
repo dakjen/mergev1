@@ -103,10 +103,10 @@ const ProjectView = ({ project, onBack, darkMode }) => { // Accept project, onBa
         </div>
       )}
 
-      {project.details && project.details.length > 0 && (
+      {project.questions && project.questions.length > 0 && (
         <div style={{ marginBottom: '20px', textAlign: 'left' }}>
           <h3>Project Details:</h3>
-          {project.details.map((detail, index) => (
+          {project.questions.map((detail, index) => (
             <div key={index} style={{
               marginBottom: '15px',
               padding: '15px',

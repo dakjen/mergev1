@@ -77,7 +77,10 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   };
 
   const startEdit = (project) => {
-    handleViewProject(project);
+    setEditingProjectId(project.id);
+    setEditingProjectName(project.name);
+    setEditingProjectDescription(project.description);
+    setEditingProjectDetails(project.questions ? project.questions.map(q => ({ ...q, question: q.text })) : []);
   };
 
   const cancelEdit = () => {
@@ -406,6 +409,24 @@ const ProjectsHome = ({ user }) => { // Accept user prop
                     </p>
                   )}
                   <p className="projects-home-project-description">{project.description}</p>
+                  {project.deadlineDate && (
+                    <p style={{ color: '#3e51b5', fontWeight: 'bold', fontSize: '0.9em', textAlign: 'right', marginBottom: '10px' }}>
+                      Due: {new Date(project.deadlineDate).toLocaleDateString()}
+                    </p>
+                  )}
+                  {project.questions && project.questions.length > 0 && (
+                    <div className="project-questions">
+                      <h4>Questions:</h4>
+                      <ul>
+                        {project.questions.map((question, index) => (
+                          <li key={index}>
+                            <p><strong>{question.text}</strong></p>
+                            <p>{question.answer}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   <p className="projects-home-project-owner">Owner: {project.owner.username} | Company: {project.company?.name}</p>
                   {project.status === 'pending_approval' && (
                     <p style={{ color: 'black', fontWeight: 'bold', marginTop: '5px' }}>Status: Pending Approval</p>
