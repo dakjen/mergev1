@@ -64,15 +64,15 @@ const Merge = () => {
     }, []);
 
 
-    const updateQuestionStatus = async (questionId, newStatus, newAnswer, newAssignedToId) => {
+    const updateQuestionStatus = async (questionId, newStatus, newAnswer) => {
         try {
             const token = localStorage.getItem('token');
             const config = {
                 headers: { 'x-auth-token': token, 'Content-Type': 'application/json' }
             };
             await axios.put(
-                `${process.env.REACT_APP_API_URL}/api/projects/questions/${questionId}/assign`,
-                { status: newStatus, answer: newAnswer, assignedToId: newAssignedToId },
+                `${process.env.REACT_APP_API_URL}/api/projects/questions/${questionId}`,
+                { status: newStatus, answer: newAnswer },
                 config
             );
             // Re-fetch questions to update the UI
