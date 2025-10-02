@@ -32,6 +32,37 @@ const ProjectsHome = ({ user }) => { // Accept user prop
 
 
 
+  const fetchProjects = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('No token found. Please log in.');
+        setLoading(false);
+        return;
+      }
+      const config = {
+        headers: { 'x-auth-token': token },
+        params: {
+          name: filterProjectName,
+          status: filterStatus,
+          ownerId: filterOwner,
+          sortBy: sortBy,
+        }
+      };
+      console.log("Fetching projects from API...");
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects`, config);
+      console.log("Raw fetched projects data:", res.data);
+      setProjects(res.data);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching projects:", err.response ? err.response.data : err.message);
+      setError(err.response ? err.response.data.msg : 'Failed to fetch projects.');
+      setLoading(false);
+    }
+  }, [filterProjectName, filterStatus, filterOwner, sortBy]);
+
   const fetchCompanyUsers = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
