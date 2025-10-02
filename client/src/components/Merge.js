@@ -375,7 +375,7 @@ const Merge = () => {
                                                 <select
                                                     id={`status-${question.id}`}
                                                     value={question.status}
-                                                    onChange={(e) => updateQuestionStatus(question.id, e.target.value, question.answer, question.assignedToId)}
+                                                    onChange={(e) => updateQuestionStatus(question.id, e.target.value, question.answer)}
                                                     style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
                                                 >
                                                     <option value="pending">Pending</option>
@@ -391,7 +391,7 @@ const Merge = () => {
                                                 <select
                                                     id={`reassign-${question.id}`}
                                                     value={question.assignedToId || ''}
-                                                    onChange={(e) => updateQuestionStatus(question.id, question.status, question.answer, e.target.value || null)}
+                                                    // onChange={(e) => updateQuestionStatus(question.id, question.status, question.answer, e.target.value || null)} // Temporarily disabled
                                                     style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
                                                 >
                                                     <option value="">Unassigned</option>
