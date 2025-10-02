@@ -703,6 +703,69 @@ router.get('/questions/assigned', auth, async (req, res) => {
   }
 });
 
+// @route   GET /api/projects/:projectId/questions/assigned-to-me
+// @desc    Get questions assigned to the logged-in user for a specific project
+// @access  Private
+router.get('/:projectId/questions/assigned-to-me', auth, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const userId = req.user.id;
+
+    // Verify project exists and user has access (optional, but good practice)
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: { owner: true, company: true }
+    });
+
+    if (!project) {
+      return res.status(404).json({ msg: 'Project not found' });
+    }
+
+    // Ensure user belongs to the same company as the project
+    if (req.user.companyId !== project.companyId) {
+      return res.status(401).json({ msg: 'Not authorized to view questions for this project' });
+    }
+
+    const assignedQuestions = await prisma.question.findMany({
+      where: {
+        projectId: projectId,
+        assignedToId: userId,
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            deadlineDate: true,
+          },
+        },
+        assignedTo: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+          },
+        },
+        assignmentLogs: {
+          include: {
+            assignedBy: { select: { id: true, username: true, name: true } },
+            assignedTo: { select: { id: true, username: true, name: true } },
+          },
+          orderBy: { assignedAt: 'desc' },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    res.json(assignedQuestions);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() }); // files will be stored in memory
 const pdf = require('pdf-parse'); // Import pdf-parse
