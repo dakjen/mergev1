@@ -127,7 +127,7 @@ router.get('/pending-approval-count', auth, async (req, res) => {
 // @route   GET api/projects/:id
 // @desc    Get a single project by ID
 // @access  Private
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', auth, async (req, res) => {});
 
 // @route   PUT api/projects/:id
 // @desc    Update a project
