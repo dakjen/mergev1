@@ -36,6 +36,7 @@ const Merge = () => {
     };
 
     const fetchAssignedQuestions = async () => {
+        if (!projectId || !currentUser) return; // Only fetch if projectId and currentUser are available
         try {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -44,16 +45,17 @@ const Merge = () => {
             const config = {
                 headers: { 'x-auth-token': token }
             };
-            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/questions/assigned`, config);
+            // Fetch only questions assigned to the current user for the specific project
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/questions/assigned-to-me`, config); // Assuming a new endpoint for this
             setAssignedQuestions(res.data);
 
-            // Group questions by project
+            // Group questions by project (though here it will be just one project)
             const grouped = res.data.reduce((acc, question) => {
-                const projectId = question.project.id;
-                if (!acc[projectId]) {
-                    acc[projectId] = { project: question.project, questions: [] };
+                const projId = question.project.id;
+                if (!acc[projId]) {
+                    acc[projId] = { project: question.project, questions: [] };
                 }
-                acc[projectId].questions.push(question);
+                acc[projId].questions.push(question);
                 return acc;
             }, {});
             setGroupedQuestions(grouped);
@@ -63,10 +65,51 @@ const Merge = () => {
         }
     };
 
+    const fetchProjectSummary = async () => {
+        if (!projectId) return;
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            const config = {
+                headers: { 'x-auth-token': token }
+            };
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/summary`, config);
+            setProjectSummary(res.data);
+            // Check if current user has submitted all their questions
+            const userSummary = res.data.userCompletion.find(uc => uc.id === currentUser?.id);
+            if (userSummary && userSummary.notCompleted === 0 && userSummary.totalAssigned > 0) {
+                setHasSubmitted(true);
+            } else {
+                setHasSubmitted(false);
+            }
+        } catch (err) {
+            console.error('Failed to fetch project summary:', err.response ? err.response.data : err.message);
+        }
+    };
+
+    const fetchCurrentUser = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            const config = {
+                headers: { 'x-auth-token': token }
+            };
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth`, config); // Assuming /api/auth returns current user info
+            setCurrentUser(res.data.user); // Assuming user object is nested under 'user'
+        } catch (err) {
+            console.error('Failed to fetch current user:', err.response ? err.response.data : err.message);
+        }
+    };
+
     useEffect(() => {
-        fetchAssignedQuestions();
-        fetchCompanyUsers(); // Fetch company users when component mounts
-    }, []);
+        fetchCurrentUser();
+        fetchCompanyUsers();
+        // Only fetch assigned questions and summary if projectId and currentUser are available
+        if (projectId && currentUser) {
+            fetchAssignedQuestions();
+            fetchProjectSummary();
+        }
+    }, [projectId, currentUser?.id]); // Re-run when projectId or currentUser changes
 
 
     const updateQuestionStatus = async (questionId, newStatus, newAnswer) => {
@@ -80,8 +123,9 @@ const Merge = () => {
                 { status: newStatus, answer: newAnswer },
                 config
             );
-            // Re-fetch questions to update the UI
+            // Re-fetch questions and summary to update the UI
             fetchAssignedQuestions();
+            fetchProjectSummary();
         } catch (err) {
             console.error(err.response ? err.response.data : err.message);
             alert(err.response ? err.response.data.msg : 'Failed to update question.');
