@@ -96,6 +96,7 @@ function MainAppContent() {
   };
 
   useEffect(() => {
+    console.log('useEffect called');
     const token = localStorage.getItem('token');
     if (token) {
       try {
