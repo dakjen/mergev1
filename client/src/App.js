@@ -80,7 +80,7 @@ function MainAppContent() {
       setDataError(err.response ? err.response.data.msg : 'Failed to fetch data.');
       setDataLoading(false);
     }
-  }, [user]);
+  }, []);
 
   const onLoginSuccess = (token) => {
     setIsAuthenticated(true);
