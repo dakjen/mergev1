@@ -7,7 +7,7 @@ const prisma = require('./utils/prisma.cjs');
 const app = express();
 
 // Init Middleware
-const whitelist = ['http://localhost:3000', 'https://mergev1-78hi.vercel.app'];
+const whitelist = ['http://localhost:3000', 'https://mergev1-78hi.vercel.app', 'https://mergev1-backend1.vercel.app'];
 const corsOptions = {
   origin: function (origin, callback) {
     console.log('Request origin:', origin); // Log the origin
