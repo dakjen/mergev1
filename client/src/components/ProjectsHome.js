@@ -22,7 +22,6 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   const [filterStatus, setFilterStatus] = useState('');
   const [filterOwner, setFilterOwner] = useState('');
   const [filterProjectName, setFilterProjectName] = useState('');
-  const [filterProjectName, setFilterProjectName] = useState('');
   const [sortBy, setSortBy] = useState('newest');
   const [modalState, setModalState] = useState({
     isOpen: false,
