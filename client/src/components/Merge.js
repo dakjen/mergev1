@@ -1,8 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 const Merge = () => {
+    const { projectId } = useParams(); // Get projectId from URL parameters
+    const [hasSubmitted, setHasSubmitted] = useState(false); // New state to track if user has submitted questions
+    const [projectSummary, setProjectSummary] = useState(null); // New state for project summary data
+    const [currentUser, setCurrentUser] = useState(null); // To store current user info
     // eslint-disable-next-line no-unused-vars
     const [assignedQuestions, setAssignedQuestions] = useState([]);
     const [newProjectName, setNewProjectName] = useState('');
