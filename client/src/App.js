@@ -62,10 +62,12 @@ function MainAppContent() {
       if (user && user.user.role === 'admin') {
         const allUsersRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users`, config);
         setAllUsers(allUsersRes.data.map(u => ({ ...u, selectedRole: u.role, selectedCompanyId: u.company?.id || '' })));
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       const companiesRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, config);
       setCompanies(companiesRes.data);
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       if (user && user.user.role === 'approver') {
         const pendingCountRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/pending-approval-count`, config);
