@@ -188,7 +188,6 @@ const Merge = () => {
                 }} style={{ padding: '10px 20px', backgroundColor: '#476c2e', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
                     Create New Project
                 </button>
-                </button>
 
                 {showAddProjectForm && (
                     <div style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
