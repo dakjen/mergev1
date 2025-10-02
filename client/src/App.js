@@ -118,7 +118,7 @@ function MainAppContent() {
       }
     }
     setLoading(false);
-  }, [isAuthenticated, fetchData]); // Re-run when isAuthenticated changes
+  }, [isAuthenticated]); // Re-run when isAuthenticated changes
 
   useEffect(() => {
   if (isAuthenticated && !loading) {
