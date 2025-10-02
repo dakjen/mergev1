@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; // Import jwt-decode
@@ -42,7 +42,7 @@ function MainAppContent() {
   const [dataError, setDataError] = useState(null); // Error state for data fetching
   const navigate = useNavigate();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setDataLoading(true);
     setDataError(null);
     try {
@@ -80,7 +80,7 @@ function MainAppContent() {
       setDataError(err.response ? err.response.data.msg : 'Failed to fetch data.');
       setDataLoading(false);
     }
-  };
+  }, [user]);
 
   const onLoginSuccess = (token) => {
     setIsAuthenticated(true);
@@ -118,7 +118,7 @@ function MainAppContent() {
       }
     }
     setLoading(false);
-  }, [isAuthenticated]); // Re-run when isAuthenticated changes
+  }, [isAuthenticated, fetchData]); // Re-run when isAuthenticated changes
 
   useEffect(() => {
   if (isAuthenticated && !loading) {

@@ -7,10 +7,6 @@ const PastProposals = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAddProjectForm, setShowAddProjectForm] = useState(false); // New state for form visibility
-  const [newProjectName, setNewProjectName] = useState('');
-  const [newProjectDescription, setNewProjectDescription] = useState('');
-  const [newProjectDeadlineDate, setNewProjectDeadlineDate] = useState('');
-  const [newProjectQuestions, setNewProjectQuestions] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null); // New state for selected file
 
   const fetchCompletedProjects = async () => {

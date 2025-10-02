@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './PastAIReviews.css';
@@ -47,11 +47,7 @@ const PastAIReviews = ({ user }) => {
     }
   };
 
-  useEffect(() => {
-    fetchFilteredReviews();
-  }, [selectedProject, selectedReviewer, sortBy]);
-
-  const fetchFilteredReviews = async () => {
+  const fetchFilteredReviews = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -78,7 +74,11 @@ const PastAIReviews = ({ user }) => {
       setError(err.response ? err.response.data.msg : 'Failed to fetch past AI reviews.');
       setLoading(false);
     }
-  };
+  }, [selectedProject, selectedReviewer, sortBy]);
+
+  useEffect(() => {
+    fetchFilteredReviews();
+  }, [fetchFilteredReviews, selectedProject, selectedReviewer, sortBy]);
 
   const handleArchive = async (event, reviewId) => {
     event.stopPropagation(); // Prevent the Link from being triggered

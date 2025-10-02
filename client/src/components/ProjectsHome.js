@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './ProjectsHome.css';
@@ -21,6 +21,8 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   const [selectedProject, setSelectedProject] = useState(null); // New state for selected project
   const [filterStatus, setFilterStatus] = useState('');
   const [filterOwner, setFilterOwner] = useState('');
+  const [filterProjectName, setFilterProjectName] = useState('');
+  const [filterProjectName, setFilterProjectName] = useState('');
   const [sortBy, setSortBy] = useState('newest');
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -32,9 +34,9 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   useEffect(() => {
     fetchProjects();
     fetchCompanyUsers(); // Fetch company users when component mounts
-  }, [filterProjectName, filterStatus, filterOwner, sortBy]);
+  }, [fetchProjects, filterProjectName, filterStatus, filterOwner, sortBy]);
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -63,7 +65,7 @@ const ProjectsHome = ({ user }) => { // Accept user prop
       setError(err.response ? err.response.data.msg : 'Failed to fetch projects.');
       setLoading(false);
     }
-  };
+  }, [filterProjectName, filterStatus, filterOwner, sortBy]);
 
   const fetchCompanyUsers = async () => {
     try {

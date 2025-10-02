@@ -3,9 +3,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const Merge = () => {
+    // eslint-disable-next-line no-unused-vars
     const [assignedQuestions, setAssignedQuestions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [newProjectName, setNewProjectName] = useState('');
     const [newProjectDescription, setNewProjectDescription] = useState('');
     const [newProjectDeadlineDate, setNewProjectDeadlineDate] = useState('');
@@ -32,13 +31,9 @@ const Merge = () => {
     };
 
     const fetchAssignedQuestions = async () => {
-        setLoading(true);
-        setError(null);
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                setError('No token found. Please log in.');
-                setLoading(false);
                 return;
             }
             const config = {
@@ -58,11 +53,8 @@ const Merge = () => {
             }, {});
             setGroupedQuestions(grouped);
 
-            setLoading(false);
         } catch (err) {
             console.error(err.response ? err.response.data : err.message);
-            setError(err.response ? err.response.data.msg : 'Failed to fetch assigned questions.');
-            setLoading(false);
         }
     };
 
