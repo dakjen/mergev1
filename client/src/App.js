@@ -59,19 +59,17 @@ function MainAppContent() {
         withCredentials: true
       };
 
-      const [allUsersRes, companiesRes, pendingCountRes] = await Promise.all([
-        user && user.user.role === 'admin' ? axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users`, config) : Promise.resolve({ data: [] }),
-        axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, config),
-        axios.get(`${process.env.REACT_APP_API_URL}/api/projects/pending-approval-count`, config) // Always fetch for debugging
-      ]);
-
-      console.log("Pending approval count response:", pendingCountRes.data);
-
       if (user && user.user.role === 'admin') {
+        const allUsersRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users`, config);
         setAllUsers(allUsersRes.data.map(u => ({ ...u, selectedRole: u.role, selectedCompanyId: u.company?.id || '' })));
       }
+
+      const companiesRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, config);
       setCompanies(companiesRes.data);
+
       if (user && user.user.role === 'approver') {
+        const pendingCountRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/pending-approval-count`, config);
+        console.log("Pending approval count response:", pendingCountRes.data);
         setPendingApprovalCount(pendingCountRes.data.count);
       }
       setDataLoading(false);
