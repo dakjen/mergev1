@@ -187,6 +187,7 @@ const Merge = () => {
                     setShowAddProjectForm(true);
                 }} style={{ padding: '10px 20px', backgroundColor: '#476c2e', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
                     Create New Project
+                </button>
 
 
                 {showAddProjectForm && (
