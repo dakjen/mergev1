@@ -46,7 +46,7 @@ const Merge = () => {
                 headers: { 'x-auth-token': token }
             };
             // Fetch only questions assigned to the current user for the specific project
-            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/questions/assigned-to-me`, config); // Assuming a new endpoint for this
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/questions/assigned-to-me`, config);
             setAssignedQuestions(res.data);
 
             // Group questions by project (though here it will be just one project)
