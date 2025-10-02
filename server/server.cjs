@@ -8,13 +8,7 @@ const prisma = require('./utils/prisma.cjs');
 const app = express();
 
 // Init Middleware
-const corsOptions = {
-  origin: ['https://mergev1-78hi.vercel.app', 'https://mergev1-78hi-git-debug-migrations-dakotahs-projects-b0e301f7.vercel.app'],
-  credentials: true,
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
-
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
