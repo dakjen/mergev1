@@ -225,6 +225,101 @@ router.get('/:id/versions', auth, async (req, res) => {
   }
 });
 
+// @route   GET api/projects/:projectId/summary
+// @desc    Get summary of questions for a project (total, completed, user completion status)
+// @access  Private
+router.get('/:projectId/summary', auth, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+
+    // Verify project exists and user has access
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: { owner: true, company: true }
+    });
+
+    if (!project) {
+      return res.status(404).json({ msg: 'Project not found' });
+    }
+
+    // Ensure user belongs to the same company as the project
+    if (req.user.companyId !== project.companyId) {
+      return res.status(401).json({ msg: 'Not authorized to view this project summary' });
+    }
+
+    const questions = await prisma.question.findMany({
+      where: { projectId },
+      include: {
+        assignedTo: {
+          select: { id: true, username: true, name: true }
+        }
+      }
+    });
+
+    const totalQuestions = questions.length;
+    const completedQuestions = questions.filter(q => q.status === 'completed' || q.status === 'submitted').length;
+
+    const userCompletion = {};
+    const allAssignees = new Set();
+
+    questions.forEach(q => {
+      if (q.assignedTo) {
+        const userId = q.assignedTo.id;
+        const username = q.assignedTo.username;
+        allAssignees.add(userId);
+
+        if (!userCompletion[userId]) {
+          userCompletion[userId] = {
+            id: userId,
+            username: username,
+            totalAssigned: 0,
+            completed: 0,
+            pending: 0,
+            submitted: 0,
+            notCompleted: 0 // Questions not yet completed or submitted
+          };
+        }
+        userCompletion[userId].totalAssigned++;
+        if (q.status === 'completed') {
+          userCompletion[userId].completed++;
+        } else if (q.status === 'submitted') {
+          userCompletion[userId].submitted++;
+        } else {
+          userCompletion[userId].pending++;
+        }
+      }
+    });
+
+    // Calculate notCompleted for each user
+    Object.values(userCompletion).forEach(user => {
+      user.notCompleted = user.totalAssigned - (user.completed + user.submitted);
+    });
+
+    // Get all users in the company to identify those who haven't been assigned any questions
+    const companyUsers = await prisma.user.findMany({
+      where: { companyId: project.companyId },
+      select: { id: true, username: true, name: true }
+    });
+
+    const usersNotAssigned = companyUsers.filter(u => !allAssignees.has(u.id));
+
+    // Identify users who have assigned questions but haven't completed all of them
+    const usersWithIncompleteQuestions = Object.values(userCompletion).filter(user => user.notCompleted > 0);
+
+    res.json({
+      totalQuestions,
+      completedQuestions,
+      userCompletion: Object.values(userCompletion),
+      usersNotAssigned,
+      usersWithIncompleteQuestions
+    });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 // @route   GET api/projects/deadlines
 // @desc    Get all project deadlines for the logged-in user's company
 // @access  Private
