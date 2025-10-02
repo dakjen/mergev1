@@ -30,6 +30,8 @@ const ProjectsHome = ({ user }) => { // Accept user prop
     onConfirm: null,
   });
 
+
+
   const fetchCompanyUsers = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
