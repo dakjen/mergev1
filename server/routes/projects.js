@@ -772,4 +772,45 @@ router.delete('/questions/:id', auth, async (req, res) => {
   }
 });
 
+// @route   PUT api/projects/questions/:questionId
+// @desc    Update a question's answer and status
+// @access  Private (Assigned user or Admin)
+router.put('/questions/:questionId', auth, async (req, res) => {
+  const { questionId } = req.params;
+  const { answer, status } = req.body;
+
+  try {
+    let question = await prisma.question.findUnique({
+      where: { id: questionId },
+    });
+
+    if (!question) {
+      return res.status(404).json({ msg: 'Question not found' });
+    }
+
+    // Authorization: Only the assigned user or an admin can update the question
+    if (req.user.role !== 'admin' && req.user.id !== question.assignedToId) {
+      return res.status(401).json({ msg: 'Not authorized to update this question' });
+    }
+
+    const updatedData = {};
+    if (answer !== undefined) {
+      updatedData.answer = answer;
+    }
+    if (status !== undefined) {
+      updatedData.status = status;
+    }
+
+    question = await prisma.question.update({
+      where: { id: questionId },
+      data: updatedData,
+    });
+
+    res.json(question);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router;
