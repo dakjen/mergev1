@@ -605,7 +605,7 @@ export default Merge;
                                                     rows="4"
                                                     style={{ width: '100%', padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
                                                 ></textarea>
-                                                <button onClick={() => updateQuestionStatus(question.id, question.status, question.answer, question.assignedToId)} style={{ marginTop: '5px', padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Save Answer</button>
+                                                <button onClick={() => updateQuestionStatus(question.id, question.status, question.answer)} style={{ marginTop: '5px', padding: '8px 15px', backgroundColor: '#476c2e', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Save Answer</button>
                                             </div>
 
                                             {/* Status Dropdown */}
