@@ -62,12 +62,10 @@ function MainAppContent() {
       if (user && user.user.role === 'admin') {
         const allUsersRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users`, config);
         setAllUsers(allUsersRes.data.map(u => ({ ...u, selectedRole: u.role, selectedCompanyId: u.company?.id || '' })));
-        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       const companiesRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, config);
       setCompanies(companiesRes.data);
-      await new Promise(resolve => setTimeout(resolve, 1000));
 
       if (user && user.user.role === 'approver') {
         const pendingCountRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/pending-approval-count`, config);
@@ -109,7 +107,6 @@ function MainAppContent() {
         } else {
           setIsAuthenticated(true);
           setUser(decoded); // Set user info from decoded token
-          fetchData(); // Fetch data when user is authenticated
         }
       } catch (error) {
         console.error("Failed to decode token in useEffect:", error);
@@ -119,16 +116,13 @@ function MainAppContent() {
       }
     }
     setLoading(false);
-  }, [isAuthenticated, fetchData]); // Re-run when isAuthenticated changes
+  }, [isAuthenticated]); // Re-run when isAuthenticated changes
 
   useEffect(() => {
-  if (isAuthenticated && !loading) {
-    // Only navigate if current path is "/"
-    if (window.location.pathname === '/') {
-      navigate('/api/projects');
+    if (user) {
+      fetchData();
     }
-  }
-}, [isAuthenticated, loading, navigate]);
+  }, [user, fetchData]);
 
 
   const handleLogout = () => {
