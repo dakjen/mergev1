@@ -162,4 +162,26 @@ router.put('/change-password', auth, async (req, res) => {
   }
 });
 
+router.get('/', auth, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        company: {
+          select: {
+            name: true
+          }
+        }
+      }
+    });
+    res.json({ user });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
 module.exports = router;
