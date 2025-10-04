@@ -320,6 +320,13 @@ const Merge = () => {
                             <h2 onClick={() => toggleProjectExpansion(projectGroup.project.id)} style={{ cursor: 'pointer', color: '#3e51b5' }}>
                                 {projectGroup.project.name} ({projectGroup.questions.length} questions) <span style={{ float: 'right' }}>{expandedProjects[projectGroup.project.id] ? '▲' : '▼'}</span>
                             </h2>
+                            {/* Project Details */}
+                            <div style={{ marginBottom: '15px', textAlign: 'left', fontSize: '0.9em' }}>
+                                {projectGroup.project.description && <p><strong>Description:</strong> {projectGroup.project.description}</p>}
+                                {projectGroup.project.details?.themeAngle && <p><strong>Theme/Angle:</strong> {projectGroup.project.details.themeAngle}</p>}
+                                {projectGroup.project.details?.possiblePartnership && <p><strong>Possible Partnership:</strong> {projectGroup.project.details.possiblePartnership}</p>}
+                                {projectGroup.project.deadlineDate && <p><strong>Due Date:</strong> {new Date(projectGroup.project.deadlineDate).toLocaleDateString()}</p>}
+                            </div>
                             {/* Progress Bar */}
                             <div>
                                 {(() => {
