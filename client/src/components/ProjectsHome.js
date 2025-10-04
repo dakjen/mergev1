@@ -514,7 +514,6 @@ const ProjectsHome = ({ user }) => { // Accept user prop
               </div>
           )}
         </div>
-}
       <ConfirmModal
         isOpen={modalState.isOpen}
         onClose={() => setModalState({ ...modalState, isOpen: false })}
