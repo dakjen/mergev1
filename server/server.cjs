@@ -1,4 +1,3 @@
-console.log('Server starting up...');
 // Force new deployment
 require('dotenv').config();
 const express = require('express');
