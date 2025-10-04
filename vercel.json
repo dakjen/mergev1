@@ -12,6 +12,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/server/server.cjs" }
+    { "source": "/api/(.*)", "destination": "/server/server.cjs", "handle": "filesystem" }
   ]
 }
