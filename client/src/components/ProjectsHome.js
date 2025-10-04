@@ -23,51 +23,12 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   const [filterOwner, setFilterOwner] = useState('');
   const [filterProjectName, setFilterProjectName] = useState('');
   const [sortBy, setSortBy] = useState('newest');
-  const [showAddProjectForm, setShowAddProjectForm] = useState(false);
-  const [newProjectName, setNewProjectName] = useState('');
-  const [newProjectDescription, setNewProjectDescription] = useState('');
-  const [newProjectDeadlineDate, setNewProjectDeadlineDate] = useState('');
-  const [newProjectThemeAngle, setNewProjectThemeAngle] = useState(''); // New state for theme/angle
-  const [newProjectPartnership, setNewProjectPartnership] = useState(''); // New state for possible partnership
-  const [newProjectQuestions, setNewProjectQuestions] = useState([]);
   const [modalState, setModalState] = useState({
     isOpen: false,
     title: '',
     message: '',
     onConfirm: null,
   });
-
-  const addProject = async (e) => {
-    e.preventDefault();
-    try {
-        const token = localStorage.getItem('token');
-        const config = {
-            headers: { 'x-auth-token': token, 'Content-Type': 'application/json' }
-        };
-        await axios.post(
-            `${process.env.REACT_APP_API_URL}/api/projects`,
-            { 
-                name: newProjectName, 
-                description: newProjectDescription, 
-                deadlineDate: newProjectDeadlineDate, 
-                details: { themeAngle: newProjectThemeAngle, possiblePartnership: newProjectPartnership }, // Store theme/angle and partnership in details
-                questions: newProjectQuestions 
-            },
-            config
-        );
-        setNewProjectName('');
-        setNewProjectDescription('');
-        setNewProjectDeadlineDate('');
-        setNewProjectThemeAngle('');
-        setNewProjectPartnership(''); // Clear possible partnership
-        setNewProjectQuestions([]);
-        setShowAddProjectForm(false);
-        fetchProjects(); 
-    } catch (err) {
-        console.error(err.response ? err.response.data : err.message);
-        alert(err.response ? err.response.data.msg : 'Failed to add project.');
-    }
-  };
 
 
 
