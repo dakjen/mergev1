@@ -18,37 +18,6 @@ const Merge = () => {
     const [groupedQuestions, setGroupedQuestions] = useState({}); // New state for questions grouped by project
     const [expandedProjects, setExpandedProjects] = useState({}); // New state to manage expanded projects
 
-    const addProject = async (e) => {
-        e.preventDefault();
-        try {
-            const token = localStorage.getItem('token');
-            const config = {
-                headers: { 'x-auth-token': token, 'Content-Type': 'application/json' }
-            };
-            await axios.post(
-                `${process.env.REACT_APP_API_URL}/api/projects`,
-                { 
-                    name: newProjectName, 
-                    description: newProjectDescription, 
-                    deadlineDate: newProjectDeadlineDate, 
-                    details: { themeAngle: newProjectThemeAngle, possiblePartnership: newProjectPartnership }, // Store theme/angle and partnership in details
-                    questions: newProjectQuestions 
-                },
-                config
-            );
-            setNewProjectName('');
-            setNewProjectDescription('');
-            setNewProjectDeadlineDate('');
-            setNewProjectThemeAngle('');
-            setNewProjectPartnership(''); // Clear possible partnership
-            setNewProjectQuestions([]);
-            setShowAddProjectForm(false);
-            fetchAssignedQuestions(); 
-        } catch (err) {
-            console.error(err.response ? err.response.data : err.message);
-            alert(err.response ? err.response.data.msg : 'Failed to add project.');
-        }
-    };
 
     const fetchCompanyUsers = useCallback(async () => {
         try {
