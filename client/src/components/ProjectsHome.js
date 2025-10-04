@@ -515,6 +515,7 @@ const ProjectsHome = ({ user }) => { // Accept user prop
               </div>
           )}
         </div>
+      )}
       <ConfirmModal
         isOpen={modalState.isOpen}
         onClose={() => setModalState({ ...modalState, isOpen: false })}
@@ -731,8 +732,9 @@ const ProjectsHome = ({ user }) => { // Accept user prop
       <div style={{ marginTop: '20px', textAlign: 'center' }}>
         <Link to="/projects/archived">View Archived Projects</Link>
       </div>
-          </div>
-        </>
-      );};
+        </div>
+      </>
+  );
+};
 
 export default ProjectsHome;
