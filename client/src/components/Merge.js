@@ -44,26 +44,20 @@ const Merge = () => {
 
             let res;
             if (projectId) {
-                // Fetch questions for a specific project
-                res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/questions/assigned-to-me`, config);
+                // Fetch a single project with all its questions
+                res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}`, config);
+                const project = res.data;
+                setGroupedQuestions({ [project.id]: { project, questions: project.questions } });
             } else {
-                // Fetch all questions assigned to the user
-                res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/questions/assigned`, config);
+                // Fetch all projects where the user has assigned questions
+                res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/with-assigned-questions`, config);
+                const projects = res.data;
+                const grouped = projects.reduce((acc, project) => {
+                    acc[project.id] = { project, questions: project.questions };
+                    return acc;
+                }, {});
+                setGroupedQuestions(grouped);
             }
-            
-            setAssignedQuestions(res.data);
-
-            // Group questions by project
-            const grouped = res.data.reduce((acc, question) => {
-                const projId = question.project.id;
-                if (!acc[projId]) {
-                    acc[projId] = { project: question.project, questions: [] };
-                }
-                acc[projId].questions.push(question);
-                return acc;
-            }, {});
-            setGroupedQuestions(grouped);
-
         } catch (err) {
             console.error(err.response ? err.response.data : err.message);
         }
@@ -329,14 +323,14 @@ const Merge = () => {
                             {/* Progress Bar */}
                             <div>
                                 {(() => {
-                                    const completedCount = projectGroup.questions.filter(q => q.status === 'completed').length;
+                                    const submittedCount = projectGroup.questions.filter(q => q.status === 'submitted').length;
                                     const totalCount = projectGroup.questions.length;
-                                    const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+                                    const progress = totalCount > 0 ? (submittedCount / totalCount) * 100 : 0;
                                     return (
                                         <div style={{ marginBottom: '10px' }}>
-                                            <p style={{ margin: '0 0 5px 0' }}>{completedCount} of {totalCount} questions completed</p>
+                                            <p style={{ margin: '0 0 5px 0' }}>{submittedCount} of {totalCount} questions submitted</p>
                                             <div style={{ border: '1px solid #ccc', borderRadius: '5px', overflow: 'hidden' }}>
-                                                <div style={{ width: `${progress}%`, backgroundColor: '#476c2e', height: '20px', textAlign: 'center', color: 'white', lineHeight: '20px' }}>
+                                                <div style={{ width: `${progress}%`, backgroundColor: '#007bff', height: '20px', textAlign: 'center', color: 'white', lineHeight: '20px' }}>
                                                     {Math.round(progress)}%
                                                 </div>
                                             </div>
