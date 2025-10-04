@@ -530,6 +530,11 @@ const ProjectsHome = ({ user }) => { // Accept user prop
       />
       <div className="projects-home-header">
         <h2>My Projects</h2>
+        {user && user.user.role === 'admin' && (
+          <Link to="/merge" className="add-project-button" style={{ marginLeft: '20px', padding: '10px 20px', backgroundColor: '#476c2e', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', textDecoration: 'none' }}>
+            Add Project
+          </Link>
+        )}
       </div>
 
       <div className="filters">
