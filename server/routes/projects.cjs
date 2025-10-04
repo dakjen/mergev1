@@ -127,7 +127,37 @@ router.get('/pending-approval-count', auth, async (req, res) => {
 // @route   GET api/projects/:id
 // @desc    Get a single project by ID
 // @access  Private
-router.get('/:id', auth, async (req, res) => {});
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const project = await prisma.project.findUnique({
+      where: { id: req.params.id },
+      include: {
+        owner: { select: { username: true } },
+        questions: {
+          include: {
+            assignedTo: { select: { id: true, username: true, name: true } },
+            assignmentLogs: {
+              include: {
+                assignedBy: { select: { id: true, username: true, name: true } },
+                assignedTo: { select: { id: true, username: true, name: true } },
+              },
+            },
+          },
+        },
+        narrative: true,
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ msg: 'Project not found' });
+    }
+
+    res.json(project);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
 
 // @route   PUT api/projects/:id
 // @desc    Update a project
@@ -965,6 +995,45 @@ router.put('/questions/:questionId', auth, async (req, res) => {
     });
 
     res.json(question);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   POST api/projects/:id/compile
+// @desc    Compile a project's questions and answers into a narrative
+// @access  Private
+router.post('/:id/compile', auth, async (req, res) => {
+  try {
+    const project = await prisma.project.findUnique({
+      where: { id: req.params.id },
+      include: { questions: true },
+    });
+
+    if (!project) {
+      return res.status(404).json({ msg: 'Project not found' });
+    }
+
+    // Optional: Add authorization to ensure only project owner or admin can compile
+    if (project.ownerId !== req.user.id && req.user.role !== 'admin') {
+      return res.status(401).json({ msg: 'User not authorized to compile this project' });
+    }
+
+    const narrativeContent = project.questions
+      .map(q => `Q: ${q.text}\nA: ${q.answer || 'No answer provided'}`)
+      .join('\n\n');
+
+    const narrative = await prisma.narrative.create({
+      data: {
+        title: `${project.name} - Narrative`,
+        content: narrativeContent,
+        authorId: req.user.id,
+        projectId: project.id,
+      },
+    });
+
+    res.json(narrative);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

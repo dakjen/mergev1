@@ -97,6 +97,13 @@ const ProjectView = ({ project, onBack, darkMode }) => { // Accept project, onBa
         </div>
       )}
 
+      {project.narrative && (
+        <div style={{ marginBottom: '20px', padding: '15px', background: darkMode ? '#2a2a2a' : '#fff', borderRadius: '5px', borderLeft: '5px solid #3e51b6' }}>
+          <h3 style={{ margin: '0 0 10px 0', color: darkMode ? '#e0e0e0' : '#555' }}>Narrative:</h3>
+          <p style={{ margin: '0', color: darkMode ? '#e0e0e0' : '#1e1e1e', whiteSpace: 'pre-wrap' }}>{project.narrative.content}</p>
+        </div>
+      )}
+
       {keywords.length > 0 && (
         <div style={{ marginBottom: '15px', padding: '10px', background: darkMode ? '#2a2a2a' : '#e9ecef', borderRadius: '5px' }}> {/* Conditional background */}
           <strong>Keywords:</strong> {keywords.join(', ')}

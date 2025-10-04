@@ -326,6 +326,24 @@ const Merge = () => {
                             <h2 onClick={() => toggleProjectExpansion(projectGroup.project.id)} style={{ cursor: 'pointer', color: '#3e51b5' }}>
                                 {projectGroup.project.name} ({projectGroup.questions.length} questions) <span style={{ float: 'right' }}>{expandedProjects[projectGroup.project.id] ? '▲' : '▼'}</span>
                             </h2>
+                            {/* Progress Bar */}
+                            <div>
+                                {
+                                    const completedCount = projectGroup.questions.filter(q => q.status === 'completed').length;
+                                    const totalCount = projectGroup.questions.length;
+                                    const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+                                    return (
+                                        <div style={{ marginBottom: '10px' }}>
+                                            <p style={{ margin: '0 0 5px 0' }}>{completedCount} of {totalCount} questions completed</p>
+                                            <div style={{ border: '1px solid #ccc', borderRadius: '5px', overflow: 'hidden' }}>
+                                                <div style={{ width: `${progress}%`, backgroundColor: '#476c2e', height: '20px', textAlign: 'center', color: 'white', lineHeight: '20px' }}>
+                                                    {Math.round(progress)}%
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                            </div>
                             {expandedProjects[projectGroup.project.id] && (
                                 <ul>
                                     {projectGroup.questions.map(question => (
@@ -351,6 +369,7 @@ const Merge = () => {
                                                     style={{ width: '100%', padding: '8px', borderRadius: '5px', border: '1px solid #ddd' }}
                                                 ></textarea>
                                                 <button onClick={() => updateQuestionStatus(question.id, question.status, question.answer)} style={{ marginTop: '5px', padding: '8px 15px', backgroundColor: '#476c2e', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Save Answer</button>
+                                                <button onClick={() => updateQuestionStatus(question.id, 'submitted', question.answer)} style={{ marginTop: '5px', marginLeft: '10px', padding: '8px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Submit</button>
                                             </div>
 
                                             {/* Status Dropdown */}
@@ -402,6 +421,27 @@ const Merge = () => {
                                     ))}
                                 </ul>
                             )}
+                            {/* Merge Button */}
+                            {
+                                const allQuestionsSubmitted = projectGroup.questions.every(q => q.status === 'submitted');
+                                if (allQuestionsSubmitted) {
+                                    return (
+                                        <button onClick={async () => {
+                                            try {
+                                                const token = localStorage.getItem('token');
+                                                const config = { headers: { 'x-auth-token': token } };
+                                                await axios.post(`${process.env.REACT_APP_API_URL}/api/projects/${projectGroup.project.id}/compile`, {}, config);
+                                                alert('Project merged successfully! A narrative has been created.');
+                                            } catch (err) {
+                                                console.error(err.response ? err.response.data : err.message);
+                                                alert('Failed to merge project.');
+                                            }
+                                        }} style={{ marginTop: '10px', padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+                                            Merge
+                                        </button>
+                                    );
+                                }
+                            }
                         </div>
                     ))}
                 </div>
