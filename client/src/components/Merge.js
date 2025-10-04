@@ -108,9 +108,8 @@ const Merge = () => {
                 { status: newStatus, answer: newAnswer },
                 config
             );
-            // Re-fetch questions and summary to update the UI
+            // Re-fetch questions to update the UI
             fetchAssignedQuestions();
-            fetchProjectSummary();
         } catch (err) {
             console.error(err.response ? err.response.data : err.message);
             alert(err.response ? err.response.data.msg : 'Failed to update question.');
