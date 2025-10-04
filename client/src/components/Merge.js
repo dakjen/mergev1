@@ -418,9 +418,9 @@ const Merge = () => {
                             {/* Merge Button */}
                             {(() => {
                                 const allQuestionsSubmitted = projectGroup.questions.every(q => q.status === 'submitted');
-                                if (allQuestionsSubmitted) {
-                                    return (
-                                        <button onClick={async () => {
+                                return (
+                                    <button 
+                                        onClick={async () => {
                                             try {
                                                 const token = localStorage.getItem('token');
                                                 const config = { headers: { 'x-auth-token': token } };
@@ -430,11 +430,21 @@ const Merge = () => {
                                                 console.error(err.response ? err.response.data : err.message);
                                                 alert('Failed to merge project.');
                                             }
-                                        }} style={{ marginTop: '10px', padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-                                            Merge
-                                        </button>
-                                    );
-                                }
+                                        }}
+                                        style={{
+                                            marginTop: '10px',
+                                            padding: '10px 20px',
+                                            backgroundColor: allQuestionsSubmitted ? '#28a745' : '#6c757d', // Green when active, grey when disabled
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '5px',
+                                            cursor: allQuestionsSubmitted ? 'pointer' : 'not-allowed'
+                                        }}
+                                        disabled={!allQuestionsSubmitted}
+                                    >
+                                        Merge
+                                    </button>
+                                );
                             })()}
                         </div>
                     ))}
