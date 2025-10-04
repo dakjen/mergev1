@@ -18,7 +18,7 @@ const Merge = () => {
     const [groupedQuestions, setGroupedQuestions] = useState({}); // New state for questions grouped by project
     const [expandedProjects, setExpandedProjects] = useState({}); // New state to manage expanded projects
 
-    const fetchCompanyUsers = async () => {
+    const fetchCompanyUsers = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             if (!token) return;
@@ -30,10 +30,9 @@ const Merge = () => {
         } catch (err) {
             console.error('Failed to fetch company users:', err.response ? err.response.data : err.message);
         }
-    };
+    }, []);
 
     const fetchAssignedQuestions = useCallback(async () => {
-        if (!projectId || !currentUser) return; // Only fetch if projectId and currentUser are available
         try {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -42,11 +41,19 @@ const Merge = () => {
             const config = {
                 headers: { 'x-auth-token': token }
             };
-            // Fetch only questions assigned to the current user for the specific project
-            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/questions/assigned-to-me`, config);
+
+            let res;
+            if (projectId) {
+                // Fetch questions for a specific project
+                res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/questions/assigned-to-me`, config);
+            } else {
+                // Fetch all questions assigned to the user
+                res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/questions/assigned`, config);
+            }
+            
             setAssignedQuestions(res.data);
 
-            // Group questions by project (though here it will be just one project)
+            // Group questions by project
             const grouped = res.data.reduce((acc, question) => {
                 const projId = question.project.id;
                 if (!acc[projId]) {
@@ -60,23 +67,11 @@ const Merge = () => {
         } catch (err) {
             console.error(err.response ? err.response.data : err.message);
         }
-    }, [projectId, currentUser]);
-
-    const fetchProjectSummary = useCallback(async () => {
-        if (!projectId) return;
-        try {
-            const token = localStorage.getItem('token');
-            if (!token) return;
-            const config = {
-                headers: { 'x-auth-token': token }
-            };
-            await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/summary`, config);
-        } catch (err) {
-            console.error('Failed to fetch project summary:', err.response ? err.response.data : err.message);
-        }
     }, [projectId]);
 
-    const fetchCurrentUser = async () => {
+
+
+    const fetchCurrentUser = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             if (!token) return;
@@ -88,17 +83,18 @@ const Merge = () => {
         } catch (err) {
             console.error('Failed to fetch current user:', err.response ? err.response.data : err.message);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchCurrentUser();
         fetchCompanyUsers();
-        // Only fetch assigned questions and summary if projectId and currentUser are available
-        if (projectId && currentUser) {
+    }, [fetchCurrentUser, fetchCompanyUsers]);
+
+    useEffect(() => {
+        if (currentUser) {
             fetchAssignedQuestions();
-            fetchProjectSummary();
         }
-    }, [projectId, currentUser, fetchAssignedQuestions, fetchProjectSummary]); // Re-run when projectId or currentUser changes
+    }, [currentUser, fetchAssignedQuestions]);
 
 
     const updateQuestionStatus = async (questionId, newStatus, newAnswer) => {
