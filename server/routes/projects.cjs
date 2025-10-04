@@ -692,6 +692,7 @@ router.get('/pending-approval-count', auth, async (req, res) => {
 // @access  Private
 router.get('/with-assigned-questions', auth, async (req, res) => {
   try {
+    console.log('Fetching projects with assigned questions for user:', req.user.id);
     const projects = await prisma.project.findMany({
       where: {
         questions: {
