@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ConfirmModal from './ConfirmModal';
 
-const ToBeApproved = () => {
+const ToBeApproved = ({ user }) => {
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -109,6 +109,32 @@ const ToBeApproved = () => {
     }
   };
 
+  const handleRescind = async (projectId) => {
+    const onConfirm = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const config = {
+          headers: { 'x-auth-token': token, 'Content-Type': 'application/json' },
+          withCredentials: true
+        };
+        await axios.put(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/rescind-approval`, {}, config);
+        alert('Project approval request rescinded successfully!');
+        fetchPendingApprovals(); // Refresh the list
+      } catch (err) {
+        console.error(err.response ? err.response.data : err.message);
+        alert(err.response ? err.response.data.msg : 'Failed to rescind approval.');
+      }
+      setModalState({ ...modalState, isOpen: false });
+    };
+
+    setModalState({
+      isOpen: true,
+      title: 'Rescind Approval Request',
+      message: 'Are you sure you want to rescind the approval request for this project? This will set the project status back to draft.',
+      onConfirm,
+    });
+  };
+
   if (loading) return <p style={{ textAlign: 'center' }}>Loading pending approvals...</p>;
   if (error) return <p style={{ textAlign: 'center', color: 'red' }}>Error: {error}</p>;
 
@@ -140,6 +166,11 @@ const ToBeApproved = () => {
                 <button onClick={() => handleRejectClick(approval.projectId)} style={{ padding: '8px 15px', backgroundColor: 'red', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
                   Reject
                 </button>
+                {user && user.user.role === 'admin' && (
+                  <button onClick={() => handleRescind(approval.projectId)} style={{ padding: '8px 15px', backgroundColor: 'orange', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+                    Rescind
+                  </button>
+                )}
               </div>
             </li>
           ))}

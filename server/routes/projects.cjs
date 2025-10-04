@@ -1069,4 +1069,47 @@ router.post('/:id/compile', auth, async (req, res) => {
   }
 });
 
+// @route   PUT api/projects/:id/rescind-approval
+// @desc    Rescind a project's approval request (admin only)
+// @access  Private (admin only)
+router.put('/:id/rescind-approval', auth, async (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ msg: 'Authorization denied. Only admins can rescind approval requests.' });
+  }
+
+  try {
+    const { id } = req.params;
+
+    const project = await prisma.project.findUnique({
+      where: { id },
+      include: { approvalRequests: { where: { status: 'pending' } } },
+    });
+
+    if (!project) {
+      return res.status(404).json({ msg: 'Project not found.' });
+    }
+
+    if (project.status !== 'pending_approval') {
+      return res.status(400).json({ msg: 'Project is not in pending approval status.' });
+    }
+
+    // Update project status back to draft
+    await prisma.project.update({
+      where: { id },
+      data: { status: 'draft' },
+    });
+
+    // Update all pending approval requests for this project to 'rescinded'
+    await prisma.approvalRequest.updateMany({
+      where: { projectId: id, status: 'pending' },
+      data: { status: 'rescinded', respondedAt: new Date() },
+    });
+
+    res.json({ msg: 'Project approval request rescinded successfully.' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router;

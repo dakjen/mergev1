@@ -211,7 +211,7 @@ function MainAppContent() {
               <Route path="/merge" element={<Merge />} />
               <Route path="/api/projects" element={<ProjectsHome user={user} />} />
               <Route path="/api/projects/:id/view" element={<ProjectView darkMode={darkMode} />} />
-              <Route path="/projects/to-be-approved" element={<ToBeApproved />} /> {/* New route */}
+              <Route path="/projects/to-be-approved" element={<ToBeApproved user={user} />} /> {/* New route */}
               <Route path="/projects/pending-correction" element={<PendingCorrection />} /> {/* New route */}
               <Route path="/projects/archived" element={<ArchivedProjects />} />
               <Route path="/tools/past-proposals" element={<PastProposals />} />
