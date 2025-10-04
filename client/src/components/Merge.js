@@ -340,7 +340,7 @@ const Merge = () => {
                             </div>
                             {expandedProjects[projectGroup.project.id] && (
                                 <ul>
-                                    {projectGroup.questions.map(question => (
+                                    {projectGroup.questions.filter(question => question.assignedToId === currentUser.id).map(question => (
                                         <li key={question.id} style={{ border: '1px solid #eee', padding: '10px', marginBottom: '10px', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
                                             <p style={{ fontWeight: 'bold' }}>Question: {question.text}</p>
 
