@@ -358,8 +358,9 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   }
 
   return (
-    <div className="projects-home-container ProjectsHome">
-      {user && user.user.role === 'admin' && (
+    <>
+      <div className="projects-home-container ProjectsHome">
+        {user && user.user.role === 'admin' && (
         <div style={{ marginBottom: '30px', border: '1px solid #ddd', padding: '20px', borderRadius: '8px', maxWidth: '800px', margin: '0 auto' }}>
           <h2>Start a New Project</h2>
           <button onClick={() => {
@@ -730,8 +731,8 @@ const ProjectsHome = ({ user }) => { // Accept user prop
       <div style={{ marginTop: '20px', textAlign: 'center' }}>
         <Link to="/projects/archived">View Archived Projects</Link>
       </div>
-    </div>
-  );
-};
+          </div>
+        </>
+      );};
 
 export default ProjectsHome;
