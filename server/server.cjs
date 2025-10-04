@@ -40,6 +40,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get('/', (req, res) => {
+  console.log('Request URL:', req.url);
   res.send('Server is running');
 });
 
