@@ -328,7 +328,7 @@ const Merge = () => {
                             </h2>
                             {/* Progress Bar */}
                             <div>
-                                {
+                                {(() => {
                                     const completedCount = projectGroup.questions.filter(q => q.status === 'completed').length;
                                     const totalCount = projectGroup.questions.length;
                                     const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
@@ -342,7 +342,7 @@ const Merge = () => {
                                             </div>
                                         </div>
                                     );
-                                }
+                                })()}
                             </div>
                             {expandedProjects[projectGroup.project.id] && (
                                 <ul>
@@ -422,7 +422,7 @@ const Merge = () => {
                                 </ul>
                             )}
                             {/* Merge Button */}
-                            {
+                            {(() => {
                                 const allQuestionsSubmitted = projectGroup.questions.every(q => q.status === 'submitted');
                                 if (allQuestionsSubmitted) {
                                     return (
@@ -441,7 +441,7 @@ const Merge = () => {
                                         </button>
                                     );
                                 }
-                            }
+                            })()}
                         </div>
                     ))}
                 </div>
