@@ -308,6 +308,11 @@ const ProjectsHome = ({ user }) => { // Accept user prop
       setModalState({ ...modalState, isOpen: false });
     };
 
+    setModalState({
+        isOpen: true,
+        title: 'Mark as Completed',
+        message: 'Mark this project as completed?',
+        onConfirm,
     });
   };
 
