@@ -30,7 +30,7 @@ const PendingCorrection = () => {
       setLoading(false);
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
-      setError('Failed to fetch projects pending correction. Please ensure you are logged in and have projects that have been rejected.'); // More specific error
+      setError(err.response ? err.response.data.msg : 'Failed to fetch projects pending correction.'); // More specific error
       setLoading(false);
     }
   };
@@ -44,7 +44,7 @@ const PendingCorrection = () => {
       <p>This page displays projects that have been rejected by an approver and require correction.</p> {/* Explanatory text */}
 
       {rejectedProjects.length === 0 ? (
-        <p>No projects currently pending correction for your company. Projects will appear here once they are rejected by an approver.</p>
+        <p>No projects yet!</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {rejectedProjects.map(project => (
