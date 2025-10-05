@@ -3,6 +3,10 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const prisma = require('../utils/prisma.cjs');
 
+router.get('/test-route', (req, res) => {
+  res.send('Projects test route is working!');
+});
+
 // @route   GET api/projects
 // @desc    Get all projects for the logged-in user's company
 // @access  Private
