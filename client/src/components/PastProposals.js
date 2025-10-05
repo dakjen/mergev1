@@ -24,6 +24,7 @@ const PastProposals = () => {
         headers: { 'x-auth-token': token }
       };
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/completed`, config);
+      console.log("Fetching completed projects from URL:", `${process.env.REACT_APP_API_URL}/api/projects/completed`);
       setProjects(res.data);
       setLoading(false);
     } catch (err) {
