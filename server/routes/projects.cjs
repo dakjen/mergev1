@@ -271,9 +271,6 @@ router.get('/rejected', auth, async (req, res) => {
   }
 });
 
-// @route   GET /api/projects/questions/assigned
-// @desc    Get all questions assigned to the logged-in user
-// @access  Private
 router.get('/questions/assigned', auth, async (req, res) => {
   try {
     console.log('Fetching assigned questions for user ID:', req.user.id);
@@ -311,6 +308,39 @@ router.get('/questions/assigned', auth, async (req, res) => {
     });
     console.log('Found assigned questions:', assignedQuestions.length);
     res.json(assignedQuestions);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   GET /api/projects/with-assigned-questions
+// @desc    Get all projects that have at least one assigned question
+// @access  Private
+router.get('/with-assigned-questions', auth, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
+    if (!user || !user.companyId) {
+      return res.status(400).json({ msg: 'User not associated with a company' });
+    }
+
+    const projects = await prisma.project.findMany({
+      where: {
+        companyId: user.companyId,
+        questions: { some: {} }, // Filter for projects that have at least one question
+      },
+      include: {
+        owner: { select: { username: true } },
+        questions: {
+          include: {
+            assignedTo: { select: { id: true, username: true, name: true } },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    res.json(projects);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
