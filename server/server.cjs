@@ -14,11 +14,9 @@ app.use(cors({
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200 // Explicitly set optionsSuccessStatus
 }));
-
-// ✅ Handle preflight requests globally
-app.options('*', cors());
 
 // then your middleware and routes
 app.use(express.json());
