@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import AddPastProject from './AddPastProject';
 import Modal from './Modal';
 
-const PastProposals = () => {
+const PastProposals = ({ user }) => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -43,6 +43,22 @@ const PastProposals = () => {
     setShowAddProjectModal(false);
   };
 
+  const deleteProject = async (projectId) => {
+    if (window.confirm('Are you sure you want to delete this project?')) {
+      try {
+        const token = localStorage.getItem('token');
+        const config = {
+          headers: { 'x-auth-token': token }
+        };
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}`, config);
+        fetchCompletedProjects(); // Refresh the list after deletion
+      } catch (err) {
+        console.error(err.response ? err.response.data : err.message);
+        alert(err.response ? err.response.data.msg : 'Failed to delete project.');
+      }
+    }
+  };
+
   if (loading) return <p className="loading-message">Loading completed projects...</p>;
   if (error) return <p className="error-message">Error: {error}</p>;
 
@@ -68,6 +84,9 @@ const PastProposals = () => {
               <p className="projects-home-project-description">{project.description}</p>
               <p className="projects-home-project-owner">Owner: {project.owner.username} | Company: {project.company.name}</p>
               <Link to={`/api/projects/${project.id}/view`} className="projects-home-view-link">View</Link>
+              {user && user.user.role === 'admin' && (
+                <button onClick={() => deleteProject(project.id)} className="delete-button">Delete</button>
+              )}
             </li>
           ))
         )}

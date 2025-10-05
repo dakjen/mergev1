@@ -217,7 +217,7 @@ function MainAppContent() {
               <Route path="/projects/pending-correction" element={<PendingCorrection />} /> {/* New route */}
 
               <Route path="/projects/archived" element={<ArchivedProjects />} />
-              <Route path="/tools/past-proposals" element={<PastProposals />} />
+              <Route path="/tools/past-proposals" element={<PastProposals user={user} />} />
               <Route path="/tools/file-storer" element={<FileStorer />} />
               <Route path="/tools/ai-reviewer" element={<AIReviewerTool />} />
               <Route path="/tools/ai-reviewer/past-reviews" element={<PastAIReviews user={user} />} /> {/* New route */}
