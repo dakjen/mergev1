@@ -308,10 +308,27 @@ const ProjectsHome = ({ user }) => { // Accept user prop
       setModalState({ ...modalState, isOpen: false });
     };
 
+    });
+  };
+
+  const handleRescind = async (projectId) => {
+    const onConfirm = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const config = { headers: { 'x-auth-token': token } };
+        await axios.put(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/rescind-approval`, {}, config);
+        fetchProjects();
+      } catch (err) {
+        console.error(err.response ? err.response.data : err.message);
+        alert(err.response ? err.response.data.msg : 'Failed to rescind approval.');
+      }
+      setModalState({ ...modalState, isOpen: false });
+    };
+
     setModalState({
         isOpen: true,
-        title: 'Mark as Completed',
-        message: 'Mark this project as completed?',
+        title: 'Rescind Approval',
+        message: 'Are you sure you want to rescind the approval for this project?',
         onConfirm,
     });
   };
@@ -479,6 +496,9 @@ const ProjectsHome = ({ user }) => { // Accept user prop
                         </>
                       )}
                       <button onClick={() => archiveProject(project.id)} className="archive-button">Archive</button>
+                      {user && user.user.role === 'admin' && project.status === 'pending_approval' && (
+                        <button onClick={() => handleRescind(project.id)} className="rescind-button">Rescind</button>
+                      )}
                       {!project.isCompleted && (
                         <button onClick={() => markAsCompleted(project.id)} className="completed-button" style={{ backgroundColor: '#debf84' }}>Completed</button>
                       )}
