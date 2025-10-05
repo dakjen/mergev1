@@ -151,6 +151,24 @@ const Merge = () => {
         }));
     };
 
+    const deleteProject = async (projectId) => {
+        // Confirmation dialog before deleting
+        if (window.confirm('Are you sure you want to delete this project?')) {
+            try {
+                const token = localStorage.getItem('token');
+                const config = {
+                    headers: { 'x-auth-token': token }
+                };
+                await axios.delete(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}`, config);
+                // After deletion, refetch the questions to update the UI
+                fetchAssignedQuestions();
+            } catch (err) {
+                console.error(err.response ? err.response.data : err.message);
+                alert(err.response ? err.response.data.msg : 'Failed to delete project.');
+            }
+        }
+    };
+
 
     return (
         <div style={{ padding: '20px', textAlign: 'center' }}>
@@ -317,9 +335,17 @@ const Merge = () => {
                 <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                     {Object.values(groupedQuestions).map(projectGroup => (
                         <div key={projectGroup.project.id} style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px', borderRadius: '8px', textAlign: 'left' }}>
-                            <h2 onClick={() => toggleProjectExpansion(projectGroup.project.id)} style={{ cursor: 'pointer', color: '#3e51b5' }}>
-                                {projectGroup.project.name} ({projectGroup.questions.length} questions) <span style={{ float: 'right' }}>{expandedProjects[projectGroup.project.id] ? '▲' : '▼'}</span>
-                            </h2>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <h2 onClick={() => toggleProjectExpansion(projectGroup.project.id)} style={{ cursor: 'pointer', color: '#3e51b5', margin: 0 }}>
+                                    {projectGroup.project.name} ({projectGroup.questions.length} questions)
+                                </h2>
+                                <div>
+                                    {currentUser && currentUser.role === 'admin' && (
+                                        <button onClick={() => deleteProject(projectGroup.project.id)} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer', fontSize: '1rem', marginLeft: '10px' }}>Delete</button>
+                                    )}
+                                    <span style={{ marginLeft: '10px' }} onClick={() => toggleProjectExpansion(projectGroup.project.id)}>{expandedProjects[projectGroup.project.id] ? '▲' : '▼'}</span>
+                                </div>
+                            </div>
                             {/* Project Details */}
                             <div style={{ marginBottom: '15px', textAlign: 'left', fontSize: '0.9em' }}>
                                 {projectGroup.project.description && <p><strong>Description:</strong> {projectGroup.project.description}</p>}

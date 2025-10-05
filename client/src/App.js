@@ -20,6 +20,7 @@ import ApprovalHistory from './components/ApprovalHistory'; // New import for Ap
 import PastAIReviews from './components/PastAIReviews'; // New import for PastAIReviews
 import ToBeApproved from './components/ToBeApproved'; // New import for ToBeApproved
 import PendingCorrection from './components/PendingCorrection'; // New import for PendingCorrection
+import ArchivedProjects from './components/ArchivedProjects';
 import CompletedProjects from './components/CompletedProjects';
 import Merge from './components/Merge';
 import AIReviewDetail from './components/AIReviewDetail';
@@ -178,6 +179,7 @@ function MainAppContent() {
                 {/* New sub-category for Pending Correction */}
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
                   <li style={{ marginBottom: '10px' }}><Link to="/projects/pending-correction" className="sidebar-link">Pending Correction</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/projects/completed" className="sidebar-link">Completed Projects</Link></li>
                 </ul>
               </li>
               <li style={{ marginBottom: '20px' }}><span style={{ color: '#3e51b5', fontWeight: 'bold', cursor: 'default' }}>Tools</span>
@@ -214,6 +216,7 @@ function MainAppContent() {
               <Route path="/projects/to-be-approved" element={<ToBeApproved user={user} />} /> {/* New route */}
               <Route path="/projects/pending-correction" element={<PendingCorrection />} /> {/* New route */}
               <Route path="/projects/completed" element={<CompletedProjects />} />
+              <Route path="/projects/archived" element={<ArchivedProjects />} />
               <Route path="/tools/past-proposals" element={<PastProposals />} />
               <Route path="/tools/file-storer" element={<FileStorer />} />
               <Route path="/tools/ai-reviewer" element={<AIReviewerTool />} />
