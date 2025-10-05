@@ -693,35 +693,7 @@ router.get('/rejected', auth, async (req, res) => {
   }
 });
 
-// @route   GET /api/projects/with-assigned-questions
-// @desc    Get all projects where the user has assigned questions, including all questions for those projects
-// @access  Private
-router.get('/with-assigned-questions', auth, async (req, res) => {
-  try {
-    console.log('Fetching projects with assigned questions for user:', req.user.id);
-    const projects = await prisma.project.findMany({
-      where: {
-        questions: {
-          some: {
-            assignedToId: req.user.id,
-          },
-        },
-      },
-      include: {
-        owner: { select: { username: true } },
-        questions: {
-          include: {
-            assignedTo: { select: { id: true, username: true, name: true } },
-          },
-        },
-      },
-    });
-    res.json(projects);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
+
 
 // @route   GET /api/projects/questions/assigned
 // @desc    Get all questions assigned to the logged-in user
