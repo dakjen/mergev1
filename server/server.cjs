@@ -53,4 +53,8 @@ app.use('/api/files', require('./routes/files.cjs')); // New route for file oper
 app.use('/api/ai', require('./routes/ai.cjs')); // New route for AI operations
 app.use('/api/users', require('./routes/users.cjs'));
 
+app.get('/api/test', (req, res) => {
+  res.send('Test route is working!');
+});
+
 module.exports = app;
