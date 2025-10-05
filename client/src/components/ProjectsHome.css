@@ -226,6 +226,10 @@
   background-color: #f44336;
 }
 
+.projects-home-project-actions .rescind-button {
+  background-color: #0b2d65;
+}
+
 .narrative-list {
   list-style: none;
   padding: 0;

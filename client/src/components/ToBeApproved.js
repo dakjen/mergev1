@@ -179,7 +179,7 @@ const ToBeApproved = ({ user }) => {
                 {user && user.user.role === 'admin' && (
                   <div>
                     <button onClick={() => deleteProject(approval.projectId)} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer', fontSize: '1rem' }}>Delete</button>
-                    <button onClick={() => handleRescind(approval.projectId)} style={{ background: 'none', border: 'none', color: 'orange', cursor: 'pointer', fontSize: '1rem' }}>Rescind</button>
+                    <button onClick={() => handleRescind(approval.projectId)} style={{ background: 'none', border: 'none', color: '#0b2d65', cursor: 'pointer', fontSize: '1rem' }}>Rescind</button>
                   </div>
                 )}
               </div>
