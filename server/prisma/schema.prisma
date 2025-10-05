@@ -55,6 +55,7 @@ model Project {
   isCompleted      Boolean           @default(false)
   status           String            @default("draft")
   isArchived       Boolean           @default(false)
+  aiSummary        String?
   aiReviewLogs     AIReviewLog[]
   approvalRequests ApprovalRequest[]
 //  narrative        Narrative?
