@@ -11,7 +11,7 @@ import ChangePassword from './components/ChangePassword';
 import Home from './components/Home';
 import ProjectsHome from './components/ProjectsHome'; // New import
 import ProjectView from './components/ProjectView'; // New import
-import CompletedProjects from './components/CompletedProjects';
+import PastProposals from './components/PastProposals';
 import FileStorer from './components/FileStorer';
 import AIReviewerTool from './components/AIReviewerTool';
 import ComplianceChecker from './components/ComplianceChecker';
@@ -184,7 +184,7 @@ function MainAppContent() {
               </li>
               <li style={{ marginBottom: '20px' }}><span style={{ color: '#3e51b5', fontWeight: 'bold', cursor: 'default' }}>Tools</span>
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
-                  <li style={{ marginBottom: '10px' }}><Link to="/tools/past-proposals" className="sidebar-link">Completed Projects</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/past-proposals" className="sidebar-link">Past Proposals</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/file-storer" className="sidebar-link">File Cabinet</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/ai-reviewer" className="sidebar-link">AI Reviewer Tool</Link>
                     <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
@@ -217,7 +217,7 @@ function MainAppContent() {
               <Route path="/projects/pending-correction" element={<PendingCorrection />} /> {/* New route */}
 
               <Route path="/projects/archived" element={<ArchivedProjects />} />
-              <Route path="/tools/past-proposals" element={<CompletedProjects />} />
+              <Route path="/tools/past-proposals" element={<PastProposals />} />
               <Route path="/tools/file-storer" element={<FileStorer />} />
               <Route path="/tools/ai-reviewer" element={<AIReviewerTool />} />
               <Route path="/tools/ai-reviewer/past-reviews" element={<PastAIReviews user={user} />} /> {/* New route */}

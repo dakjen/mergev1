@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import AddPastProject from './AddPastProject';
 import Modal from './Modal';
 
-const CompletedProjects = () => {
+const PastProposals = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -48,7 +48,7 @@ const CompletedProjects = () => {
   return (
     <div className="projects-home-container">
       <div className="projects-home-header">
-        <h2>Completed Projects</h2>
+        <h2>Past Proposals</h2>
         <button onClick={() => setShowAddProjectModal(true)} className="add-project-button">Add Past Project</button>
       </div>
       <Link to="/projects" className="projects-home-view-link">Back to Projects</Link>
@@ -74,4 +74,4 @@ const CompletedProjects = () => {
   );
 };
 
-export default CompletedProjects;
+export default PastProposals;
