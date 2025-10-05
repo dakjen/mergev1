@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ConfirmModal from './ConfirmModal';
 
-const ToBeApproved = () => {
+const ToBeApproved = ({ user }) => {
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,6 +44,21 @@ const ToBeApproved = () => {
     }
   };
 
+  const deleteProject = async (projectId) => {
+    if (window.confirm('Are you sure you want to delete this project?')) {
+      try {
+        const token = localStorage.getItem('token');
+        const config = {
+          headers: { 'x-auth-token': token }
+        };
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}`, config);
+        fetchPendingApprovals(); // Refresh the list after deletion
+      } catch (err) {
+        console.error(err.response ? err.response.data : err.message);
+        alert(err.response ? err.response.data.msg : 'Failed to delete project.');
+      }
+    }
+  };
   const handleApprove = async (projectId) => {
     const onConfirm = async () => {
       try {
@@ -129,7 +144,12 @@ const ToBeApproved = () => {
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {pendingApprovals.map(approval => (
             <li key={approval.id} style={{ marginBottom: '20px', border: '1px solid #ddd', padding: '15px', borderRadius: '8px', textAlign: 'left' }}>
-              <h3>Project: {approval.project.name}</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3>Project: {approval.project.name}</h3>
+                {user && user.user.role === 'admin' && (
+                  <button onClick={() => deleteProject(approval.projectId)} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer', fontSize: '1rem' }}>Delete</button>
+                )}
+              </div>
               <p><strong>Description:</strong> {approval.project.description}</p>
               <p><strong>Requested By:</strong> {approval.requestedBy.username}</p>
               <p><strong>Requested At:</strong> {new Date(approval.requestedAt).toLocaleString()}</p>
