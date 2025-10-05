@@ -20,7 +20,7 @@ import ApprovalHistory from './components/ApprovalHistory'; // New import for Ap
 import PastAIReviews from './components/PastAIReviews'; // New import for PastAIReviews
 import ToBeApproved from './components/ToBeApproved'; // New import for ToBeApproved
 import PendingCorrection from './components/PendingCorrection'; // New import for PendingCorrection
-import ArchivedProjects from './components/ArchivedProjects';
+import CompletedProjects from './components/CompletedProjects';
 import Merge from './components/Merge';
 import AIReviewDetail from './components/AIReviewDetail';
 import ArchivedAIReviews from './components/ArchivedAIReviews';
@@ -213,7 +213,7 @@ function MainAppContent() {
               <Route path="/api/projects/:id/view" element={<ProjectView darkMode={darkMode} />} />
               <Route path="/projects/to-be-approved" element={<ToBeApproved user={user} />} /> {/* New route */}
               <Route path="/projects/pending-correction" element={<PendingCorrection />} /> {/* New route */}
-              <Route path="/projects/archived" element={<ArchivedProjects />} />
+              <Route path="/projects/completed" element={<CompletedProjects />} />
               <Route path="/tools/past-proposals" element={<PastProposals />} />
               <Route path="/tools/file-storer" element={<FileStorer />} />
               <Route path="/tools/ai-reviewer" element={<AIReviewerTool />} />

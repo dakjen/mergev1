@@ -541,7 +541,7 @@ const ProjectsHome = ({ user }) => { // Accept user prop
         )}
       </ul>
       <div style={{ marginTop: '20px', textAlign: 'center' }}>
-        <Link to="/projects/archived">View Archived Projects</Link>
+        <Link to="/projects/completed">View Completed Projects</Link>
       </div>
         </div>
       </>

@@ -434,7 +434,7 @@ router.get('/completed', auth, async (req, res) => {
         companyId: user.companyId,
         isCompleted: true, // Filter for completed projects
       },
-      include: { owner: { select: { username: true } } },
+      include: { owner: { select: { username: true } }, company: { select: { name: true } } },
       orderBy: {
         createdAt: 'desc',
       },
@@ -1106,6 +1106,48 @@ router.put('/:id/rescind-approval', auth, async (req, res) => {
     });
 
     res.json({ msg: 'Project approval request rescinded successfully.' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   POST api/projects/parse-pasted-text
+// @desc    Parse pasted text and create a new completed project
+// @access  Private
+router.post('/parse-pasted-text', auth, async (req, res) => {
+  const { content } = req.body;
+
+  if (!content) {
+    return res.status(400).json({ msg: 'No content provided' });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
+    if (!user || !user.companyId) {
+      return res.status(400).json({ msg: 'User not associated with a company' });
+    }
+
+    const lines = content.split('\n');
+    const name = lines[0];
+    const description = lines.slice(1).join('\n');
+
+    const newProject = await prisma.project.create({
+      data: {
+        name,
+        description,
+        ownerId: req.user.id,
+        companyId: user.companyId,
+        isCompleted: true,
+        status: 'completed',
+      },
+      include: {
+        owner: { select: { username: true } },
+        company: { select: { name: true } },
+      }
+    });
+
+    res.json({ msg: 'Project created successfully', project: newProject });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
