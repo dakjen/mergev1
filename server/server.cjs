@@ -13,31 +13,9 @@ app.use((req, res, next) => {
 
 // Init Middleware
 const corsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      'https://mergev1-78hi.vercel.app', // Production URL
-      // Add other specific allowed origins if needed, e.g., local development
-      'http://localhost:3000',
-      'http://localhost:3001'
-    ];
-
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    // Allow if origin is in the allowed list
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    }
-    // Allow Vercel preview deployments
-    else if (process.env.VERCEL_ENV === 'preview' && origin.endsWith('.vercel.app')) {
-      callback(null, true);
-    }
-    else {
-      callback(new Error('Not allowed by CORS'), false);
-    }
-  },
+  origin: '*', // Allow all origins for testing
   credentials: true,
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200
 }
 
 app.use(cors(corsOptions));
