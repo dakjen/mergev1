@@ -1267,6 +1267,25 @@ router.post('/parse-pasted-text', auth, async (req, res) => {
     const name = lines[0];
     const description = lines.slice(1).join('\n');
 
+    // --- Basic Q&A Extraction Logic ---
+    const questionsAndAnswers = [];
+    const sentences = content.split(/(?<=[.?!])\s+/); // Split by sentence-ending punctuation
+
+    for (let i = 0; i < sentences.length; i++) {
+      const sentence = sentences[i].trim();
+      // Basic check for questions
+      if (sentence.endsWith('?') || /^(who|what|where|when|why|how)\b/i.test(sentence)) {
+        let answer = '';
+        // Try to find an answer in the next sentence(s)
+        if (i + 1 < sentences.length) {
+          answer = sentences[i + 1].trim();
+          // You might want more sophisticated logic here to combine multiple sentences for an answer
+        }
+        questionsAndAnswers.push({ text: sentence, answer: answer });
+        i++; // Skip the next sentence if it was used as an answer
+      }
+    }
+
     const newProject = await prisma.project.create({
       data: {
         name,
@@ -1275,10 +1294,18 @@ router.post('/parse-pasted-text', auth, async (req, res) => {
         companyId: user.companyId,
         isCompleted: true,
         status: 'completed',
+        questions: {
+          create: questionsAndAnswers.length > 0 ? questionsAndAnswers.map(qa => ({
+            text: qa.text,
+            answer: qa.answer,
+            status: 'pending',
+          })) : [],
+        },
       },
       include: {
         owner: { select: { username: true } },
         company: { select: { name: true } },
+        questions: true,
       }
     });
 
