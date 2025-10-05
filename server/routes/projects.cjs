@@ -32,7 +32,13 @@ router.get('/', auth, async (req, res) => {
     }
 
     if (status) {
-      whereClause.status = status;
+      if (status === 'completed') {
+        whereClause.isCompleted = true;
+      } else {
+        whereClause.status = status;
+      }
+    } else {
+      whereClause.isCompleted = false;
     }
 
     if (ownerId) {

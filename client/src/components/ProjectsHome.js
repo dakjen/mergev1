@@ -197,9 +197,11 @@ const ProjectsHome = ({ user }) => { // Accept user prop
   const deleteProject = async (projectId) => {
     const onConfirm = async () => {
       try {
+        console.log(`Deleting project with id: ${projectId}`);
         const token = localStorage.getItem('token');
         const config = { headers: { 'x-auth-token': token } };
         await axios.delete(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}`, config);
+        alert('Project deleted successfully!');
         fetchProjects();
       } catch (err) {
         console.error(err.response ? err.response.data : err.message);
