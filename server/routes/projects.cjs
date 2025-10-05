@@ -73,14 +73,13 @@ router.get('/', auth, async (req, res) => {
             assignmentLogs: true, // Include assignment logs
           },
         },
+        versions: true,
       },
-      orderBy: orderByClause,
     });
-    console.log("Server sending projects data:", projects);
     res.json(projects);
-  } catch (err) {
-    console.error("Error fetching projects:", err);
-    res.status(500).send('Server Error');
+  } catch (error) {
+    console.error('Error fetching projects by company:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
