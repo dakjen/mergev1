@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useParams, useNavigate } from 'react-router-dom';
 
 // Stop words to exclude from keywords
 const stopWords = ['the', 'and', 'for', 'with', 'our', 'individuals', 'through', 'communities', 'that', 'this', 'from', 'are', 'was', 'but', 'not', 'you', 'your', 'have', 'has'];
@@ -38,16 +39,18 @@ const getKeywords = (project, topN = 5) => {
 };
 
 
-const ProjectView = ({ project, onBack, darkMode }) => { // Accept project, onBack, and darkMode props
-  console.log("ProjectView received project:", project); // Add logging
-
-  const [projectVersions, setProjectVersions] = useState([]); // New state for project versions
-  const [loading, setLoading] = useState(true);
+const ProjectView = ({ project: projectProp, darkMode }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [project, setProject] = useState(projectProp);
+  const [loading, setLoading] = useState(!projectProp);
   const [error, setError] = useState(null);
+  const [projectVersions, setProjectVersions] = useState([]);
   const [keywords, setKeywords] = useState([]);
 
   useEffect(() => {
-    const fetchProjectVersions = async () => {
+    const fetchProject = async () => {
+      if (!id) return;
       setLoading(true);
       setError(null);
       try {
@@ -58,20 +61,36 @@ const ProjectView = ({ project, onBack, darkMode }) => { // Accept project, onBa
           return;
         }
         const config = { headers: { 'x-auth-token': token } };
-        
-        const versionsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${project.id}/versions`, config);
-
-        setProjectVersions(versionsRes.data);
-        setLoading(false);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${id}`, config);
+        setProject(res.data);
       } catch (err) {
         console.error(err.response ? err.response.data : err.message);
-        setError(err.response ? err.response.data.msg : 'Failed to fetch project versions.');
+        setError(err.response ? err.response.data.msg : 'Failed to fetch project.');
+      }
+    };
+
+    if (!projectProp) {
+      fetchProject();
+    }
+  }, [id, projectProp]);
+
+  useEffect(() => {
+    const fetchProjectVersions = async () => {
+      if (!project) return;
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const config = { headers: { 'x-auth-token': token } };
+        const versionsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${project.id}/versions`, config);
+        setProjectVersions(versionsRes.data);
+      } catch (err) {
+        console.error(err.response ? err.response.data : err.message);
+      } finally {
         setLoading(false);
       }
     };
-    if (project) {
-        fetchProjectVersions();
-    }
+
+    fetchProjectVersions();
   }, [project]);
 
   useEffect(() => {
@@ -81,9 +100,13 @@ const ProjectView = ({ project, onBack, darkMode }) => { // Accept project, onBa
     }
   }, [project]);
 
-  if (!project) return null;
+  const onBack = () => {
+    navigate(-1); // Go back to the previous page
+  };
+
   if (loading) return <p style={{ textAlign: 'center' }}>Loading project...</p>;
   if (error) return <p style={{ textAlign: 'center', color: 'red' }}>Error: {error}</p>;
+  if (!project) return null;
 
   return (
     <div className={darkMode ? 'dark-mode-container' : ''} // Apply class conditionally
