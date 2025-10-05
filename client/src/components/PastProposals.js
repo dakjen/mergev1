@@ -5,6 +5,7 @@ import AddPastProject from './AddPastProject';
 import Modal from './Modal';
 
 const PastProposals = ({ user }) => {
+  console.log('PastProposals user:', user);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
