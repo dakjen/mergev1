@@ -1154,4 +1154,32 @@ router.post('/parse-pasted-text', auth, async (req, res) => {
   }
 });
 
+// @route   PUT api/projects/:id/unarchive
+// @desc    Unarchive a project
+// @access  Private (owner or admin)
+router.put('/:id/unarchive', auth, async (req, res) => {
+  try {
+    const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+
+    if (!project) {
+      return res.status(404).json({ msg: 'Project not found' });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user || (project.ownerId !== req.user.id && user.role !== 'admin')) {
+      return res.status(401).json({ msg: 'User not authorized to unarchive this project' });
+    }
+
+    const updatedProject = await prisma.project.update({
+      where: { id: req.params.id },
+      data: { isArchived: false },
+    });
+
+    res.json(updatedProject);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router;

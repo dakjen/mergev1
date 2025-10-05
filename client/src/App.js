@@ -11,7 +11,7 @@ import ChangePassword from './components/ChangePassword';
 import Home from './components/Home';
 import ProjectsHome from './components/ProjectsHome'; // New import
 import ProjectView from './components/ProjectView'; // New import
-import PastProposals from './components/PastProposals';
+import CompletedProjects from './components/CompletedProjects';
 import FileStorer from './components/FileStorer';
 import AIReviewerTool from './components/AIReviewerTool';
 import ComplianceChecker from './components/ComplianceChecker';
@@ -21,7 +21,7 @@ import PastAIReviews from './components/PastAIReviews'; // New import for PastAI
 import ToBeApproved from './components/ToBeApproved'; // New import for ToBeApproved
 import PendingCorrection from './components/PendingCorrection'; // New import for PendingCorrection
 import ArchivedProjects from './components/ArchivedProjects';
-import CompletedProjects from './components/CompletedProjects';
+
 import Merge from './components/Merge';
 import AIReviewDetail from './components/AIReviewDetail';
 import ArchivedAIReviews from './components/ArchivedAIReviews';
@@ -179,12 +179,12 @@ function MainAppContent() {
                 {/* New sub-category for Pending Correction */}
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
                   <li style={{ marginBottom: '10px' }}><Link to="/projects/pending-correction" className="sidebar-link">Pending Correction</Link></li>
-                  <li style={{ marginBottom: '10px' }}><Link to="/projects/completed" className="sidebar-link">Completed Projects</Link></li>
+
                 </ul>
               </li>
               <li style={{ marginBottom: '20px' }}><span style={{ color: '#3e51b5', fontWeight: 'bold', cursor: 'default' }}>Tools</span>
                 <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
-                  <li style={{ marginBottom: '10px' }}><Link to="/tools/past-proposals" className="sidebar-link">Past Proposals</Link></li>
+                  <li style={{ marginBottom: '10px' }}><Link to="/tools/past-proposals" className="sidebar-link">Completed Projects</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/file-storer" className="sidebar-link">File Cabinet</Link></li>
                   <li style={{ marginBottom: '10px' }}><Link to="/tools/ai-reviewer" className="sidebar-link">AI Reviewer Tool</Link>
                     <ul style={{ listStyle: 'none', paddingLeft: '15px', marginTop: '5px' }}>
@@ -215,9 +215,9 @@ function MainAppContent() {
               <Route path="/api/projects/:id/view" element={<ProjectView darkMode={darkMode} />} />
               <Route path="/projects/to-be-approved" element={<ToBeApproved user={user} />} /> {/* New route */}
               <Route path="/projects/pending-correction" element={<PendingCorrection />} /> {/* New route */}
-              <Route path="/projects/completed" element={<CompletedProjects />} />
+
               <Route path="/projects/archived" element={<ArchivedProjects />} />
-              <Route path="/tools/past-proposals" element={<PastProposals />} />
+              <Route path="/tools/past-proposals" element={<CompletedProjects />} />
               <Route path="/tools/file-storer" element={<FileStorer />} />
               <Route path="/tools/ai-reviewer" element={<AIReviewerTool />} />
               <Route path="/tools/ai-reviewer/past-reviews" element={<PastAIReviews user={user} />} /> {/* New route */}
