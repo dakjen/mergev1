@@ -422,7 +422,7 @@ router.get('/deadlines', auth, async (req, res) => {
 // @route   GET api/projects/completed
 // @desc    Get all completed projects for the logged-in user's company
 // @access  Private
-router.get('/completed', auth, async (req, res) => {
+router.get('/completed', async (req, res) => {
   try {
     const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
     if (!user || !user.companyId) {
