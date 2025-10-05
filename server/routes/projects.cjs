@@ -125,30 +125,30 @@ router.get('/pending-approval-count', auth, async (req, res) => {
   }
 });
 
-// @route   GET /api/projects/with-assigned-questions
-// @desc    Get all projects where the user has assigned questions, including all questions for those projects
+
+
+// @route   GET api/projects/completed
+// @desc    Get all completed projects for the logged-in user's company
 // @access  Private
-router.get('/with-assigned-questions', auth, async (req, res) => {
+router.get('/completed', auth, async (req, res) => {
   try {
-    console.log('Fetching projects with assigned questions for user:', req.user.id);
-    const projects = await prisma.project.findMany({
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
+    if (!user || !user.companyId) {
+      return res.status(400).json({ msg: 'User not associated with a company' });
+    }
+
+    const completedProjects = await prisma.project.findMany({
       where: {
-        questions: {
-          some: {
-            assignedToId: req.user.id,
-          },
-        },
+        companyId: user.companyId,
+        isCompleted: true, // Filter for completed projects
       },
-      include: {
-        owner: { select: { username: true } },
-        questions: {
-          include: {
-            assignedTo: { select: { id: true, username: true, name: true } },
-          },
-        },
+      include: { owner: { select: { username: true } }, company: { select: { name: true } } },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
-    res.json(projects);
+
+    res.json(completedProjects);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -381,6 +381,10 @@ router.get('/:projectId/summary', auth, async (req, res) => {
   }
 });
 
+
+
+
+
 // @route   GET api/projects/deadlines
 // @desc    Get all project deadlines for the logged-in user's company
 // @access  Private
@@ -423,28 +427,74 @@ router.get('/deadlines', auth, async (req, res) => {
   }
 });
 
-// @route   GET api/projects/completed
-// @desc    Get all completed projects for the logged-in user's company
+// @route   GET api/projects/deadlines
+// @desc    Get all project deadlines for the logged-in user's company
 // @access  Private
-router.get('/completed', auth, async (req, res) => {
+router.get('/deadlines', auth, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
     if (!user || !user.companyId) {
       return res.status(400).json({ msg: 'User not associated with a company' });
     }
 
-    const completedProjects = await prisma.project.findMany({
+    const deadlines = await prisma.project.findMany({
       where: {
         companyId: user.companyId,
-        isCompleted: true, // Filter for completed projects
+        deadlineDate: {
+          not: null, // Only projects with a deadline date
+        },
       },
-      include: { owner: { select: { username: true } }, company: { select: { name: true } } },
+      select: {
+        id: true,
+        name: true,
+        deadlineDate: true,
+      },
       orderBy: {
-        createdAt: 'desc',
+        deadlineDate: 'asc', // Order by deadline date
       },
     });
 
-    res.json(completedProjects);
+    // Format the deadlines for the client
+    const formattedDeadlines = deadlines.map(project => ({
+      id: project.id,
+      name: project.name,
+      projectName: project.name, // Use project name as deadline name for now
+      deadlineDate: project.deadlineDate,
+    }));
+
+    res.json(formattedDeadlines);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   GET api/projects/pending-approval
+// @desc    Get projects pending approval for the current approver
+// @access  Private (approver only)
+router.get('/pending-approval', auth, async (req, res) => {
+  if (req.user.role !== 'approver') {
+    return res.status(403).json({ msg: 'Authorization denied. Not an approver.' });
+  }
+
+  try {
+    const pendingApprovals = await prisma.approvalRequest.findMany({
+      where: {
+        approverId: req.user.id,
+        status: 'pending',
+      },
+      include: {
+        project: {
+          include: { owner: { select: { username: true } } },
+        },
+        requestedBy: { select: { username: true } },
+      },
+      orderBy: {
+        requestedAt: 'asc',
+      },
+    });
+    console.log('Pending Approvals from DB:', pendingApprovals);
+    res.json(pendingApprovals);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -497,6 +547,8 @@ router.post('/:id/request-approval', auth, async (req, res) => {
   }
 });
 
+
+
 // @route   GET api/projects/pending-approval
 // @desc    Get projects pending approval for the current approver
 // @access  Private (approver only)
@@ -506,23 +558,49 @@ router.get('/pending-approval', auth, async (req, res) => {
   }
 
   try {
-    const pendingApprovals = await prisma.approvalRequest.findMany({
+    const pendingApprovals = await prisma.approvalRequest.count({
       where: {
         approverId: req.user.id,
         status: 'pending',
       },
+    });
+    res.json({ count: pendingApprovals });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   GET api/projects/rejected
+// @desc    Get all rejected projects for the logged-in user's company
+// @access  Private
+router.get('/rejected', auth, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
+    if (!user || !user.companyId) {
+      return res.status(400).json({ msg: 'User not associated with a company' });
+    }
+
+    const rejectedProjects = await prisma.project.findMany({
+      where: {
+        companyId: user.companyId,
+        status: 'rejected', // Filter for rejected projects
+      },
       include: {
-        project: {
-          include: { owner: { select: { username: true } } },
+        owner: { select: { username: true } },
+        company: { select: { name: true } },
+        approvalRequests: {
+          where: { status: 'rejected' },
+          orderBy: { respondedAt: 'desc' },
+          take: 1, // Get the latest rejection comments
         },
-        requestedBy: { select: { username: true } },
       },
       orderBy: {
-        requestedAt: 'asc',
+        createdAt: 'desc',
       },
     });
-    console.log('Pending Approvals from DB:', pendingApprovals);
-    res.json(pendingApprovals);
+
+    res.json(rejectedProjects);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -577,6 +655,8 @@ router.put('/:id/respond-approval', auth, async (req, res) => {
   }
 });
 
+
+
 // @route   GET api/projects/rejected
 // @desc    Get all rejected projects for the logged-in user's company
 // @access  Private
@@ -607,6 +687,82 @@ router.get('/rejected', auth, async (req, res) => {
     });
 
     res.json(rejectedProjects);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   GET /api/projects/with-assigned-questions
+// @desc    Get all projects where the user has assigned questions, including all questions for those projects
+// @access  Private
+router.get('/with-assigned-questions', auth, async (req, res) => {
+  try {
+    console.log('Fetching projects with assigned questions for user:', req.user.id);
+    const projects = await prisma.project.findMany({
+      where: {
+        questions: {
+          some: {
+            assignedToId: req.user.id,
+          },
+        },
+      },
+      include: {
+        owner: { select: { username: true } },
+        questions: {
+          include: {
+            assignedTo: { select: { id: true, username: true, name: true } },
+          },
+        },
+      },
+    });
+    res.json(projects);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   GET /api/projects/questions/assigned
+// @desc    Get all questions assigned to the logged-in user
+// @access  Private
+router.get('/questions/assigned', auth, async (req, res) => {
+  try {
+    console.log('Fetching assigned questions for user ID:', req.user.id);
+    const assignedQuestions = await prisma.question.findMany({
+      where: {
+        assignedToId: req.user.id,
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            deadlineDate: true,
+          },
+        },
+        assignedTo: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+          },
+        },
+        assignmentLogs: {
+          include: {
+            assignedBy: { select: { id: true, username: true, name: true } },
+            assignedTo: { select: { id: true, username: true, name: true } },
+          },
+          orderBy: { assignedAt: 'desc' },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    console.log('Found assigned questions:', assignedQuestions.length);
+    res.json(assignedQuestions);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -696,29 +852,11 @@ router.post('/questions/:projectId/questions', auth, async (req, res) => {
   }
 });
 
-// @route   GET api/projects/pending-approval-count
-// @desc    Get count of pending approval requests for the current approver
-// @access  Private (approver only)
-router.get('/pending-approval-count', auth, async (req, res) => {
-  if (req.user.role !== 'approver') {
-    return res.status(403).json({ msg: 'Authorization denied. Not an approver.' });
-  }
 
-  try {
-    const pendingCount = await prisma.approvalRequest.count({
-      where: {
-        approverId: req.user.id,
-        status: 'pending',
-      },
-    });
-    res.json({ count: pendingCount });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
 
 // PLACEHOLDER_WITH_ASSIGNED_QUESTIONS_ROUTE
+
+
 
 // @route   GET /api/projects/questions/assigned
 // @desc    Get all questions assigned to the logged-in user
@@ -759,69 +897,6 @@ router.get('/questions/assigned', auth, async (req, res) => {
       },
     });
     console.log('Found assigned questions:', assignedQuestions.length);
-    res.json(assignedQuestions);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
-
-// @route   GET /api/projects/:projectId/questions/assigned-to-me
-// @desc    Get questions assigned to the logged-in user for a specific project
-// @access  Private
-router.get('/:projectId/questions/assigned-to-me', auth, async (req, res) => {
-  try {
-    const { projectId } = req.params;
-    const userId = req.user.id;
-
-    // Verify project exists and user has access (optional, but good practice)
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
-      include: { owner: true, company: true }
-    });
-
-    if (!project) {
-      return res.status(404).json({ msg: 'Project not found' });
-    }
-
-    // Ensure user belongs to the same company as the project
-    if (req.user.companyId !== project.companyId) {
-      return res.status(401).json({ msg: 'Not authorized to view questions for this project' });
-    }
-
-    const assignedQuestions = await prisma.question.findMany({
-      where: {
-        projectId: projectId,
-        assignedToId: userId,
-      },
-      include: {
-        project: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            deadlineDate: true,
-          },
-        },
-        assignedTo: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-          },
-        },
-        assignmentLogs: {
-          include: {
-            assignedBy: { select: { id: true, username: true, name: true } },
-            assignedTo: { select: { id: true, username: true, name: true } },
-          },
-          orderBy: { assignedAt: 'desc' },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
     res.json(assignedQuestions);
   } catch (err) {
     console.error(err.message);
@@ -914,6 +989,71 @@ router.post('/upload-document', auth, upload.single('document'), async (req, res
     res.status(500).send('Server Error');
   }
 });
+
+// @route   GET /api/projects/:projectId/questions/assigned-to-me
+// @desc    Get questions assigned to the logged-in user for a specific project
+// @access  Private
+router.get('/:projectId/questions/assigned-to-me', auth, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const userId = req.user.id;
+
+    // Verify project exists and user has access (optional, but good practice)
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: { owner: true, company: true }
+    });
+
+    if (!project) {
+      return res.status(404).json({ msg: 'Project not found' });
+    }
+
+    // Ensure user belongs to the same company as the project
+    if (req.user.companyId !== project.companyId) {
+      return res.status(401).json({ msg: 'Not authorized to view questions for this project' });
+    }
+
+    const assignedQuestions = await prisma.question.findMany({
+      where: {
+        projectId: projectId,
+        assignedToId: userId,
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            deadlineDate: true,
+          },
+        },
+        assignedTo: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+          },
+        },
+        assignmentLogs: {
+          include: {
+            assignedBy: { select: { id: true, username: true, name: true } },
+            assignedTo: { select: { id: true, username: true, name: true } },
+          },
+          orderBy: { assignedAt: 'desc' },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    res.json(assignedQuestions);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+
 
 // @route   PUT api/projects/:id/archive
 // @desc    Archive a project
