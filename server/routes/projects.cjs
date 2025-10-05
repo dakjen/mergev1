@@ -427,48 +427,6 @@ router.get('/deadlines', auth, async (req, res) => {
   }
 });
 
-// @route   GET api/projects/deadlines
-// @desc    Get all project deadlines for the logged-in user's company
-// @access  Private
-router.get('/deadlines', auth, async (req, res) => {
-  try {
-    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
-    if (!user || !user.companyId) {
-      return res.status(400).json({ msg: 'User not associated with a company' });
-    }
-
-    const deadlines = await prisma.project.findMany({
-      where: {
-        companyId: user.companyId,
-        deadlineDate: {
-          not: null, // Only projects with a deadline date
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-        deadlineDate: true,
-      },
-      orderBy: {
-        deadlineDate: 'asc', // Order by deadline date
-      },
-    });
-
-    // Format the deadlines for the client
-    const formattedDeadlines = deadlines.map(project => ({
-      id: project.id,
-      name: project.name,
-      projectName: project.name, // Use project name as deadline name for now
-      deadlineDate: project.deadlineDate,
-    }));
-
-    res.json(formattedDeadlines);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
-
 // @route   GET api/projects/pending-approval
 // @desc    Get projects pending approval for the current approver
 // @access  Private (approver only)
@@ -541,30 +499,6 @@ router.post('/:id/request-approval', auth, async (req, res) => {
     });
 
     res.json({ msg: 'Approval request sent', approvalRequest });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
-
-
-
-// @route   GET api/projects/pending-approval
-// @desc    Get projects pending approval for the current approver
-// @access  Private (approver only)
-router.get('/pending-approval', auth, async (req, res) => {
-  if (req.user.role !== 'approver') {
-    return res.status(403).json({ msg: 'Authorization denied. Not an approver.' });
-  }
-
-  try {
-    const pendingApprovals = await prisma.approvalRequest.count({
-      where: {
-        approverId: req.user.id,
-        status: 'pending',
-      },
-    });
-    res.json({ count: pendingApprovals });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -654,46 +588,6 @@ router.put('/:id/respond-approval', auth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-
-
-
-// @route   GET api/projects/rejected
-// @desc    Get all rejected projects for the logged-in user's company
-// @access  Private
-router.get('/rejected', auth, async (req, res) => {
-  try {
-    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
-    if (!user || !user.companyId) {
-      return res.status(400).json({ msg: 'User not associated with a company' });
-    }
-
-    const rejectedProjects = await prisma.project.findMany({
-      where: {
-        companyId: user.companyId,
-        status: 'rejected', // Filter for rejected projects
-      },
-      include: {
-        owner: { select: { username: true } },
-        company: { select: { name: true } },
-        approvalRequests: {
-          where: { status: 'rejected' },
-          orderBy: { respondedAt: 'desc' },
-          take: 1, // Get the latest rejection comments
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-
-    res.json(rejectedProjects);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
-
-
 
 // @route   GET /api/projects/questions/assigned
 // @desc    Get all questions assigned to the logged-in user
@@ -818,58 +712,6 @@ router.post('/questions/:projectId/questions', auth, async (req, res) => {
       },
     });
     res.json(newQuestion);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
-
-
-
-// PLACEHOLDER_WITH_ASSIGNED_QUESTIONS_ROUTE
-
-
-
-// @route   GET /api/projects/questions/assigned
-// @desc    Get all questions assigned to the logged-in user
-// @access  Private
-router.get('/questions/assigned', auth, async (req, res) => {
-  try {
-    console.log('Fetching assigned questions for user ID:', req.user.id);
-    const assignedQuestions = await prisma.question.findMany({
-      where: {
-        assignedToId: req.user.id,
-      },
-      include: {
-        project: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            deadlineDate: true,
-          },
-        },
-        assignedTo: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-          },
-        },
-        assignmentLogs: {
-          include: {
-            assignedBy: { select: { id: true, username: true, name: true } },
-            assignedTo: { select: { id: true, username: true, name: true } },
-          },
-          orderBy: { assignedAt: 'desc' },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-    console.log('Found assigned questions:', assignedQuestions.length);
-    res.json(assignedQuestions);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -1049,33 +891,6 @@ router.put('/:id/archive', auth, async (req, res) => {
     });
 
     res.json(updatedProject);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
-
-// @route   GET api/projects/archived
-// @desc    Get all archived projects for the logged-in user's company
-// @access  Private
-router.get('/archived', auth, async (req, res) => {
-  try {
-    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
-    if (!user || !user.companyId) {
-      return res.status(400).json({ msg: 'User not associated with a company' });
-    }
-
-    const projects = await prisma.project.findMany({
-      where: {
-        companyId: user.companyId,
-        isArchived: true,
-      },
-      include: {
-        owner: { select: { username: true } },
-        company: { select: { name: true } },
-      },
-    });
-    res.json(projects);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
