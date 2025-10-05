@@ -6,19 +6,21 @@ const prisma = require('./utils/prisma.cjs');
 
 const app = express();
 
-app.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} ${req.url}`);
-  next();
-});
+// ✅ Configure CORS properly
+app.use(cors({
+  origin: [
+    'https://mergev1-78hi.vercel.app',
+    'http://localhost:3000'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 
-// Init Middleware
-const corsOptions = {
-  origin: '*', // Allow all origins for testing
-  credentials: true,
-  optionsSuccessStatus: 200
-}
+// ✅ Handle preflight requests globally
+app.options('*', cors());
 
-app.use(cors(corsOptions));
+// then your middleware and routes
 app.use(express.json());
 
 app.get('/', (req, res) => {
