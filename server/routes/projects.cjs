@@ -420,6 +420,11 @@ router.post('/upload-document', auth, upload.single('document'), async (req, res
         questions: true,
       },
     });
+    res.json({ msg: 'Document uploaded and project created successfully', project: newProject });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
 
     // No need to clean up file as it was stored in memory
 
