@@ -425,6 +425,7 @@ router.post('/upload-document', auth, upload.single('document'), async (req, res
     console.error(err.message);
     res.status(500).send('Server Error');
   }
+}); // This closes the router.post('/upload-document', ...) route
 
     // No need to clean up file as it was stored in memory
 
