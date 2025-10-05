@@ -89,6 +89,36 @@ const ToBeApproved = ({ user }) => {
     });
   };
 
+  const handleRescind = async (projectId) => {
+    const onConfirm = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const config = {
+          headers: { 'x-auth-token': token, 'Content-Type': 'application/json' },
+          withCredentials: true
+        };
+        await axios.put(
+          `${process.env.REACT_APP_API_URL}/api/projects/${projectId}/rescind-approval`,
+          {},
+          config
+        );
+        alert('Approval rescinded successfully!');
+        fetchPendingApprovals(); // Refresh the list
+      } catch (err) {
+        console.error(err.response ? err.response.data : err.message);
+        alert(err.response ? err.response.data.msg : 'Failed to rescind approval.');
+      }
+      setModalState({ ...modalState, isOpen: false });
+    };
+
+    setModalState({
+      isOpen: true,
+      title: 'Rescind Approval',
+      message: 'Are you sure you want to rescind the approval for this project?',
+      onConfirm,
+    });
+  };
+
   const handleRejectClick = (projectId) => {
     setCurrentProjectId(projectId);
     setShowCommentsModal(true);
@@ -147,7 +177,10 @@ const ToBeApproved = ({ user }) => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3>Project: {approval.project.name}</h3>
                 {user && user.user.role === 'admin' && (
-                  <button onClick={() => deleteProject(approval.projectId)} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer', fontSize: '1rem' }}>Delete</button>
+                  <div>
+                    <button onClick={() => deleteProject(approval.projectId)} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer', fontSize: '1rem' }}>Delete</button>
+                    <button onClick={() => handleRescind(approval.projectId)} style={{ background: 'none', border: 'none', color: 'orange', cursor: 'pointer', fontSize: '1rem' }}>Rescind</button>
+                  </div>
                 )}
               </div>
               <p><strong>Description:</strong> {approval.project.description}</p>
