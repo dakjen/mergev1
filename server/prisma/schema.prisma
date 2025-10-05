@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,172 +7,169 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  viewer
-  editor
-  admin
-  approver
-}
-
 model User {
-  id        String     @id @default(cuid())
-  username  String   @unique
-  password  String
-  name      String?
-  birthdate DateTime?
-  email     String   @unique
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id])
-  role      Role     @default(viewer)
-  isApproved Boolean @default(false)
-  createdAt DateTime @default(now())
-  narratives Narrative[]
-  projects   Project[]
-  projectVersions ProjectVersion[]
-  approvedLogs ApprovedLog[] @relation("ApprovedUser")
-  approverLogs ApprovedLog[] @relation("ApproverUser")
-  files       File[] // Add relation to File model
-  aiReviewLogs AIReviewLog[] // New relation to AIReviewLog model
-  requestedApprovals ApprovalRequest[] @relation("RequestedApprovals") // New relation
-  assignedApprovals  ApprovalRequest[] @relation("AssignedApprovals")  // New relation
-  assignedQuestions Question[] @relation("AssignedQuestions") // New relation for questions assigned to this user
-  assignedByLogs QuestionAssignmentLog[] @relation("AssignedByLog")
-  assignedToLogs QuestionAssignmentLog[] @relation("AssignedToLog")
+  id                 String                  @id @default(cuid())
+  username           String                  @unique
+  password           String
+  createdAt          DateTime                @default(now())
+  isApproved         Boolean                 @default(false)
+  birthdate          DateTime?
+  email              String                  @unique
+  name               String?
+  role               Role                    @default(viewer)
+  companyId          String?
+  aiReviewLogs       AIReviewLog[]
+  assignedApprovals  ApprovalRequest[]       @relation("AssignedApprovals")
+  requestedApprovals ApprovalRequest[]       @relation("RequestedApprovals")
+  approverLogs       ApprovedLog[]           @relation("ApproverUser")
+  approvedLogs       ApprovedLog[]           @relation("ApprovedUser")
+  files              File[]
+//  narratives         Narrative[]
+  projects           Project[]
+  projectVersions    ProjectVersion[]
+  assignedQuestions  Question[]              @relation("AssignedQuestions")
+  assignedByLogs     QuestionAssignmentLog[] @relation("AssignedByLog")
+  assignedToLogs     QuestionAssignmentLog[] @relation("AssignedToLog")
+  company            Company?                @relation(fields: [companyId], references: [id])
 }
 
 model Company {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  isArchived Boolean @default(false)
-  users     User[]
-  projects  Project[]
+  id           String        @id @default(cuid())
+  name         String        @unique
+  isArchived   Boolean       @default(false)
   approvedLogs ApprovedLog[]
-  files       File[] // Add relation to File model
+  files        File[]
+  projects     Project[]
+  users        User[]
 }
 
 model Project {
-  id          String    @id @default(cuid())
-  name        String
-  description String? 
-  details Json?
-  deadlineDate DateTime? // New field for project deadline
-  isCompleted Boolean @default(false) // New field for completion status
-  isArchived  Boolean   @default(false) // New field for archiving status
-  status      String  @default("draft") // New field for project status
-  createdAt   DateTime  @default(now())
-  owner       User      @relation(fields: [ownerId], references: [id])
-  ownerId     String
-  companyId   String?
-  company     Company? @relation(fields: [companyId], references: [id])
-  versions    ProjectVersion[]
-  aiReviewLogs AIReviewLog[] // New relation to AIReviewLog model
-  approvalRequests ApprovalRequest[] // New relation to ApprovalRequest model
-  questions        Question[] // New relation to Question model
-  narrative   Narrative?
+  id               String            @id @default(cuid())
+  name             String
+  description      String?
+  createdAt        DateTime          @default(now())
+  ownerId          String
+  details          Json?
+  companyId        String?
+  deadlineDate     DateTime?
+  isCompleted      Boolean           @default(false)
+  status           String            @default("draft")
+  isArchived       Boolean           @default(false)
+  aiReviewLogs     AIReviewLog[]
+  approvalRequests ApprovalRequest[]
+//  narrative        Narrative?
+  company          Company?          @relation(fields: [companyId], references: [id])
+  owner            User              @relation(fields: [ownerId], references: [id])
+  versions         ProjectVersion[]
+  questions        Question[]
 }
 
-model Narrative {
-  id        String     @id @default(cuid())
-  title     String
-  content   String
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String
-  status    String   @default("draft")
-  createdAt DateTime @default(now())
-  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String     @unique
-}
+// model Narrative {
+//  id        String   @id @default(cuid())
+//  title     String
+//  content   String
+//  authorId  String
+//  status    String   @default("draft")
+//  createdAt DateTime @default(now())
+//  projectId String   @unique
+//  author    User     @relation(fields: [authorId], references: [id])
+//  project   Project  @relation(fields: [projectId], references: [id])
+//}
 
 model ProjectVersion {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   projectId     String
-  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   versionNumber Int
   snapshot      Json
-  createdAt     DateTime  @default(now())
-  createdBy     User      @relation(fields: [createdById], references: [id])
+  createdAt     DateTime @default(now())
   createdById   String
+  createdBy     User     @relation(fields: [createdById], references: [id])
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, versionNumber])
 }
 
 model ApprovedLog {
-  id                String    @id @default(cuid())
-  approvedUser      User      @relation("ApprovedUser", fields: [approvedUserId], references: [id])
+  id                String   @id @default(cuid())
   approvedUserId    String
-  approvedBy        User      @relation("ApproverUser", fields: [approvedByUserId], references: [id])
   approvedByUserId  String
-  approvedAt        DateTime  @default(now())
+  approvedAt        DateTime @default(now())
   roleAssigned      Role
-  companyAssigned   Company?  @relation(fields: [companyAssignedId], references: [id])
   companyAssignedId String?
+  approvedBy        User     @relation("ApproverUser", fields: [approvedByUserId], references: [id])
+  approvedUser      User     @relation("ApprovedUser", fields: [approvedUserId], references: [id])
+  companyAssigned   Company? @relation(fields: [companyAssignedId], references: [id])
 }
 
-// New File model for storing files directly in the database
 model File {
-  id          String    @id @default(cuid())
-  filename    String
-  mimetype    String
-  data        Bytes     // Stores the actual file content
-  companyId   String
-  company     Company   @relation(fields: [companyId], references: [id])
-  uploadedBy  User      @relation(fields: [uploadedById], references: [id])
+  id           String   @id @default(cuid())
+  filename     String
+  mimetype     String
+  data         Bytes
+  companyId    String
   uploadedById String
-  createdAt   DateTime  @default(now())
+  createdAt    DateTime @default(now())
+  company      Company  @relation(fields: [companyId], references: [id])
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
 }
 
-// New AIReviewLog model to record AI reviews
 model AIReviewLog {
-  id                    String    @id @default(cuid())
+  id                    String   @id @default(cuid())
   projectId             String
-  project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  reviewedAt            DateTime  @default(now())
+  reviewedAt            DateTime @default(now())
   reviewedById          String
-  reviewedBy            User      @relation(fields: [reviewedById], references: [id])
-  aiResponse            String    @db.Text // Store potentially long AI responses
+  aiResponse            String
   grantWebsite          String?
   grantPurposeStatement String?
-  isArchived            Boolean   @default(false) // New field for archiving reviews
+  isArchived            Boolean  @default(false)
+  project               Project  @relation(fields: [projectId], references: [id])
+  reviewedBy            User     @relation(fields: [reviewedById], references: [id])
 }
 
-// New ApprovalRequest model to track project approval workflows
 model ApprovalRequest {
-  id                    String    @id @default(cuid())
-  projectId             String
-  project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  requestedById         String
-  requestedBy           User      @relation("RequestedApprovals", fields: [requestedById], references: [id])
-  approverId            String
-  approver              User      @relation("AssignedApprovals", fields: [approverId], references: [id])
-  status                String    @default("pending") // pending, approved, rejected
-  comments              String?   @db.Text
-  requestedAt           DateTime  @default(now())
-  respondedAt           DateTime? 
+  id            String    @id @default(cuid())
+  projectId     String
+  requestedById String
+  approverId    String
+  status        String    @default("pending")
+  comments      String?
+  requestedAt   DateTime  @default(now())
+  respondedAt   DateTime?
+  approver      User      @relation("AssignedApprovals", fields: [approverId], references: [id])
+  project       Project   @relation(fields: [projectId], references: [id])
+  requestedBy   User      @relation("RequestedApprovals", fields: [requestedById], references: [id])
 }
 
 model Question {
-  id          String    @id @default(cuid())
-  projectId   String
-  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  text        String    @db.Text
-  assignedToId String?
-  assignedTo  User?     @relation(fields: [assignedToId], references: [id], name: "AssignedQuestions")
-  status      String    @default("pending")
-  answer      String?   @db.Text // New field for the answer to the question
-  maxLimit    Int?      // New field for max character/word limit
-  limitUnit   String?   // New field for limit unit (characters or words)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  assignmentLogs QuestionAssignmentLog[] // Relation to assignment logs
+  id             String                  @id @default(cuid())
+  projectId      String
+  text           String
+  assignedToId   String?
+  status         String                  @default("pending")
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  answer         String?
+  limitUnit      String?
+  maxLimit       Int?
+  assignedTo     User?                   @relation("AssignedQuestions", fields: [assignedToId], references: [id])
+  project        Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignmentLogs QuestionAssignmentLog[]
 }
 
 model QuestionAssignmentLog {
-  id            String    @id @default(cuid())
-  questionId    String
-  question      Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  assignedById  String?   // User who performed the assignment (optional, e.g., initial assignment might not have an 'assignedBy')
-  assignedBy    User?     @relation("AssignedByLog", fields: [assignedById], references: [id])
-  assignedToId  String
-  assignedTo    User      @relation("AssignedToLog", fields: [assignedToId], references: [id])
-  assignedAt    DateTime  @default(now())
+  id           String   @id @default(cuid())
+  questionId   String
+  assignedById String?
+  assignedToId String
+  assignedAt   DateTime @default(now())
+  assignedBy   User?    @relation("AssignedByLog", fields: [assignedById], references: [id])
+  assignedTo   User     @relation("AssignedToLog", fields: [assignedToId], references: [id])
+  question     Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  viewer
+  editor
+  admin
+  approver
 }

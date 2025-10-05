@@ -43,7 +43,12 @@ const Register = () => {
   const onSubmit = async e => {
     e.preventDefault();
     try {
-      const payload = { ...formData, companyId: selectedCompanyId };
+      let payload = { ...formData, companyId: selectedCompanyId };
+
+      // Convert birthdate to ISO string if it exists
+      if (payload.birthdate) {
+        payload.birthdate = new Date(payload.birthdate).toISOString();
+      }
       const config = {
         headers: {
           'Content-Type': 'application/json'
