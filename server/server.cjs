@@ -53,6 +53,34 @@ app.use('/api/files', require('./routes/files.cjs')); // New route for file oper
 app.use('/api/ai', require('./routes/ai.cjs')); // New route for AI operations
 app.use('/api/users', require('./routes/users.cjs'));
 
+// @route   GET api/projects/completed
+// @desc    Get all completed projects for the logged-in user's company
+// @access  Private
+app.get('/api/projects/completed', auth, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
+    if (!user || !user.companyId) {
+      return res.status(400).json({ msg: 'User not associated with a company' });
+    }
+
+    const completedProjects = await prisma.project.findMany({
+      where: {
+        companyId: user.companyId,
+        isCompleted: true, // Filter for completed projects
+      },
+      include: { owner: { select: { username: true } }, company: { select: { name: true } } },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    res.json(completedProjects);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 app.get('/api/test', (req, res) => {
   res.send('Test route is working!');
 });
