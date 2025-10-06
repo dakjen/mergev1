@@ -47,6 +47,8 @@ const ProjectView = ({ project: projectProp, darkMode }) => {
   const [error, setError] = useState(null);
   const [projectVersions, setProjectVersions] = useState([]);
   const [keywords, setKeywords] = useState([]);
+  const [manualQuestion, setManualQuestion] = useState(''); // State for manual question
+  const [manualAnswer, setManualAnswer] = useState(''); // State for manual answer
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -102,6 +104,41 @@ const ProjectView = ({ project: projectProp, darkMode }) => {
 
   const onBack = () => {
     navigate(-1); // Go back to the previous page
+  };
+
+  const handleAddManualQA = async () => {
+    if (!manualQuestion.trim() || !manualAnswer.trim()) {
+      alert('Please enter both a question and an answer.');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('No token found. Please log in.');
+        return;
+      }
+      const config = {
+        headers: {
+          'x-auth-token': token,
+          'Content-Type': 'application/json'
+        }
+      };
+      const payload = {
+        questionText: manualQuestion,
+        answerText: manualAnswer
+      };
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/projects/${project.id}/questions/manual`, payload, config);
+      alert('Question and answer added successfully!');
+      setManualQuestion('');
+      setManualAnswer('');
+      // Refresh project data to show the new Q&A
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${project.id}`, config);
+      setProject(res.data);
+    } catch (err) {
+      console.error(err.response ? err.response.data : err.message);
+      setError(err.response ? err.response.data.msg : 'Failed to add question and answer.');
+    }
   };
 
   if (loading) return <p style={{ textAlign: 'center' }}>Loading project...</p>;
@@ -171,6 +208,33 @@ const ProjectView = ({ project: projectProp, darkMode }) => {
             ))}
           </ul>
         )}
+      </div>
+
+      <div style={{ marginTop: '30px', textAlign: 'left', border: '1px solid #ddd', padding: '20px', borderRadius: '8px' }}>
+        <h3>Add Manual Question & Answer</h3>
+        <div style={{ marginBottom: '15px' }}>
+          <label htmlFor="manualQuestion" style={{ display: 'block', marginBottom: '5px' }}>Question:</label>
+          <textarea
+            id="manualQuestion"
+            value={manualQuestion}
+            onChange={(e) => setManualQuestion(e.target.value)}
+            rows="3"
+            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+          ></textarea>
+        </div>
+        <div style={{ marginBottom: '15px' }}>
+          <label htmlFor="manualAnswer" style={{ display: 'block', marginBottom: '5px' }}>Answer:</label>
+          <textarea
+            id="manualAnswer"
+            value={manualAnswer}
+            onChange={(e) => setManualAnswer(e.target.value)}
+            rows="5"
+            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+          ></textarea>
+        </div>
+        <button onClick={handleAddManualQA} style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+          Add Q&A to Project
+        </button>
       </div>
     </div>
   );

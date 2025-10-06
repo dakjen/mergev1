@@ -1251,6 +1251,52 @@ router.post('/:id/compile', auth, async (req, res) => {
   }
 });
 
+// @route   POST api/projects/:projectId/questions/manual
+// @desc    Manually add a question and answer to a project
+// @access  Private
+router.post('/:projectId/questions/manual', auth, async (req, res) => {
+  const { projectId } = req.params;
+  const { questionText, answerText } = req.body;
+
+  try {
+    // Basic validation
+    if (!questionText || !answerText) {
+      return res.status(400).json({ msg: 'Question text and answer text are required.' });
+    }
+
+    // Verify project exists and user has access (optional, but good practice)
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true, ownerId: true, companyId: true }
+    });
+
+    if (!project) {
+      return res.status(404).json({ msg: 'Project not found.' });
+    }
+
+    // Ensure user is authorized to add questions to this project
+    // For example, only project owner or admin
+    if (project.ownerId !== req.user.id && req.user.role !== 'admin') {
+      return res.status(401).json({ msg: 'User not authorized to add questions to this project.' });
+    }
+
+    const newQuestion = await prisma.question.create({
+      data: {
+        projectId: projectId,
+        text: questionText,
+        answer: answerText,
+        status: 'completed', // Manually added Q&A can be marked as completed by default
+        assignedToId: req.user.id, // Assign to the user who added it
+      },
+    });
+
+    res.json(newQuestion);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 // @route   PUT api/projects/:id/rescind-approval
 // @desc    Rescind a project's approval request (admin only)
 // @access  Private (admin only)
