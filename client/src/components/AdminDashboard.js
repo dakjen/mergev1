@@ -85,7 +85,7 @@ const AdminDashboard = () => {
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
       <div style={{ marginBottom: '20px' }}>
-        <h2>Admin Dashboard</h2>
+        <h1>Admin Dashboard</h1>
       </div>
       <div style={{ marginBottom: '20px' }}>
         <button onClick={() => navigate('/admin/approval-history')} style={{ margin: '0 10px', padding: '10px 20px', backgroundColor: '#3e51b5', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Approval History</button>
@@ -93,7 +93,7 @@ const AdminDashboard = () => {
 
       </div>
 
-      <h3>Pending User Approvals</h3>
+      <h2>Pending User Approvals</h2>
       {pendingUsers.length === 0 ? (
         <p>No pending users.</p>
       ) : (
