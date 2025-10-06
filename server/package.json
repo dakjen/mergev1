@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "vercel-build": "PRISMA_CLIENT_ENGINE_TYPE=binary PRISMA_MIGRATE_TIMEOUT=300000 node -r dotenv/config node_modules/.bin/prisma migrate deploy",
-    "postinstall": "prisma generate && prisma migrate deploy"
+    "postinstall": "PRISMA_MIGRATE_TIMEOUT=600000 prisma generate && prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
