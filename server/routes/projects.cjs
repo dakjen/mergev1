@@ -372,23 +372,44 @@ router.post('/upload-document', auth, upload.single('document'), async (req, res
       return res.status(400).json({ msg: `Unsupported file type: ${fileExtension}` });
     }
 
-    // --- Basic Q&A Extraction Logic ---
+    // --- Improved Q&A Extraction Logic ---
     const questionsAndAnswers = [];
     const sentences = extractedText.split(/(?<=[.?!])\s+/); // Split by sentence-ending punctuation
 
+    let currentQuestion = null;
+    let currentAnswerSentences = [];
+
     for (let i = 0; i < sentences.length; i++) {
       const sentence = sentences[i].trim();
-      // Basic check for questions
-      if (sentence.endsWith('?') || /^(who|what|where|when|why|how)\b/i.test(sentence)) {
-        let answer = '';
-        // Try to find an answer in the next sentence(s)
-        if (i + 1 < sentences.length) {
-          answer = sentences[i + 1].trim();
-          // You might want more sophisticated logic here to combine multiple sentences for an answer
+      if (!sentence) continue; // Skip empty sentences
+
+      const isQuestion = sentence.endsWith('?') || /^(who|what|where|when|why|how)\b/i.test(sentence);
+
+      if (isQuestion) {
+        // If we have a previous question, save it with its answer
+        if (currentQuestion) {
+          questionsAndAnswers.push({
+            text: currentQuestion,
+            answer: currentAnswerSentences.join(' ').trim()
+          });
         }
-        questionsAndAnswers.push({ text: sentence, answer: answer });
-        i++; // Skip the next sentence if it was used as an answer
+        // Start a new question
+        currentQuestion = sentence;
+        currentAnswerSentences = [];
+      } else {
+        // If it's not a question, and we have a current question, add it to the answer
+        if (currentQuestion) {
+          currentAnswerSentences.push(sentence);
+        }
       }
+    }
+
+    // Add the last question if any
+    if (currentQuestion) {
+      questionsAndAnswers.push({
+        text: currentQuestion,
+        answer: currentAnswerSentences.join(' ').trim()
+      });
     }
 
     const user = await prisma.user.findUnique({ where: { id: req.user.id }, include: { company: true } });
@@ -449,23 +470,44 @@ router.post('/parse-pasted-text', auth, async (req, res) => {
     const name = lines[0];
     const description = lines.slice(1).join('\n');
 
-    // --- Basic Q&A Extraction Logic ---
+    // --- Improved Q&A Extraction Logic ---
     const questionsAndAnswers = [];
     const sentences = content.split(/(?<=[.?!])\s+/); // Split by sentence-ending punctuation
 
+    let currentQuestion = null;
+    let currentAnswerSentences = [];
+
     for (let i = 0; i < sentences.length; i++) {
       const sentence = sentences[i].trim();
-      // Basic check for questions
-      if (sentence.endsWith('?') || /^(who|what|where|when|why|how)\b/i.test(sentence)) {
-        let answer = '';
-        // Try to find an answer in the next sentence(s)
-        if (i + 1 < sentences.length) {
-          answer = sentences[i + 1].trim();
-          // You might want more sophisticated logic here to combine multiple sentences for an answer
+      if (!sentence) continue; // Skip empty sentences
+
+      const isQuestion = sentence.endsWith('?') || /^(who|what|where|when|why|how)\b/i.test(sentence);
+
+      if (isQuestion) {
+        // If we have a previous question, save it with its answer
+        if (currentQuestion) {
+          questionsAndAnswers.push({
+            text: currentQuestion,
+            answer: currentAnswerSentences.join(' ').trim()
+          });
         }
-        questionsAndAnswers.push({ text: sentence, answer: answer });
-        i++; // Skip the next sentence if it was used as an answer
+        // Start a new question
+        currentQuestion = sentence;
+        currentAnswerSentences = [];
+      } else {
+        // If it's not a question, and we have a current question, add it to the answer
+        if (currentQuestion) {
+          currentAnswerSentences.push(sentence);
+        }
       }
+    }
+
+    // Add the last question if any
+    if (currentQuestion) {
+      questionsAndAnswers.push({
+        text: currentQuestion,
+        answer: currentAnswerSentences.join(' ').trim()
+      });
     }
 
     const newProject = await prisma.project.create({
