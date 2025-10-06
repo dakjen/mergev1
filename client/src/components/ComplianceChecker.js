@@ -62,15 +62,13 @@ const ComplianceChecker = () => {
         withCredentials: true
       };
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}`, config);
-      // Ensure details is an array and initialize limits if not present
-      const details = res.data.details && Array.isArray(res.data.details)
-        ? res.data.details.map(detail => ({
-            ...detail,
-            wordLimit: detail.wordLimit || 0,
-            charLimit: detail.charLimit || 0
-          }))
-        : [];
-      setSelectedProjectDetails(details);
+      const questions = res.data.questions ? res.data.questions.map(q => ({
+        question: q.text,
+        answer: q.answer,
+        limit: q.maxLimit || 0, // Use maxLimit from Question model
+        unit: q.limitUnit || 'word' // Use limitUnit from Question model
+      })) : [];
+      setSelectedProjectDetails(questions); // Set questions as details
       setLoading(false);
     } catch (err) {
       console.error(err.response ? err.response.data : err.message);
@@ -79,23 +77,22 @@ const ComplianceChecker = () => {
     }
   };
 
-  const checkCompliance = (answer, wordLimit, charLimit) => {
+  const checkCompliance = (answer, limit, unit) => {
     const result = {
-      wordCount: 0,
-      charCount: 0,
-      wordCompliance: true,
-      charCompliance: true,
+      count: 0,
+      compliance: true,
+      unit: unit,
     };
 
     if (answer) {
-      // Calculate character count
-      result.charCount = answer.length;
-      result.charCompliance = charLimit === 0 || result.charCount <= charLimit;
-
-      // Calculate word count
-      const words = answer.trim().split(/\s+/).filter(word => word.length > 0);
-      result.wordCount = words.length;
-      result.wordCompliance = wordLimit === 0 || result.wordCount <= wordLimit;
+      if (unit === 'character') {
+        result.count = answer.length;
+        result.compliance = limit === 0 || result.count <= limit;
+      } else { // Default to word count
+        const words = answer.trim().split(/\s+/).filter(word => word.length > 0);
+        result.count = words.length;
+        result.compliance = limit === 0 || result.count <= limit;
+      }
     }
     return result;
   };
@@ -128,21 +125,15 @@ const ComplianceChecker = () => {
           <h3>Project Q&A Compliance</h3>
           <ul style={{ listStyle: 'none', padding: 0 }}>
             {selectedProjectDetails.map((detail, index) => {
-              const compliance = checkCompliance(detail.answer, detail.wordLimit, detail.charLimit);
+              const compliance = checkCompliance(detail.answer, detail.limit, detail.unit);
               return (
-                <li key={index} style={{ marginBottom: '20px', border: '1px solid #eee', padding: '15px', borderRadius: '8px', backgroundColor: compliance.wordCompliance && compliance.charCompliance ? '#e6ffe6' : '#ffe6e6' }}>
+                <li key={index} style={{ marginBottom: '20px', border: '1px solid #eee', padding: '15px', borderRadius: '8px', backgroundColor: compliance.compliance ? '#e6ffe6' : '#ffe6e6' }}>
                   <h4>Question: {detail.question}</h4>
                   <p>Answer: {detail.answer || 'No answer provided.'}</p>
                   <p style={{ fontSize: '0.9em', marginTop: '10px' }}>
-                    <strong>Word Limit:</strong> {detail.wordLimit === 0 ? 'N/A' : detail.wordLimit} (Current: {compliance.wordCount}) -
-                    <span style={{ color: compliance.wordCompliance ? 'green' : 'red', fontWeight: 'bold' }}>
-                      {compliance.wordCompliance ? ' Within Limit' : ' Exceeds Limit'}
-                    </span>
-                  </p>
-                  <p style={{ fontSize: '0.9em' }}>
-                    <strong>Character Limit:</strong> {detail.charLimit === 0 ? 'N/A' : detail.charLimit} (Current: {compliance.charCount}) -
-                    <span style={{ color: compliance.charCompliance ? 'green' : 'red', fontWeight: 'bold' }}>
-                      {compliance.charCompliance ? ' Within Limit' : ' Exceeds Limit'}
+                    <strong>{detail.unit === 'character' ? 'Character' : 'Word'} Limit:</strong> {detail.limit === 0 ? 'N/A' : detail.limit} (Current: {compliance.count}) -
+                    <span style={{ color: compliance.compliance ? 'green' : 'red', fontWeight: 'bold' }}>
+                      {compliance.compliance ? ' Within Limit' : ' Exceeds Limit'}
                     </span>
                   </p>
                 </li>
